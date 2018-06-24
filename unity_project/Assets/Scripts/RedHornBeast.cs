@@ -6,7 +6,7 @@ public class RedHornBeast : MonoBehaviour
 	#region Variables
 	
 	// Unity Editor Variables
-	public Rigidbody flyingRobot;
+	public Rigidbody2D flyingRobot;
 	
 	// Protected Instance Variables
 	protected int robotCount = 0;							//
@@ -39,9 +39,9 @@ public class RedHornBeast : MonoBehaviour
 	// The Constructor function in Unity...
 	protected void Awake () 
 	{
-		lightTransform = gameObject.transform.FindChild("Light").transform;
-		spikeLeft = transform.FindChild("SpikeLeft").gameObject;
-		spikeRight = transform.FindChild("SpikeRight").gameObject;
+		lightTransform = gameObject.transform.Find("Light").transform;
+		spikeLeft = transform.Find("SpikeLeft").gameObject;
+		spikeRight = transform.Find("SpikeRight").gameObject;
 	}
 	
 	// Use this for initialization
@@ -100,8 +100,8 @@ public class RedHornBeast : MonoBehaviour
 	// 
 	protected void CreateRobot( float speed, Vector3 pos, Vector3 vel )
 	{
-		Rigidbody robot = (Rigidbody) Instantiate(flyingRobot, pos, transform.rotation);
-		Physics.IgnoreCollision(robot.GetComponent<Collider>(), GetComponent<Collider>());
+        Rigidbody2D robot = (Rigidbody2D) Instantiate(flyingRobot, pos, transform.rotation);
+		Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 		robot.transform.parent = gameObject.transform;
 		robot.velocity =  vel;
 	}
@@ -204,7 +204,7 @@ public class RedHornBeast : MonoBehaviour
 	protected void KillRobotChildren()
 	{
 		// Reset all the enemy bots...
-		Transform robot = transform.FindChild("Prb_SmallFlyingRobot(Clone)");
+		Transform robot = transform.Find("Prb_SmallFlyingRobot(Clone)");
 		if ( robot != null)
 		{
 			Destroy(robot.gameObject);

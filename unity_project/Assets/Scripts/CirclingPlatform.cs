@@ -38,16 +38,24 @@ public class CirclingPlatform : MonoBehaviour
 	}
 	
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter( Collider other)
+	protected void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
 			GameEngine.Player.transform.parent =  gameObject.transform;
 		}
 	}
-	
-	// 
-	protected void OnTriggerExit( Collider other)
+
+    protected void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            GameEngine.Player.transform.parent = gameObject.transform;
+        }
+    }
+
+    // 
+    protected void OnTriggerExit2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{

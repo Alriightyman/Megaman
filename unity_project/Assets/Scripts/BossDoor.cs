@@ -96,7 +96,7 @@ public class BossDoor : MonoBehaviour
 	public void OpenDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider>().isTrigger = true;
+		gameObject.GetComponent<Collider2D>().isTrigger = true;
 		isOpening = true;
 	}
 	
@@ -104,7 +104,7 @@ public class BossDoor : MonoBehaviour
 	public void CloseDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider>().isTrigger = false;
+		gameObject.GetComponent<Collider2D>().isTrigger = false;
 		isClosing = true;
 	}	
 	

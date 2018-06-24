@@ -6,12 +6,12 @@ public class DeathTrigger : MonoBehaviour
 	#region MonoBehaviour
 
 	// Kill/Respawn the player when he enters the trigger.
-	protected void OnTriggerEnter(Collider other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
 			GameEngine.Player.KillPlayer();
-			gameObject.GetComponent<Collider>().enabled = false;
+			gameObject.GetComponent<Collider2D>().enabled = false;
 		}
     }
 

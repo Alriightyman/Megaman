@@ -8,22 +8,21 @@ public class Spike : MonoBehaviour
 	// Protected Instance Variables
 	protected const float DAMAGE_AMOUNT = 10.0f;
 
-	#endregion
+    #endregion
 
 
-	#region MonoBehaviour
-	
-
-	// 
-	protected void OnCollisionStay(Collision collision) 
+    #region MonoBehaviour
+    // 
+    protected void OnCollisionStay2D(Collision2D collision) 
 	{
-		InflictDamage(collision.gameObject);
+
+            InflictDamage(collision.gameObject);
 	}
-	
-	// 
-	protected void OnTriggerStay(Collider other) 
+
+    // 
+    protected void OnTriggerStay2D(Collider2D other) 
 	{
-		InflictDamage(other.gameObject);
+            InflictDamage(other.gameObject);
 	}
 
 	#endregion

@@ -42,7 +42,7 @@ public class ElectricShot : MonoBehaviour
 	/* Update is called once per frame */
 	protected void Update ()
 	{
-		GetComponent<Rigidbody>().velocity = targetDirection * speed * Time.deltaTime;
+		GetComponent<Rigidbody2D>().velocity = targetDirection * speed * Time.deltaTime;
 		
 		if (Time.time - timeStart >= lifeSpan)
 		{
@@ -52,13 +52,13 @@ public class ElectricShot : MonoBehaviour
 	}
 	
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		InflictDamage(other.gameObject);
 	}
 	
 	// 
-	protected void OnCollisionEnter(Collision collision) 
+	protected void OnCollisionEnter2D(Collision2D collision) 
 	{
 		InflictDamage(collision.gameObject);
 	}

@@ -8,9 +8,9 @@ public class ElectricRobot : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody electricShot;
+	[SerializeField] protected Rigidbody2D electricShot;
 	[SerializeField] protected CirclingPlatform platform;
-	[SerializeField] protected BoxCollider robotCollider;
+	[SerializeField] protected BoxCollider2D robotCollider;
 	[SerializeField] protected List<Material> textureMaterials;
 
 	// Protected Instance Variables
@@ -30,7 +30,7 @@ public class ElectricRobot : MonoBehaviour
 	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 turningLeftColliderPos = new Vector3(0.2f, -0.8f, 0f);
 	protected Vector3 turningRightColliderPos = new Vector3(-0.2f, -0.8f, 0f);
-	protected Collider col = null;
+	protected Collider2D col = null;
 	protected Renderer rend = null;
 
 	#endregion
@@ -41,7 +41,7 @@ public class ElectricRobot : MonoBehaviour
 	// Constructor
 	protected void Awake()
 	{
-		col = GetComponent<Collider>();
+		col = GetComponent<Collider2D>();
 		Assert.IsNotNull(col);
 
 		rend = GetComponent<Renderer>();
@@ -88,7 +88,7 @@ public class ElectricRobot : MonoBehaviour
 	}
 	
 	// 
-	protected void OnTriggerStay(Collider other) 
+	protected void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -121,7 +121,8 @@ public class ElectricRobot : MonoBehaviour
 			// display the platform textures...
 			rend.material = textureMaterials[(texIndex % 2) + 6 ];
 			rend.material.SetTextureScale("_MainTex", texScaleLeft);
-			robotCollider.center = turningLeftColliderPos;
+            //robotCollider.center = turningLeftColliderPos;
+            robotCollider.offset = turningLeftColliderPos;
 		}
 		
 		// If the robot is shooting...
@@ -130,7 +131,7 @@ public class ElectricRobot : MonoBehaviour
 			rend.material = textureMaterials[(texIndex % 2) + 4 ];
 			texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
 			rend.material.SetTextureScale("_MainTex", texScale);
-			robotCollider.center = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+			robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 		else
 		{
@@ -138,7 +139,7 @@ public class ElectricRobot : MonoBehaviour
 			rend.material = textureMaterials[texIndex % 4];
 			texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
 			rend.material.SetTextureScale("_MainTex", texScale);
-			robotCollider.center = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+			robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 	}
 	
@@ -147,10 +148,10 @@ public class ElectricRobot : MonoBehaviour
 	{
 		isShooting = true;
 		shootingTimer = Time.time;
-		
-		Rigidbody shot = (Rigidbody) Instantiate(electricShot, transform.position, transform.rotation);
+
+        Rigidbody2D shot = (Rigidbody2D) Instantiate(electricShot, transform.position, transform.rotation);
 		shot.transform.parent = gameObject.transform;
-		Physics.IgnoreCollision(shot.GetComponent<Collider>(), col);
+		Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), col);
 		
 		ElectricShot shotScript = shot.GetComponent<ElectricShot>();
 		if (shotScript)

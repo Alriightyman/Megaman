@@ -33,11 +33,11 @@ public class Shot : MonoBehaviour
 			Destroy(gameObject);
 		}
 		
-		GetComponent<Rigidbody>().velocity = VelocityDirection * ShotSpeed;
+		GetComponent<Rigidbody2D>().velocity = VelocityDirection * ShotSpeed;
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "shootable")
 		{
@@ -61,7 +61,7 @@ public class Shot : MonoBehaviour
 	}
 	
 	// 
-	protected void OnCollisionEnter(Collision collision) 
+	protected void OnCollisionEnter2D(Collision2D collision) 
 	{
 		if (collision.gameObject.tag == "shootable")
 		{

@@ -62,7 +62,7 @@ public class CameraTrigger : MonoBehaviour
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -89,7 +89,7 @@ public class CameraTrigger : MonoBehaviour
     }
 	
 	// 
-	protected void OnTriggerExit(Collider other) 
+	protected void OnTriggerExit2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -102,7 +102,7 @@ public class CameraTrigger : MonoBehaviour
 			{
 				GameEngine.Player.IsFrozen = false;
 				bossDoor.CloseDoor();
-				GetComponent<Collider>().enabled = false;
+				GetComponent<Collider2D>().enabled = false;
 			}
 		}
     }

@@ -58,7 +58,7 @@ public class ElectricFloorRobotShot : MonoBehaviour
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider collider) 
+	protected void OnTriggerEnter2D(Collider2D collider) 
 	{
 		if (collider.tag == "Player")
 		{
@@ -68,7 +68,7 @@ public class ElectricFloorRobotShot : MonoBehaviour
 	}
 
 	// 
-	protected void OnCollisionEnter(Collision collision) 
+	protected void OnCollisionEnter2D(Collision2D collision) 
 	{
 		if (collision.gameObject.tag == "Player")
 		{

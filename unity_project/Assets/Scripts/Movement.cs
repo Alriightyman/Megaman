@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using Prime31;
 
-[RequireComponent (typeof (CharacterController))]
+[RequireComponent (typeof (CharacterController2D))]
 public class Movement : MonoBehaviour
 {
 	#region Variables
@@ -17,16 +18,20 @@ public class Movement : MonoBehaviour
 	public Vector3 CheckPointPosition 	{ get; set; }
 	
 	// Protected Instance Variables
-	protected CharacterController charController;
+	protected CharacterController2D charController;
 	protected bool cheating = false;
 	protected float gravity = 40f;	 			// Downward force
 	protected float terminalVelocity = 20f;	// Max downward speed
 	protected float jumpSpeed = 20f;			// Upward speed
-	protected float moveSpeed = 10f;			// Left/Right speed
+	protected float moveSpeed = 10f;			// Left/Right speed    
 	protected float verticalVelocity;
 	protected float hurtingForce = 2.0f;
 	protected Vector3 moveVector = Vector3.zero;
-	protected Vector3 startPosition = new Vector3(13.34303f, 11.51588f, 0f);
+    [SerializeField]
+    protected Vector3 startPosition = new Vector3(13.34303f, 11.51588f, 0f);
+
+    protected Vector2 lastInput = Vector2.zero;
+    protected bool lastInputJump = false;
 
 	#endregion
 	
@@ -36,7 +41,7 @@ public class Movement : MonoBehaviour
 	// Use this for initialization
 	protected void Awake()
 	{
-		charController = (CharacterController) gameObject.GetComponent("CharacterController");
+		charController = gameObject.GetComponent<CharacterController2D>();
 	}
 	
 	// Use this for initialization
@@ -46,23 +51,30 @@ public class Movement : MonoBehaviour
 		transform.position = CheckPointPosition = startPosition;
 	}
 
-	#endregion
-	
-	
-	#region Protected Functions
+    #endregion
 
+
+    #region Protected Functions
+    private bool wasJumping = false;
 	//
 	protected void ApplyGravity()
 	{
 		if (moveVector.y > -terminalVelocity)
 		{
 			moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
-		}
+        }
 		
 		if (charController.isGrounded && moveVector.y < -1)
 		{
 			IsJumping = false;
 			moveVector = new Vector3(moveVector.x, (-1), moveVector.z);
+
+            if(wasJumping == true)
+            {
+                GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
+            }
+
+            wasJumping = false;
 		}
 	}
 	
@@ -107,50 +119,68 @@ public class Movement : MonoBehaviour
 		ApplyGravity();
 		
 		//move character in world-space
-		charController.Move(moveVector * Time.deltaTime);
+		charController.move(moveVector * Time.deltaTime);        
 	}
 
 	//
 	protected void CheckMovement()
 	{
+        // hold on to horizontal and vertical movement
+        Vector2 currentInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        // Check Up through jump button or "up" on the keyboard.
+        bool isJumpingButtonPressed = Input.GetButton("Jump") | currentInput.y > 0f;
 		// Horizontal movement...
 		float deadZone = 0.01f;
 		verticalVelocity = moveVector.y;
 		moveVector = Vector3.zero;
-		
-		if (Input.GetAxis("Horizontal") > deadZone)
-		{
-			IsWalking = true;
-			IsTurningLeft = false;
-			moveVector += new Vector3(Input.GetAxis("Horizontal"),0,0);
-		}
-		else if (Input.GetAxis("Horizontal") < -deadZone)
-		{
-			IsWalking = true;
-			IsTurningLeft = true;
-			moveVector += new Vector3(Input.GetAxis("Horizontal"),0,0);
-		}
-		else 
-		{
-			IsWalking = false;
-		}
-		
-		// Vertical movement...
-		if (Input.GetAxis("Vertical") > 0.0f)
-		{
-			if (charController.isGrounded)
-			{
-				IsJumping = true;
-				verticalVelocity = jumpSpeed;
-			}
-		}
 
-		// If there is a collision above...
-		if ((charController.collisionFlags & CollisionFlags.Above) != 0)
-		{
-			verticalVelocity = -5.0f;
-		}
-	}
+        if (!IsHurting)
+        {
+
+            if (currentInput.x > deadZone)
+            {
+                IsWalking = true;
+                IsTurningLeft = false;
+                moveVector += new Vector3(currentInput.x, 0, 0);
+            }
+            else if (currentInput.x < -deadZone)
+            {
+                IsWalking = true;
+                IsTurningLeft = true;
+                moveVector += new Vector3(currentInput.x, 0, 0);
+            }
+            else
+            {
+                IsWalking = false;
+            }
+
+            // Vertical movement...
+            if (isJumpingButtonPressed && lastInputJump == false)
+            {
+                if (charController.isGrounded)
+                {
+                    IsJumping = true;
+                    wasJumping = true;
+                    verticalVelocity = jumpSpeed;
+                }
+            }
+
+            // seems to have a "floaty" side effect.  If you keep pressing jump as you fall, it'll set verticalVelocity to 0
+            if ( !isJumpingButtonPressed && lastInputJump == true )
+            {
+                verticalVelocity = 0.0f;
+            }
+
+            //If there is a collision above...
+            if (charController.collisionState.above)
+            {
+                verticalVelocity = -5.0f;
+            }
+        }
+        lastInput = currentInput;
+        lastInputJump = isJumpingButtonPressed;
+
+    }
 
 	#endregion
 	
@@ -172,7 +202,7 @@ public class Movement : MonoBehaviour
 		{
 			moveVector = Vector3.zero;
 			ProcessExternalForces();
-			charController.Move(moveVector * Time.deltaTime);
+			charController.move(moveVector * Time.deltaTime);
 		}
 		else
 		{

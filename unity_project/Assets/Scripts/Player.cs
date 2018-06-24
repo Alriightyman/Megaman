@@ -3,13 +3,14 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
+using Prime31;
 
 public class Player : MonoBehaviour
 {
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody deathParticlePrefab;
+	[SerializeField] protected Rigidbody2D deathParticlePrefab;
 	[SerializeField] protected Renderer playerTexRend;
 	[SerializeField] protected Transform playerTexObj;
 	[SerializeField] protected List<Material> playerMaterials;
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
 	public bool IsExternalForceActive 	{ get { return movement.IsExternalForceActive; }	set { movement.IsExternalForceActive = value; } 	}
 	public bool IsDead 					{ get { return health.IsDead; } 					set { health.IsDead = value; }					}
 	public bool CanShoot 				{ get { return shooting.CanShoot; } 				set { shooting.CanShoot = value; }				}
+    public bool IsInvincible { get; set; }
 	public float CurrentHealth 			{ get { return health.CurrentHealth; } 			set { health.CurrentHealth = value; } 			}
 	public Vector3 ExternalForce 		{ get { return movement.ExternalForce; } 			set { movement.ExternalForce = value; } 			}
 	public Vector3 CheckpointPosition 	{ get { return movement.CheckPointPosition; } 	set { movement.CheckPointPosition = value; } 		}
@@ -32,8 +34,9 @@ public class Player : MonoBehaviour
 	protected Health health = null;
 	protected Vector2 texScaleLeft = new Vector2(1.0f, -1.0f);
 	protected Vector2 texScaleRight = new Vector2(-1.0f, -1.0f);
-	protected Collider col = null;
-	protected Movement movement = null;
+    //protected Collider col = null;
+    protected BoxCollider2D col = null;
+    protected Movement movement = null;
 	protected Shooting shooting = null;
 	protected LevelCamera levelCamera = null;
 
@@ -64,8 +67,8 @@ public class Player : MonoBehaviour
 
 		health = gameObject.GetComponent<Health>();
 		Assert.IsNotNull(health);
-
-		col = GetComponent<Collider>();
+        //ar col2D = GetComponent<CharacterController2D>
+		col = GetComponent<BoxCollider2D>();
 		Assert.IsNotNull(col);
 	}
 	
@@ -86,7 +89,7 @@ public class Player : MonoBehaviour
 			movement.HandleMovement();
 			
 			// Handle shooting
-			if((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftShift)) && shooting.CanShoot == true)
+			if((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetButtonDown("Fire1")) && shooting.CanShoot == true)
 			{
 				shooting.Shoot(movement.IsTurningLeft);
 				GameEngine.SoundManager.Play(AirmanLevelSounds.SHOOTING);
@@ -98,13 +101,16 @@ public class Player : MonoBehaviour
 				if (Time.time - health.HurtingTimer >= health.HurtingDelay)
 				{
 					movement.IsHurting = false;
-					health.IsHurting = false;	
+					health.IsHurting = false;
+                    CanShoot = true;
+                    Invoke("ResetInvincibility", 3f);                    
 				}
 			}
 			
 			// Assign the appropriate texture to the player...
 			AssignTexture();
 			
+            // keep the z axis as zero
 			if (transform.position.z != 0)
 			{
 				Vector3 pos = transform.position;
@@ -114,6 +120,10 @@ public class Player : MonoBehaviour
 		}
 	}
 
+    private void ResetInvincibility()
+    {
+        IsInvincible = false;
+    }
 	// Called when the behaviour becomes disabled or inactive
 	protected void OnDisable()
 	{
@@ -138,8 +148,8 @@ public class Player : MonoBehaviour
 	// 
 	protected void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
 	{
-		Rigidbody particle = (Rigidbody) Instantiate(deathParticlePrefab, pos, transform.rotation);
-		Physics.IgnoreCollision(particle.GetComponent<Collider>(), col);
+		Rigidbody2D particle = (Rigidbody2D) Instantiate(deathParticlePrefab, pos, transform.rotation);
+		Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
 		particle.transform.Rotate(90,0,0);
 		particle.velocity =  vel * speed;
 	}
@@ -224,10 +234,10 @@ public class Player : MonoBehaviour
 		playerTexRend.enabled = false;
 		levelCamera.ShouldStayStill = true;
 		shooting.CanShoot = false;
-		
-		
-		CharacterController cc = (CharacterController) GetComponent(typeof(CharacterController));
-		cc.detectCollisions = false;
+
+
+  //      CharacterController2D cc = (CharacterController2D) GetComponent(typeof(CharacterController2D));
+		//cc. = false;
 		
 		GameEngine.SoundManager.Stop(AirmanLevelSounds.STAGE);
 		GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_MUSIC);
@@ -243,7 +253,7 @@ public class Player : MonoBehaviour
 		
 		// Reset the player
 		Reset();
-		cc.detectCollisions = true;		
+		//cc.detectCollisions = true;		
 
 		if (GameEngine.AirMan)
 		{
@@ -259,14 +269,14 @@ public class Player : MonoBehaviour
 		GameObject[] enemyRobots = Helper.FindGameObjectsWithLayer(enemyRobotsLayer);
 		foreach (GameObject robot in enemyRobots)
 		{
-			robot.SendMessage("Reset");
+  
 		}
 		
 		// Reset the birdtriggers...
 		GameObject[] birdTriggers = GameObject.FindGameObjectsWithTag("birdTrigger");
 		foreach(GameObject trigger in birdTriggers)
 		{
-			trigger.GetComponent<Collider>().enabled = true;	
+			trigger.GetComponent<Collider2D>().enabled = true;	
 		}
 		
 		// Start another wait to avoid double deaths by the hand of deathtriggers... 
@@ -276,7 +286,7 @@ public class Player : MonoBehaviour
 		GameObject[] triggers = GameObject.FindGameObjectsWithTag("deathTrigger");
 		foreach(GameObject trigger in triggers)
 		{
-			trigger.GetComponent<Collider>().enabled = true;	
+			trigger.GetComponent<Collider2D>().enabled = true;	
 		}
 	}
 
@@ -358,13 +368,15 @@ public class Player : MonoBehaviour
 	public void TakeDamage(float damage)
 	{
 		// If the player isn't already hurting or dead...
-		if (health.IsHurting == false && health.IsDead == false)
+		if (health.IsHurting == false && health.IsDead == false && IsInvincible == false)
 		{
 			GameEngine.SoundManager.Play(AirmanLevelSounds.HURTING);
 			health.ChangeHealth(-damage);
 			movement.IsHurting = true;
-			
-			if (health.IsDead == true)
+            IsInvincible = true;
+            CanShoot = false;
+
+            if (health.IsDead == true)
 			{
 				KillPlayer();
 			}

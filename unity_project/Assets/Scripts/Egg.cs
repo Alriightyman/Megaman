@@ -6,7 +6,7 @@ public class Egg : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody littleBird;
+	[SerializeField] protected Rigidbody2D littleBird;
 	
 	// Protected Instance Variables
 	protected bool falling = false;
@@ -23,7 +23,7 @@ public class Egg : MonoBehaviour
 	#region MonoBehaviour
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider other)
+	protected void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -83,9 +83,9 @@ public class Egg : MonoBehaviour
 	// 
 	protected void CreateBird(Vector3 pos, bool goLeft)
 	{
-		Rigidbody littleBirdRobot = (Rigidbody) Instantiate(littleBird, pos, transform.rotation);
+        Rigidbody2D littleBirdRobot = Instantiate(littleBird, pos, transform.rotation);
 		littleBirdRobot.GetComponent<LittleBird>().Attack(goLeft, 7.0f + Random.Range(0.0f, 1.0f));
-		Physics.IgnoreCollision(littleBirdRobot.GetComponent<Collider>(), GetComponent<Collider>());
+		Physics2D.IgnoreCollision(littleBirdRobot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 	}
 
 	#endregion

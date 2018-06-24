@@ -8,7 +8,7 @@ public class AirmanBoss : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody deathParticlePrefab;
+	[SerializeField] protected Rigidbody2D deathParticlePrefab;
 	[SerializeField] protected float deathParticleSpeed;
 	[SerializeField] protected List<Material> animationMaterials;
 	[SerializeField] protected float touchDamage;
@@ -32,7 +32,7 @@ public class AirmanBoss : MonoBehaviour
 	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 startingPosition = Vector3.zero;
 	protected Vector3 endPos = Vector3.zero;
-	protected Collider col = null;
+	protected Collider2D col = null;
 	protected Renderer rend = null;
 	protected Animation anim = null;
 	protected List<Transform> windShots = new List<Transform>();
@@ -51,7 +51,7 @@ public class AirmanBoss : MonoBehaviour
 		rend = gameObject.GetComponent<Renderer>();
 		Assert.IsNotNull(rend);
 
-		col = gameObject.GetComponent<Collider>();
+		col = gameObject.GetComponent<Collider2D>();
 		Assert.IsNotNull(col);
 
 		anim = gameObject.GetComponent<Animation>();
@@ -94,7 +94,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 
 	// 
-	protected void OnTriggerStay(Collider other) 
+	protected void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -161,10 +161,10 @@ public class AirmanBoss : MonoBehaviour
 		shouldFillHealthBar = false;
 		texScale = texScaleLeft;
 		
-		GameObject.Find("BossBorder").gameObject.GetComponent<Collider>().enabled = true;
+		GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = true;
 		GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");
-		GameObject.Find("BossDoorTrigger2").gameObject.GetComponent<Collider>().enabled = true;
-		GameObject.Find("BossTrigger").gameObject.GetComponent<Collider>().enabled = true;
+		GameObject.Find("BossDoorTrigger2").gameObject.GetComponent<Collider2D>().enabled = true;
+		GameObject.Find("BossTrigger").gameObject.GetComponent<Collider2D>().enabled = true;
 		player.IsExternalForceActive = false;
 		
 		foreach(Transform wind in windShots)
@@ -183,7 +183,7 @@ public class AirmanBoss : MonoBehaviour
 	//
 	protected void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
 	{
-		Rigidbody particle = (Rigidbody) Instantiate(deathParticlePrefab, pos, transform.rotation);
+		Rigidbody2D particle = (Rigidbody2D) Instantiate(deathParticlePrefab, pos, transform.rotation);
 		particle.transform.Rotate(90,0,0);
 		particle.velocity =  vel * speed;
 	}
@@ -296,7 +296,7 @@ public class AirmanBoss : MonoBehaviour
 				isPlayingBeginSequence = false;
 				isFighting = true;
 				player.CanShoot = true;
-				GameObject.Find("BossBorder").gameObject.GetComponent<Collider>().enabled = false;
+				GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = false;
 				weapon.Attack();
 			}
 		}

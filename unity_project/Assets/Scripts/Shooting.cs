@@ -62,9 +62,9 @@ public class Shooting : MonoBehaviour
 		shotPos = transform.position + transform.right * ((isTurningLeft == true) ? -1.6f : 1.6f);
 		
 		GameObject rocketObj = (GameObject) Instantiate(shotPrefab, shotPos, transform.rotation);
-		Rigidbody rocketRBody = rocketObj.GetComponent<Rigidbody>();
+        Rigidbody2D rocketRBody = rocketObj.GetComponent<Rigidbody2D>();
 		rocketRBody.transform.Rotate(90,0,0);
-		Physics.IgnoreCollision(rocketRBody.GetComponent<Collider>(), GetComponent<Collider>());
+		Physics2D.IgnoreCollision(rocketRBody.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 		
 		Shot s = rocketRBody.GetComponent<Shot>();
 		s.VelocityDirection = (isTurningLeft == true) ? -transform.right : transform.right;

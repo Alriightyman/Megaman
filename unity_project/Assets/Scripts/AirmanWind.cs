@@ -69,7 +69,7 @@ public class AirmanWind : MonoBehaviour
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter(Collider other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -110,7 +110,7 @@ public class AirmanWind : MonoBehaviour
 	public void GoAway()
 	{
 		leaving = true;
-		GetComponent<Collider>().isTrigger = true;
+		GetComponent<Collider2D>().isTrigger = true;
 	}
 
 	#endregion

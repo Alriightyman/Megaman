@@ -6,7 +6,7 @@ public class ElectricFloorRobot : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody shotPrefab;
+	[SerializeField] protected Rigidbody2D shotPrefab;
 	
 	// Protected Instance Variables
 	protected float distanceToStop = 14.0f;
@@ -58,8 +58,8 @@ public class ElectricFloorRobot : MonoBehaviour
 			attackTimer = Time.time;
 			
 			Vector3 pos = transform.position + Vector3.up * 0.8f + Vector3.right * 0.1f;
-			Rigidbody electricShot = (Rigidbody) Instantiate(shotPrefab, pos, transform.rotation);
-			Physics.IgnoreCollision(electricShot.GetComponent<Collider>(), GetComponent<Collider>());
+            Rigidbody2D electricShot = (Rigidbody2D) Instantiate(shotPrefab, pos, transform.rotation);
+			Physics2D.IgnoreCollision(electricShot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 			electricShot.GetComponent<ElectricFloorRobotShot>().Attack( GameEngine.Player.transform.position );
 			electricShot.transform.parent = gameObject.transform;
 		}

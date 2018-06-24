@@ -21,7 +21,7 @@ public class SmallFlyingRobot : MonoBehaviour
 	protected float distanceToDisappear = 32.0f;
 	protected float texChangeInterval = 0.2f;
 	protected Renderer rend = null;
-	protected Rigidbody rBody = null;
+	protected Rigidbody2D rBody = null;
 
 	#endregion
 
@@ -31,7 +31,7 @@ public class SmallFlyingRobot : MonoBehaviour
 	// Constructor
 	protected void Awake()
 	{
-		rBody = GetComponent<Rigidbody>();
+		rBody = GetComponent<Rigidbody2D>();
 		Assert.IsNotNull(rBody);
 
 		rend = GetComponent<Renderer>();
@@ -75,7 +75,7 @@ public class SmallFlyingRobot : MonoBehaviour
 	}
 
 	//
-	protected void OnTriggerStay(Collider other) 
+	protected void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -84,7 +84,7 @@ public class SmallFlyingRobot : MonoBehaviour
 	}
 	
 	//
-	protected void OnCollisionStay(Collision collision) 
+	protected void OnCollisionStay2D(Collision2D collision) 
 	{
 		if (collision.gameObject.tag == "Player")
 		{

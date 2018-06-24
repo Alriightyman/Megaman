@@ -1,4 +1,4 @@
-using UnityEngine;
+ using UnityEngine;
 using System.Collections;
 
 public class Health : MonoBehaviour
@@ -17,7 +17,7 @@ public class Health : MonoBehaviour
 	public bool IsDead { get; set; }
 	public bool ShowHealthBar { get { return healthbar.ShowHealthBar; } set { healthbar.ShowHealthBar = value; } }
 	public Vector2 HealthbarPosition { get { return healthbar.Position; } set { healthbar.Position = value; } }
-	public float CurrentHealth
+    public float CurrentHealth
 	{ 
 		get
 		{
@@ -29,6 +29,7 @@ public class Health : MonoBehaviour
 			else if (value < 0.0f) { currentHealth = 0.0f; }
 			else if (value <= MaximumHealth && value >= 0.0f) { currentHealth = value; }
 			healthbar.HealthStatus = currentHealth / MaximumHealth;
+            
 		} 
 	}
 	
@@ -47,13 +48,13 @@ public class Health : MonoBehaviour
 	{
 		healthbar = gameObject.AddComponent<HealthBar>();
 		healthbar.ShowHealthBar = false;
-	}
+    }
 	
 	// Use this for initialization
 	protected void Start ()
 	{
 		IsHurting = false;
-		IsDead = false;
+        IsDead = false;
 		MaximumHealth = 100.0f;
 		HurtingDelay = 1.0f;
 		
@@ -61,8 +62,7 @@ public class Health : MonoBehaviour
 		healthbar.HealthStatus = startHealth / MaximumHealth;
 		healthbar.EmptyTex = emptyTex;
 		healthbar.FullTex = fullTex;
-	}
-
+    }
 	#endregion
 	
 	
@@ -83,15 +83,15 @@ public class Health : MonoBehaviour
 	// 
 	public void ChangeHealth(float healthChange)
 	{
-		IsHurting = true;
-		HurtingTimer = Time.time;
-		currentHealth += healthChange;
-		healthbar.HealthStatus = currentHealth / MaximumHealth;
-			
-		if (currentHealth <= 0.0f)
-		{
-			IsDead = true;
-		}		
+        IsHurting = true;
+        HurtingTimer = Time.time;
+        currentHealth += healthChange;
+        healthbar.HealthStatus = currentHealth / MaximumHealth;
+
+        if (currentHealth <= 0.0f)
+        {
+            IsDead = true;
+        }
 	}
 
 	#endregion

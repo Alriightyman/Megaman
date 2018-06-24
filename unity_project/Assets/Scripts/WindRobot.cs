@@ -93,11 +93,11 @@ public class WindRobot : MonoBehaviour
 	{
 		isDead = true;
 		GetComponent<Renderer>().enabled = false;
-		GetComponent<Collider>().enabled = false;
+		GetComponent<Collider2D>().enabled = false;
 	}
 	
 	//
-	protected void OnTriggerStay(Collider other) 
+	protected void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -196,7 +196,7 @@ public class WindRobot : MonoBehaviour
 	{
 		isDead = false;
 		GetComponent<Renderer>().enabled = true;
-		GetComponent<Collider>().enabled = true;
+		GetComponent<Collider2D>().enabled = true;
 		currentHealth = health;
 	}
 
