@@ -19,13 +19,19 @@ public class Movement : MonoBehaviour
 	
 	// Protected Instance Variables
 	protected CharacterController2D charController;
+    protected bool isFalling = false;
 	protected bool cheating = false;
-	protected float gravity = 40f;	 			// Downward force
-	protected float terminalVelocity = 20f;	// Max downward speed
-	protected float jumpSpeed = 20f;			// Upward speed
-	protected float moveSpeed = 10f;			// Left/Right speed    
+    [SerializeField]
+    protected float gravity = 75f; //40f;	 			// Downward force
+    [SerializeField]
+	protected float terminalVelocity = 30f;	// Max downward speed
+    [SerializeField]
+    protected float jumpSpeed = 25f; //20f;			// Upward speed
+    [SerializeField]
+    protected float moveSpeed = 8f; //10f;			// Left/Right speed    
 	protected float verticalVelocity;
 	protected float hurtingForce = 2.0f;
+    [SerializeField]
 	protected Vector3 moveVector = Vector3.zero;
     [SerializeField]
     protected Vector3 startPosition = new Vector3(13.34303f, 11.51588f, 0f);
@@ -59,16 +65,19 @@ public class Movement : MonoBehaviour
 	//
 	protected void ApplyGravity()
 	{
+        // cap downward speed
 		if (moveVector.y > -terminalVelocity)
 		{
 			moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
         }
 		
+        // player has landed on the ground
 		if (charController.isGrounded && moveVector.y < -1)
 		{
 			IsJumping = false;
 			moveVector = new Vector3(moveVector.x, (-1), moveVector.z);
 
+            // play landing sound
             if(wasJumping == true)
             {
                 GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
@@ -76,6 +85,16 @@ public class Movement : MonoBehaviour
 
             wasJumping = false;
 		}
+
+        // determine if the player is falling
+        if( moveVector.y < 0)
+        {
+            isFalling = true;
+        }
+        else
+        {
+            isFalling = false;
+        }
 	}
 	
 	//
@@ -165,8 +184,7 @@ public class Movement : MonoBehaviour
                 }
             }
 
-            // seems to have a "floaty" side effect.  If you keep pressing jump as you fall, it'll set verticalVelocity to 0
-            if ( !isJumpingButtonPressed && lastInputJump == true )
+            if ( !isJumpingButtonPressed && lastInputJump == true && isFalling == false )
             {
                 verticalVelocity = 0.0f;
             }
