@@ -22,7 +22,8 @@ public class RedHornBeast : MonoBehaviour
 	protected float spikeLoweringSpeed = 1.00f;				//
 	protected float spikeWaitTimer = 0.0f;					// Timer used for timing the spike while they wait
 	protected float spikeDelayTime = 2.0f; 					// How long should the spike wait at the top?
-	protected float robotCreateDelay = 2.0f; 				// Used so that a small delay is between creating robots
+    [SerializeField]
+	protected float robotCreateDelay = 1.0f; 				// Used so that a small delay is between creating robots
 	protected float robotCreateDelayTimer; 					// Used so that a small delay is between creating robots
 	protected Vector3 spikeTransforms;						// Used for transforming the spike when fighting
 	protected Vector3 spikeLeftPos;							//
@@ -30,14 +31,15 @@ public class RedHornBeast : MonoBehaviour
 	protected Transform lightTransform;						//
 	protected GameObject spikeLeft;							//
 	protected GameObject spikeRight;						//
+    bool canMakeRobots = false;
+    const float maxSpikeHeight = 0.6f;
+    #endregion
 
-	#endregion
 
+    #region MonoBehaviour
 
-	#region MonoBehaviour
-	
-	// The Constructor function in Unity...
-	protected void Awake () 
+    // The Constructor function in Unity...
+    protected void Awake () 
 	{
 		lightTransform = gameObject.transform.Find("Light").transform;
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
@@ -84,49 +86,64 @@ public class RedHornBeast : MonoBehaviour
 			else 
 			{
 				color.x = color.y = color.z = color.w += Time.deltaTime * 3.5f;
-			} 
-			
-			GetComponent<Renderer>().material.color = color;
-			spikeLeft.GetComponent<Renderer>().material.color = color;
+			}
+
+            GetComponent<Renderer>().material.color = color;
+            spikeLeft.GetComponent<Renderer>().material.color = color;
 			spikeRight.GetComponent<Renderer>().material.color = color;
 		}
 	}
 
-	#endregion
+    protected void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Player")
+        {
+            canMakeRobots = true;
+        }
+    }
+
+    protected void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            canMakeRobots = false;
+        }
+    }
+    #endregion
 
 
-	#region Protected Functions
+    #region Protected Functions
 
-	// 
-	protected void CreateRobot( float speed, Vector3 pos, Vector3 vel )
+    // 
+    protected void CreateRobot( float speed, Vector3 pos, Vector3 vel )
 	{
-        Rigidbody2D robot = (Rigidbody2D) Instantiate(flyingRobot, pos, transform.rotation);
-		Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-		robot.transform.parent = gameObject.transform;
-		robot.velocity =  vel;
+        // only create 3 robots max
+        Rigidbody2D robot = Instantiate(flyingRobot, pos, transform.rotation);
+        Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+        robot.transform.parent = gameObject.transform;
+        robot.velocity = vel;
 	}
 	
 	// 
 	protected void CreateSmallFlyingRobots()
 	{
-		if ( robotCount < 1 && Time.time - robotCreateDelayTimer >= robotCreateDelay)
+		if (canMakeRobots && robotCount < 3 && Time.time - robotCreateDelayTimer >= robotCreateDelay)
 		{
 			if ( createRobotOnRightSide )
 			{
-				Vector3 pos = transform.position;
-				pos.x += transform.localScale.x / 2.0f;
-				pos.z = -0.2f;
+				Vector3 pos = GameObject.Find("SpawnPointRight").transform.position;
+                pos.x += transform.localScale.x;// / 2.0f;
 				CreateRobot( 0.0f, pos, Vector3.right );
 			}
 			else 
 			{
-				Vector3 pos = transform.position;
-				pos.x -= transform.localScale.x / 2.0f;
-				pos.z = -0.2f;
+				Vector3 pos = GameObject.Find("SpawnPointLeft").transform.position;
+                pos.x -= transform.localScale.x;// / 2.0f;
 				CreateRobot( 0.0f, pos, -Vector3.right );
 			}
-			
-			createRobotOnRightSide = !createRobotOnRightSide;
+
+            robotCreateDelayTimer = Time.time;
+            createRobotOnRightSide = !createRobotOnRightSide;
 			robotCount++;
 		}
 	}
@@ -140,7 +157,7 @@ public class RedHornBeast : MonoBehaviour
 			spikeLeft.transform.localPosition += spikeTransforms;
 			spikeRight.transform.localPosition += spikeTransforms;
 			
-			if ( spikeLeft.transform.localPosition.y - spikeLeftPos.y >= 0.18f )
+			if ( spikeLeft.transform.localPosition.y - spikeLeftPos.y >= maxSpikeHeight)
 			{
 				spikeRising = false;
 				spikeLowering = false;
@@ -234,8 +251,9 @@ public class RedHornBeast : MonoBehaviour
 	// 
 	public void MinusRobotCount() 
 	{
-		robotCount--; robotCreateDelayTimer = Time.time;
-	}
+		robotCount--;
+        CreateSmallFlyingRobots();
+    }
 
 	#endregion
 }
