@@ -34,6 +34,7 @@ public class RedHornBeast : MonoBehaviour
 	protected Transform lightTransform;						//
 	protected GameObject spikeLeft;							//
 	protected GameObject spikeRight;						//
+
     bool canMakeRobots = false;
     const float maxSpikeHeight = 0.6f;
     #endregion
@@ -46,14 +47,17 @@ public class RedHornBeast : MonoBehaviour
 	{
 		lightTransform = gameObject.transform.Find("Light").transform;
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
-		spikeRight = transform.Find("SpikeRight").gameObject;
+		spikeRight = transform.Find("SpikeRight").gameObject;        
 	}
 	
 	// Use this for initialization
 	protected void Start ()
 	{
 		lightTransform.GetComponent<Renderer>().enabled = false;
-		spikeLeftPos = spikeLeft.transform.localPosition;
+        this.GetComponent<BoxCollider2D>().enabled = false;
+        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
+        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
+        spikeLeftPos = spikeLeft.transform.localPosition;
 		spikeStartHeight = spikeLeft.transform.position.y;
 		
 		// Make the robot and its children invisible...
@@ -84,7 +88,10 @@ public class RedHornBeast : MonoBehaviour
 			{
 				shouldAppear = false;
 				startFighting = true;
-			}
+                this.GetComponent<BoxCollider2D>().enabled = true;
+                spikeLeft.GetComponent<BoxCollider2D>().enabled = true;
+                spikeRight.GetComponent<BoxCollider2D>().enabled = true;
+            }
 			// Make the robot and its children visible...
 			else 
 			{
@@ -232,7 +239,10 @@ public class RedHornBeast : MonoBehaviour
 		spikeRight.GetComponent<Renderer>().material.color = color;
 		lightTransform.GetComponent<Renderer>().enabled = false;
 		createRobotOnRightSide = true;
-	}
+        this.GetComponent<BoxCollider2D>().enabled = false;
+        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
+        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
+    }
 	
 	// 
 	protected void KillRobotChildren()
