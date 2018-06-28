@@ -44,45 +44,45 @@ public class Shot : MonoBehaviour
 			InflictDamage(other.gameObject);
 		}
 		
-		else if (other.gameObject.layer == 10 && other.tag == "unshootable")
+		else if (other.gameObject.layer == (int)CollisionLayer.EnemyRobot && other.tag == "unshootable")
 		{
 			Destroy(gameObject);	
 		}
 		
-		else if (other.gameObject.layer == 0 && other.tag == "unshootable")
+		else if (other.gameObject.layer == (int)CollisionLayer.Defualt && other.tag == "unshootable")
 		{
 			Destroy(gameObject);
 		}
 		
-		else if (other.gameObject.layer == 0 && other.tag == "platform")
+		else if (other.gameObject.layer == (int)CollisionLayer.Defualt && other.tag == "platform")
 		{
 			Destroy(gameObject);
 		}		
 	}
 	
 	// 
-	protected void OnCollisionEnter2D(Collision2D collision) 
-	{
-		if (collision.gameObject.tag == "shootable")
-		{
-			InflictDamage(collision.gameObject);
-		}
+	//protected void OnCollisionEnter2D(Collision2D collision) 
+	//{
+	//	if (collision.gameObject.tag == "shootable")
+	//	{
+	//		InflictDamage(collision.gameObject);
+	//	}
 		
-		else if (collision.gameObject.layer == 10 && collision.gameObject.tag == "unshootable")
-		{
-			Destroy(gameObject);	
-		}
+	//	else if (collision.gameObject.layer == 10 && collision.gameObject.tag == "unshootable")
+	//	{
+	//		Destroy(gameObject);	
+	//	}
 		
-		else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "unshootable")
-		{
-			Destroy(gameObject);
-		}
+	//	else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "unshootable")
+	//	{
+	//		Destroy(gameObject);
+	//	}
 		
-		else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "platform")
-		{
-			Destroy(gameObject);
-		}
-	}
+	//	else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "platform")
+	//	{
+	//		Destroy(gameObject);
+	//	}
+	//}
 
 	#endregion
 

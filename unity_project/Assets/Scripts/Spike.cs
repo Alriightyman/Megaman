@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class Spike : MonoBehaviour 
 {
@@ -25,13 +26,30 @@ public class Spike : MonoBehaviour
             InflictDamage(other.gameObject);
 	}
 
-	#endregion
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "shot")
+        {
+            var boxcollider = collision.gameObject.GetComponent<BoxCollider2D>();
+            if (boxcollider != null)
+            {
+                boxcollider.enabled = false;
+            }
+            var shot = collision.gameObject.GetComponent<Shot>();
+            var velocity = shot.VelocityDirection;
+            shot.VelocityDirection = new Vector3(-velocity.x, Math.Abs(velocity.x), velocity.z);
+            GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
+
+        }
+    }
+
+    #endregion
 
 
-	#region Protected Functions
+    #region Protected Functions
 
-	// 
-	protected void InflictDamage(GameObject objectHit)
+    // 
+    protected void InflictDamage(GameObject objectHit)
 	{
 		if (objectHit.tag == "Player")
 		{

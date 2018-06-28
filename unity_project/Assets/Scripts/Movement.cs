@@ -30,7 +30,7 @@ public class Movement : MonoBehaviour
     [SerializeField]
     protected float moveSpeed = 8f; //10f;			// Left/Right speed    
 	protected float verticalVelocity;
-	protected float hurtingForce = 2.0f;
+	protected float hurtingForce = 1.0f;
     [SerializeField]
 	protected Vector3 moveVector = Vector3.zero;
     [SerializeField]

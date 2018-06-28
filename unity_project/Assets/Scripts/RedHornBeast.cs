@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class RedHornBeast : MonoBehaviour
 {
@@ -7,10 +8,12 @@ public class RedHornBeast : MonoBehaviour
 	
 	// Unity Editor Variables
 	public Rigidbody2D flyingRobot;
-	
-	// Protected Instance Variables
-	protected int robotCount = 0;							//
-	protected bool shouldAppear = false;					//
+
+    // should only be 3 bots MAX, so this value needs to be static
+    private static int robotCount = 0;                          
+                                                                
+    // Protected Instance Variables
+    protected bool shouldAppear = false;					//
 	protected bool startFighting = false;					//
 	protected bool spikeRising = true;						//
 	protected bool spikeLowering = false;					//
@@ -100,6 +103,19 @@ public class RedHornBeast : MonoBehaviour
         {
             canMakeRobots = true;
         }
+        else if(collision.gameObject.tag == "shot")
+        {
+            var boxcollider = collision.gameObject.GetComponent<BoxCollider2D>();
+            if (boxcollider != null)
+            {
+                boxcollider.enabled = false;
+            }
+            var shot = collision.gameObject.GetComponent<Shot>();
+            var velocity = shot.VelocityDirection;
+            shot.VelocityDirection = new Vector3(-velocity.x, Math.Abs(velocity.x), velocity.z);
+            GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
+
+        }
     }
 
     protected void OnTriggerExit2D(Collider2D collision)
@@ -117,7 +133,6 @@ public class RedHornBeast : MonoBehaviour
     // 
     protected void CreateRobot( float speed, Vector3 pos, Vector3 vel )
 	{
-        // only create 3 robots max
         Rigidbody2D robot = Instantiate(flyingRobot, pos, transform.rotation);
         Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
         robot.transform.parent = gameObject.transform;
@@ -127,18 +142,20 @@ public class RedHornBeast : MonoBehaviour
 	// 
 	protected void CreateSmallFlyingRobots()
 	{
+        // have 3 robots max :)
 		if (canMakeRobots && robotCount < 3 && Time.time - robotCreateDelayTimer >= robotCreateDelay)
 		{
-			if ( createRobotOnRightSide )
-			{
-				Vector3 pos = GameObject.Find("SpawnPointRight").transform.position;
-                pos.x += transform.localScale.x;// / 2.0f;
+            // get the gameobject transform that is a child of this gameobject
+            if ( createRobotOnRightSide )
+			{                
+				Vector3 pos = transform.Find("SpawnPointRight").position;
+                pos.x += transform.localScale.x / 2.0f;
 				CreateRobot( 0.0f, pos, Vector3.right );
 			}
 			else 
 			{
-				Vector3 pos = GameObject.Find("SpawnPointLeft").transform.position;
-                pos.x -= transform.localScale.x;// / 2.0f;
+				Vector3 pos = transform.Find("SpawnPointLeft").position;
+                pos.x -= transform.localScale.x / 2.0f;
 				CreateRobot( 0.0f, pos, -Vector3.right );
 			}
 

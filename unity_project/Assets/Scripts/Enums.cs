@@ -14,3 +14,20 @@ public enum AirmanLevelSounds
 	BOSS_HURTING,
 	HEALTHBAR_FILLING
 }
+
+public enum CollisionLayer
+{
+    Defualt,
+    TransparentFX,
+    IgnoreRayCast,
+    Water = 4,
+    UI,
+    Player = 8,
+    PlayerShot,
+    EnemyRobot,
+    EnemyShot,
+    Trigger,
+    Unshootable,
+    Platform,
+    PlatformOneWay
+}
