@@ -10,13 +10,12 @@ public class Clouds : MonoBehaviour
 	protected float cloudSpeed = 0.3f;
 	protected Vector2 scaleAmount = new Vector2(0.3f, 0.3f);
 
-	#endregion
+    #endregion
 
+    #region MonoBehaviour
 
-	#region MonoBehaviour
-
-	/* Use this for initialization */
-	protected void Start()
+    /* Use this for initialization */
+    protected void Start()
 	{
 		initialScale = transform.localScale;
 		cloudSpeed = 0.3f;

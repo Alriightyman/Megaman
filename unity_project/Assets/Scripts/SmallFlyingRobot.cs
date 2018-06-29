@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
-	
-public sealed class SmallFlyingRobot : MonoBehaviour
+using Assets.Scripts.Interfaces;
+
+public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 {
 	#region Variables
 
@@ -35,6 +36,8 @@ public sealed class SmallFlyingRobot : MonoBehaviour
 
 		renderer2D = GetComponent<Renderer>();
 		Assert.IsNotNull(renderer2D);
+
+        GameEngine.GetResetableObjectList().Add(this);
 	}
 
     // Use this for initialization 
