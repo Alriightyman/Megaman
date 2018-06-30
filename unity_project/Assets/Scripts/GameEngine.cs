@@ -15,6 +15,7 @@ public class GameEngine
 
     private static List<IResetable> resetableObjects = new List<IResetable>();
     private static List<IResetable> itemToBeRemoved = new List<IResetable>();
+    private static bool isResetting = false;
 
 	public static void AddResetCallback(Action resetCallback)
 	{
@@ -43,10 +44,16 @@ public class GameEngine
             itemToBeRemoved = new List<IResetable>();
         }
         itemToBeRemoved.Add(item);
+
+        if (isResetting == false)
+        {
+            RemoveResetableItems();
+        }
     }
 
     public static IEnumerator Reset()
     {
+        isResetting = true;
         StopMusic();
 
         Player.KillPlayer();
@@ -64,6 +71,7 @@ public class GameEngine
         yield return new WaitForSeconds(0.3f);
 
         Player.RevivePlayer();
+        isResetting = false;
     }
 
     private static void StopMusic()
@@ -79,5 +87,7 @@ public class GameEngine
         {
             resetableObjects.Remove(resetable);
         }
+
+        itemToBeRemoved.Clear();
     }
 }
