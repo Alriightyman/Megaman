@@ -86,6 +86,7 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 	private void KillRobot()
 	{
 		transform.parent.gameObject.GetComponent<RedHornBeast>().MinusRobotCount();
+	    GameEngine.RemoveResetableItemFromList(this);
 		Destroy(gameObject);
 	}
 
