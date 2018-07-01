@@ -37,7 +37,6 @@ public class Movement : MonoBehaviour
     protected Vector3 startPosition;
 
     protected Vector2 lastInput = Vector2.zero;
-    [SerializeField]
     protected bool lastInputJump = false;
 
 	#endregion
