@@ -37,6 +37,7 @@ public class Movement : MonoBehaviour
     protected Vector3 startPosition = new Vector3(13.34303f, 11.51588f, 0f);
 
     protected Vector2 lastInput = Vector2.zero;
+    [SerializeField]
     protected bool lastInputJump = false;
 
 	#endregion
@@ -196,7 +197,10 @@ public class Movement : MonoBehaviour
             }
         }
         lastInput = currentInput;
-        lastInputJump = isJumpingButtonPressed;
+	    if (charController.isGrounded)
+	        lastInputJump = false;
+        else
+            lastInputJump = isJumpingButtonPressed;
 
     }
 
