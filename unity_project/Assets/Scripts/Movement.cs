@@ -148,7 +148,7 @@ public class Movement : MonoBehaviour
         // hold on to horizontal and vertical movement
         Vector2 currentInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         // Check Up through jump button or "up" on the keyboard.
-        bool isJumpingButtonPressed = Input.GetButton("Jump") | currentInput.y > 0f;
+        bool isJumpingButtonPressed = Input.GetButtonDown("Jump") | currentInput.y > 0f;
 		// Horizontal movement...
 		float deadZone = 0.01f;
 		verticalVelocity = moveVector.y;
@@ -197,7 +197,7 @@ public class Movement : MonoBehaviour
             }
         }
         lastInput = currentInput;
-	    if (charController.isGrounded)
+	    if (Input.GetButtonUp("Jump"))
 	        lastInputJump = false;
         else
             lastInputJump = isJumpingButtonPressed;
