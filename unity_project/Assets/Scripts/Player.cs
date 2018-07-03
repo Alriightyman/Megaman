@@ -234,60 +234,15 @@ public class Player : MonoBehaviour
 		playerTexRend.enabled = false;
 		levelCamera.ShouldStayStill = true;
 		shooting.CanShoot = false;
-
-
-  //      CharacterController2D cc = (CharacterController2D) GetComponent(typeof(CharacterController2D));
-		//cc. = false;
-		
-		GameEngine.SoundManager.Stop(AirmanLevelSounds.STAGE);
-		GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_MUSIC);
-		GameEngine.SoundManager.Play(AirmanLevelSounds.DEATH);
-		
-		// Start the wait... 
+        
+		// Start a wait 
 		yield return new WaitForSeconds(3.6f);
-		
-		// After the wait... 
 		
 		// Reset the camera
 		levelCamera.Reset();
 		
 		// Reset the player
-		Reset();
-		//cc.detectCollisions = true;		
-
-		if (GameEngine.AirMan)
-		{
-			GameEngine.AirMan.Reset();
-		}
-		
-		// Play the music again...
-		GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
-		levelCamera.ShouldStayStill = false;
-		
-		// Reset all the enemy bots...
-		int enemyRobotsLayer = 10;
-		GameObject[] enemyRobots = Helper.FindGameObjectsWithLayer(enemyRobotsLayer);
-		foreach (GameObject robot in enemyRobots)
-		{
-  
-		}
-		
-		// Reset the birdtriggers...
-		GameObject[] birdTriggers = GameObject.FindGameObjectsWithTag("birdTrigger");
-		foreach(GameObject trigger in birdTriggers)
-		{
-			trigger.GetComponent<Collider2D>().enabled = true;	
-		}
-		
-		// Start another wait to avoid double deaths by the hand of deathtriggers... 
-		yield return new WaitForSeconds(0.3f);
-		
-		// Reset the deathtriggers...
-		GameObject[] triggers = GameObject.FindGameObjectsWithTag("deathTrigger");
-		foreach(GameObject trigger in triggers)
-		{
-			trigger.GetComponent<Collider2D>().enabled = true;	
-		}
+	    Reset();
 	}
 
 	// 	
@@ -383,5 +338,10 @@ public class Player : MonoBehaviour
 		}
 	}
 
+    public void RevivePlayer()
+    {
+        GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
+        levelCamera.ShouldStayStill = false;
+    }
 	#endregion
 }
