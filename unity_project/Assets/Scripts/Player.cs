@@ -262,59 +262,13 @@ public class Player : MonoBehaviour
 		levelCamera.ShouldStayStill = true;
 		shooting.CanShoot = false;
 
-
-  //      CharacterController2D cc = (CharacterController2D) GetComponent(typeof(CharacterController2D));
-		//cc. = false;
-		
-		GameEngine.SoundManager.Stop(AirmanLevelSounds.STAGE);
-		GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_MUSIC);
-		GameEngine.SoundManager.Play(AirmanLevelSounds.DEATH);
-		
-		// Start the wait... 
-		yield return new WaitForSeconds(3.6f);
-		
-		// After the wait... 
+        yield return new WaitForSeconds(3.6f);
 		
 		// Reset the camera
 		levelCamera.Reset();
 		
 		// Reset the player
-		Reset();
-		//cc.detectCollisions = true;		
-
-		if (GameEngine.AirMan)
-		{
-			GameEngine.AirMan.Reset();
-		}
-		
-		// Play the music again...
-		GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
-		levelCamera.ShouldStayStill = false;
-		
-		// Reset all the enemy bots...
-		int enemyRobotsLayer = 10;
-		GameObject[] enemyRobots = Helper.FindGameObjectsWithLayer(enemyRobotsLayer);
-		foreach (GameObject robot in enemyRobots)
-		{
-  
-		}
-		
-		// Reset the birdtriggers...
-		GameObject[] birdTriggers = GameObject.FindGameObjectsWithTag("birdTrigger");
-		foreach(GameObject trigger in birdTriggers)
-		{
-			trigger.GetComponent<Collider2D>().enabled = true;	
-		}
-		
-		// Start another wait to avoid double deaths by the hand of deathtriggers... 
-		yield return new WaitForSeconds(0.3f);
-		
-		// Reset the deathtriggers...
-		GameObject[] triggers = GameObject.FindGameObjectsWithTag("deathTrigger");
-		foreach(GameObject trigger in triggers)
-		{
-			trigger.GetComponent<Collider2D>().enabled = true;	
-		}
+		Reset();		
 	}
 
 	// 	
@@ -322,40 +276,37 @@ public class Player : MonoBehaviour
 	{
 		if (health.IsHurting == true && health.IsDead == false)
 		{
-            //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-            //playerTexRend.material = playerMaterials[7];
-            //playerTexRend.material.color *= 0.75f + Random.value;
             animator.Play("Hurt");
 		}
 		else if (movement.IsJumping == true)
 		{
 			if (shooting.IsShooting == true)
 			{
-                //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-                //playerTexRend.material = playerMaterials[9];
                 animator.Play("JumpShoot");
             }
 			else
 			{
-                //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-                //playerTexRend.material = playerMaterials[2];
                 animator.Play("Jumping");
             }
 		}
 		else if (movement.IsWalking == true)
-		{
-			walkingTexIndex = (int) (Time.time / walkingTexInterval);
+		{           
 
-			if (shooting.IsShooting == true)
+            if (shooting.IsShooting == true)
 			{
-                //playerTexObj.transform.localScale = new Vector3(0.13f, 1.0f, 0.1f);
-                //playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 10];
-                animator.Play("WalkShoot");
+                var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                if(stateInfo.IsName("Walking") == true)
+                {
+                    animator.Play("WalkShoot", 0, stateInfo.normalizedTime);
+                }
+                else
+                {
+                    animator.Play("WalkShoot");
+                }
+                
             }
 			else
 			{
-                //playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
-                //playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 3];
                 animator.Play("Walking");
             }
 		}
@@ -364,24 +315,16 @@ public class Player : MonoBehaviour
 		{	
 			if (shooting.IsShooting == true)
 			{
-                //playerTexObj.transform.localScale = new Vector3(xTrans, 1.0f, 0.1f);
-                //playerTexRend.material = playerMaterials[8];
                 animator.Play("Shooting");
             }
 			else
 			{
-                //playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
-                //standingTexIndex = (int) (Time.time / standingTexInterval);
-                //playerTexRend.material = (standingTexIndex % 10 == 0) ? playerMaterials[1] : playerMaterials[0];
                 animator.Play("Standing");
             }
 		}
-		
-		//playerTexRend.material.SetTextureScale("_MainTex", (movement.IsTurningLeft) ? texScaleLeft : texScaleRight );
-	}
+    }
 
     #endregion
-    public float xTrans = 0.128f;
 
 	#region Public Functions
 	
@@ -418,5 +361,10 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	#endregion
+    public void RevivePlayer()
+    {
+        GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
+        levelCamera.ShouldStayStill = false;
+    }
+    #endregion
 }

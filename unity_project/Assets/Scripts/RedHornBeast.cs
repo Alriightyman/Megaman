@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using Assets.Scripts.Interfaces;
 
-public class RedHornBeast : MonoBehaviour
+public class RedHornBeast : MonoBehaviour, IResetable
 {
 	#region Variables
 	
@@ -47,8 +48,10 @@ public class RedHornBeast : MonoBehaviour
 	{
 		lightTransform = gameObject.transform.Find("Light").transform;
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
-		spikeRight = transform.Find("SpikeRight").gameObject;        
-	}
+		spikeRight = transform.Find("SpikeRight").gameObject;
+
+        GameEngine.GetResetableObjectList().Add(this);
+    }
 	
 	// Use this for initialization
 	protected void Start ()
@@ -219,9 +222,36 @@ public class RedHornBeast : MonoBehaviour
 			lightTransform.GetComponent<Renderer>().enabled = !lightTransform.GetComponent<Renderer>().enabled;
 		}
 	}
-	
-	// 
-	protected void ResetRedHornBeast()
+
+    #endregion
+
+
+    #region Public Functions
+
+    // 
+    public void Reset()
+    {
+        ResetRedHornBeast();
+        KillRobotChildren();
+    }
+
+    // 
+    public void Appear()
+    {
+        shouldAppear = true;
+        lightStartTime = Time.time;
+    }
+
+    // 
+    public void MinusRobotCount()
+    {
+        robotCount--;
+        CreateSmallFlyingRobots();
+    }
+
+    #endregion
+
+    private void ResetRedHornBeast()
 	{
 		shouldAppear = false;
 		startFighting = false;
@@ -245,7 +275,7 @@ public class RedHornBeast : MonoBehaviour
     }
 	
 	// 
-	protected void KillRobotChildren()
+	private void KillRobotChildren()
 	{
 		// Reset all the enemy bots...
 		Transform robot = transform.Find("Prb_SmallFlyingRobot(Clone)");
@@ -255,33 +285,5 @@ public class RedHornBeast : MonoBehaviour
 		}
 		robotCount = 0;	
 	}
-
-	#endregion
-
-
-	#region Public Functions
-	
-	// 
-	public void Reset()
-	{
-		ResetRedHornBeast();
-		KillRobotChildren();
-	}
-
-	// 
-	public void Appear()
-	{
-		shouldAppear = true;
-		lightStartTime = Time.time;
-	}
-	
-	// 
-	public void MinusRobotCount() 
-	{
-		robotCount--;
-        CreateSmallFlyingRobots();
-    }
-
-	#endregion
 }
 

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class clouds : MonoBehaviour 
+public class Clouds : MonoBehaviour 
 {	
 	#region Variables
 

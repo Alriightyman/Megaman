@@ -34,7 +34,7 @@ public class Movement : MonoBehaviour
     [SerializeField]
 	protected Vector3 moveVector = Vector3.zero;
     [SerializeField]
-    protected Vector3 startPosition = new Vector3(13.34303f, 11.51588f, 0f);
+    protected Vector3 startPosition;
 
     protected Vector2 lastInput = Vector2.zero;
     protected bool lastInputJump = false;
@@ -47,7 +47,8 @@ public class Movement : MonoBehaviour
 	// Use this for initialization
 	protected void Awake()
 	{
-		charController = gameObject.GetComponent<CharacterController2D>();
+        startPosition = GameObject.Find("StartingPoint").transform.position;
+        charController = gameObject.GetComponent<CharacterController2D>();
 	}
 	
 	// Use this for initialization
@@ -196,7 +197,11 @@ public class Movement : MonoBehaviour
             }
         }
         lastInput = currentInput;
-        lastInputJump = isJumpingButtonPressed;
+        lastInput = currentInput;
+        if (Input.GetButtonUp("Jump"))
+            lastInputJump = false;
+        else
+            lastInputJump = isJumpingButtonPressed;
 
     }
 
