@@ -1,15 +1,9 @@
 using UnityEngine;
 using System.Collections;
-using Assets.Scripts.Interfaces;
 
-public class BigBirdTrigger : MonoBehaviour, IResetable
+public class BigBirdTrigger : MonoBehaviour 
 {
 	#region MonoBehaviour
-
-    protected void Awake()
-    {
-        GameEngine.GetResetableObjectList().Add(this);
-    }
 
 	// Called when the Collider other enters the trigger.
 	protected void OnTriggerEnter2D(Collider2D other )
@@ -22,9 +16,4 @@ public class BigBirdTrigger : MonoBehaviour, IResetable
 	}
 
 	#endregion
-
-    public void Reset()
-    {
-        gameObject.GetComponent<Collider2D>().enabled = true;
-    }
 }

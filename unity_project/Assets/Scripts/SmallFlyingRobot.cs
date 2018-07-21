@@ -2,9 +2,8 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
-using Assets.Scripts.Interfaces;
-
-public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
+	
+public sealed class SmallFlyingRobot : MonoBehaviour
 {
 	#region Variables
 
@@ -36,8 +35,6 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 
 		renderer2D = GetComponent<Renderer>();
 		Assert.IsNotNull(renderer2D);
-
-        GameEngine.GetResetableObjectList().Add(this);
 	}
 
     // Use this for initialization 
@@ -86,7 +83,6 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 	private void KillRobot()
 	{
 		transform.parent.gameObject.GetComponent<RedHornBeast>().MinusRobotCount();
-	    GameEngine.RemoveResetableItemFromList(this);
 		Destroy(gameObject);
 	}
 
@@ -150,7 +146,7 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
         if ((onRightSide && gameObject.transform.localPosition.x <= xAmount * direction) ||
              (!onRightSide && gameObject.transform.localPosition.x >= xAmount * direction))
         {
-            rigidBody.velocity = new Vector2(direction * (Time.deltaTime * robotSpeed * 1f), 0f);
+            rigidBody.velocity = new Vector2(direction * (Time.deltaTime * robotSpeed), 0f);
             return false;
         }
 

@@ -7,7 +7,7 @@ public class Shooting : MonoBehaviour
 
 	// Unity Editor Variables
 	[SerializeField] protected GameObject shotPrefab;
-	
+    [SerializeField] Transform shotSpawnPoint;
 	// Properties
 	public bool CanShoot 	{ get; set; }
 	public bool IsShooting 	{ get; set; }
@@ -59,9 +59,12 @@ public class Shooting : MonoBehaviour
 	{
 		IsShooting = true;
 		shootingTimer = Time.time;
-		shotPos = transform.position + transform.right * ((isTurningLeft == true) ? -1.6f : 1.6f);
-		
-		GameObject rocketObj = Instantiate(shotPrefab, shotPos, transform.rotation);
+        shotPos = new Vector3(transform.position.x + ((isTurningLeft == true) ? shotSpawnPoint.localPosition.x : -shotSpawnPoint.localPosition.x),
+                                transform.position.y + shotSpawnPoint.localPosition.y, 
+                                0f); //transform.position + transform.right * ((isTurningLeft == true) ? -1.6f : 1.6f);
+
+
+        GameObject rocketObj = Instantiate(shotPrefab, shotPos, transform.rotation);
         Rigidbody2D rocketRBody = rocketObj.GetComponent<Rigidbody2D>();		
 		Physics2D.IgnoreCollision(rocketRBody.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 		

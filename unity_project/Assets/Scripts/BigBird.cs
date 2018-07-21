@@ -47,6 +47,15 @@ public class BigBird : MonoBehaviour
 			}
 		}
 	}
+	
+	//
+	protected void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.tag == "Player")
+		{
+			GameEngine.Player.TakeDamage(damage);
+		}
+	}
 
 	#endregion
 

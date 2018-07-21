@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
-using Prime31;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
 	public bool IsExternalForceActive 	{ get { return movement.IsExternalForceActive; }	set { movement.IsExternalForceActive = value; } 	}
 	public bool IsDead 					{ get { return health.IsDead; } 					set { health.IsDead = value; }					}
 	public bool CanShoot 				{ get { return shooting.CanShoot; } 				set { shooting.CanShoot = value; }				}
-    public bool IsInvincible { get; set; }
+    public bool IsInvincible            { get; set; }
 	public float CurrentHealth 			{ get { return health.CurrentHealth; } 			set { health.CurrentHealth = value; } 			}
 	public Vector3 ExternalForce 		{ get { return movement.ExternalForce; } 			set { movement.ExternalForce = value; } 			}
 	public Vector3 CheckpointPosition 	{ get { return movement.CheckPointPosition; } 	set { movement.CheckPointPosition = value; } 		}
@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
 	protected Shooting shooting = null;
 	protected LevelCamera levelCamera = null;
 
+    private Animator animator;
 
 	#endregion
 
@@ -52,8 +53,8 @@ public class Player : MonoBehaviour
 		GameEngine.Player = this;
 
 		Assert.IsNotNull(deathParticlePrefab);
-		Assert.IsNotNull(playerTexRend);
-		Assert.IsNotNull(playerTexObj);
+		//Assert.IsNotNull(playerTexRend);
+		//Assert.IsNotNull(playerTexObj);
 		Assert.IsTrue(playerMaterials.Count == 17);
 
 		levelCamera = FindObjectOfType<LevelCamera>();
@@ -67,10 +68,13 @@ public class Player : MonoBehaviour
 
 		health = gameObject.GetComponent<Health>();
 		Assert.IsNotNull(health);
-        //ar col2D = GetComponent<CharacterController2D>
+
 		col = GetComponent<BoxCollider2D>();
 		Assert.IsNotNull(col);
-	}
+
+        animator = GetComponent<Animator>();
+        Assert.IsNotNull(animator);
+    }
 	
 	// Use this for initialization 
 	protected void Start()
@@ -106,9 +110,25 @@ public class Player : MonoBehaviour
                     Invoke("ResetInvincibility", 3f);                    
 				}
 			}
-			
-			// Assign the appropriate texture to the player...
-			AssignTexture();
+
+            if(IsInvincible)
+            {
+                //playerTexRend.enabled = !playerTexRend.enabled;
+                var color = GetComponent<SpriteRenderer>().color;
+                color.a = (color.a == 0f) ? 1f : 0f;
+                GetComponent<SpriteRenderer>().color = color;
+            }
+
+            bool flip = true;
+            if(movement.IsTurningLeft == true)
+            {
+                 flip = false;
+            }
+
+            GetComponent<SpriteRenderer>().flipX = flip;
+
+            // Assign the appropriate texture to the player...
+            AssignTexture();
 			
             // keep the z axis as zero
 			if (transform.position.z != 0)
@@ -123,6 +143,12 @@ public class Player : MonoBehaviour
     private void ResetInvincibility()
     {
         IsInvincible = false;
+        //playerTexRend.enabled = true;
+
+        var color = GetComponent<SpriteRenderer>().color;
+        color.a = 1f;
+        GetComponent<SpriteRenderer>().color = color;
+
     }
 	// Called when the behaviour becomes disabled or inactive
 	protected void OnDisable()
@@ -141,7 +167,7 @@ public class Player : MonoBehaviour
 		health.Reset();
 		movement.Reset();
 		shooting.Reset();
-		playerTexRend.enabled = true;
+		//playerTexRend.enabled = true;
 		IsPlayerInactive = false;
 	}
 	
@@ -223,7 +249,8 @@ public class Player : MonoBehaviour
 		StopCoroutine(MovePlayerUp());
 
 		IsPlayerInactive = false;
-		Application.LoadLevel (0);
+
+        SceneManager.LoadScene(0);
 	}
 
 	// 
@@ -231,18 +258,63 @@ public class Player : MonoBehaviour
 		// Before the wait... 
 		health.IsDead = true;
 		movement.IsFrozen = true;
-		playerTexRend.enabled = false;
+		//playerTexRend.enabled = false;
 		levelCamera.ShouldStayStill = true;
 		shooting.CanShoot = false;
-        
-		// Start a wait 
+
+
+  //      CharacterController2D cc = (CharacterController2D) GetComponent(typeof(CharacterController2D));
+		//cc. = false;
+		
+		GameEngine.SoundManager.Stop(AirmanLevelSounds.STAGE);
+		GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_MUSIC);
+		GameEngine.SoundManager.Play(AirmanLevelSounds.DEATH);
+		
+		// Start the wait... 
 		yield return new WaitForSeconds(3.6f);
+		
+		// After the wait... 
 		
 		// Reset the camera
 		levelCamera.Reset();
 		
 		// Reset the player
-	    Reset();
+		Reset();
+		//cc.detectCollisions = true;		
+
+		if (GameEngine.AirMan)
+		{
+			GameEngine.AirMan.Reset();
+		}
+		
+		// Play the music again...
+		GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
+		levelCamera.ShouldStayStill = false;
+		
+		// Reset all the enemy bots...
+		int enemyRobotsLayer = 10;
+		GameObject[] enemyRobots = Helper.FindGameObjectsWithLayer(enemyRobotsLayer);
+		foreach (GameObject robot in enemyRobots)
+		{
+  
+		}
+		
+		// Reset the birdtriggers...
+		GameObject[] birdTriggers = GameObject.FindGameObjectsWithTag("birdTrigger");
+		foreach(GameObject trigger in birdTriggers)
+		{
+			trigger.GetComponent<Collider2D>().enabled = true;	
+		}
+		
+		// Start another wait to avoid double deaths by the hand of deathtriggers... 
+		yield return new WaitForSeconds(0.3f);
+		
+		// Reset the deathtriggers...
+		GameObject[] triggers = GameObject.FindGameObjectsWithTag("deathTrigger");
+		foreach(GameObject trigger in triggers)
+		{
+			trigger.GetComponent<Collider2D>().enabled = true;	
+		}
 	}
 
 	// 	
@@ -250,22 +322,25 @@ public class Player : MonoBehaviour
 	{
 		if (health.IsHurting == true && health.IsDead == false)
 		{
-			playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-			playerTexRend.material = playerMaterials[7];
-			playerTexRend.material.color *= 0.75f + Random.value;
+            //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
+            //playerTexRend.material = playerMaterials[7];
+            //playerTexRend.material.color *= 0.75f + Random.value;
+            animator.Play("Hurt");
 		}
 		else if (movement.IsJumping == true)
 		{
 			if (shooting.IsShooting == true)
 			{
-				playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-				playerTexRend.material = playerMaterials[9];
-			}
+                //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
+                //playerTexRend.material = playerMaterials[9];
+                animator.Play("JumpShoot");
+            }
 			else
 			{
-				playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
-				playerTexRend.material = playerMaterials[2];
-			}
+                //playerTexObj.transform.localScale = new Vector3(0.1175f, 1.0f, 0.1175f);
+                //playerTexRend.material = playerMaterials[2];
+                animator.Play("Jumping");
+            }
 		}
 		else if (movement.IsWalking == true)
 		{
@@ -273,36 +348,40 @@ public class Player : MonoBehaviour
 
 			if (shooting.IsShooting == true)
 			{
-				playerTexObj.transform.localScale = new Vector3(0.13f, 1.0f, 0.1f);
-				playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 10];
-			}
+                //playerTexObj.transform.localScale = new Vector3(0.13f, 1.0f, 0.1f);
+                //playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 10];
+                animator.Play("WalkShoot");
+            }
 			else
 			{
-				playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
-				playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 3];
-			}
+                //playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
+                //playerTexRend.material = playerMaterials[ (walkingTexIndex % 4) + 3];
+                animator.Play("Walking");
+            }
 		}
 		// Standing...
 		else 
 		{	
 			if (shooting.IsShooting == true)
 			{
-				playerTexObj.transform.localScale = new Vector3(0.128f, 1.0f, 0.1f);
-				playerTexRend.material = playerMaterials[8];
-			}
+                //playerTexObj.transform.localScale = new Vector3(xTrans, 1.0f, 0.1f);
+                //playerTexRend.material = playerMaterials[8];
+                animator.Play("Shooting");
+            }
 			else
 			{
-				playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
-				standingTexIndex = (int) (Time.time / standingTexInterval);
-				playerTexRend.material = (standingTexIndex % 10 == 0) ? playerMaterials[1] : playerMaterials[0];
-			}
+                //playerTexObj.transform.localScale = new Vector3(0.1f, 1.0f, 0.1f);
+                //standingTexIndex = (int) (Time.time / standingTexInterval);
+                //playerTexRend.material = (standingTexIndex % 10 == 0) ? playerMaterials[1] : playerMaterials[0];
+                animator.Play("Standing");
+            }
 		}
 		
-		playerTexRend.material.SetTextureScale("_MainTex", (movement.IsTurningLeft) ? texScaleLeft : texScaleRight );
+		//playerTexRend.material.SetTextureScale("_MainTex", (movement.IsTurningLeft) ? texScaleLeft : texScaleRight );
 	}
 
-	#endregion
-
+    #endregion
+    public float xTrans = 0.128f;
 
 	#region Public Functions
 	
@@ -315,6 +394,7 @@ public class Player : MonoBehaviour
 	// 
 	public void KillPlayer() 
 	{
+        IsInvincible = false;
 		StartCoroutine(CreateDeathParticles(transform.position));
 		StartCoroutine(WaitAndResetRoutine());
 	}
@@ -338,10 +418,5 @@ public class Player : MonoBehaviour
 		}
 	}
 
-    public void RevivePlayer()
-    {
-        GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
-        levelCamera.ShouldStayStill = false;
-    }
 	#endregion
 }

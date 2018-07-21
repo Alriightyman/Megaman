@@ -1,9 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using System;
-using Assets.Scripts.Interfaces;
 
-public class RedHornBeast : MonoBehaviour, IResetable
+public class RedHornBeast : MonoBehaviour
 {
 	#region Variables
 	
@@ -48,9 +47,7 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	{
 		lightTransform = gameObject.transform.Find("Light").transform;
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
-		spikeRight = transform.Find("SpikeRight").gameObject;
-        
-        GameEngine.GetResetableObjectList().Add(this);
+		spikeRight = transform.Find("SpikeRight").gameObject;        
 	}
 	
 	// Use this for initialization
@@ -222,6 +219,42 @@ public class RedHornBeast : MonoBehaviour, IResetable
 			lightTransform.GetComponent<Renderer>().enabled = !lightTransform.GetComponent<Renderer>().enabled;
 		}
 	}
+	
+	// 
+	protected void ResetRedHornBeast()
+	{
+		shouldAppear = false;
+		startFighting = false;
+		color = new Vector4(0f, 0f, 0f, 0f);
+		GetComponent<Renderer>().material.color = color;
+		
+		Vector3 spikePos;
+		spikePos = spikeLeft.transform.position;
+		spikePos.y = spikeStartHeight;
+		spikeLeft.transform.position = spikePos;
+		spikePos.x = spikeRight.transform.position.x;
+		spikeRight.transform.position = spikePos;
+		
+		spikeLeft.GetComponent<Renderer>().material.color = color;
+		spikeRight.GetComponent<Renderer>().material.color = color;
+		lightTransform.GetComponent<Renderer>().enabled = false;
+		createRobotOnRightSide = true;
+        this.GetComponent<BoxCollider2D>().enabled = false;
+        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
+        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
+    }
+	
+	// 
+	protected void KillRobotChildren()
+	{
+		// Reset all the enemy bots...
+		Transform robot = transform.Find("Prb_SmallFlyingRobot(Clone)");
+		if ( robot != null)
+		{
+			Destroy(robot.gameObject);
+		}
+		robotCount = 0;	
+	}
 
 	#endregion
 
@@ -249,40 +282,6 @@ public class RedHornBeast : MonoBehaviour, IResetable
         CreateSmallFlyingRobots();
     }
 
-    #endregion
-
-    private void ResetRedHornBeast()
-    {
-        shouldAppear = false;
-        startFighting = false;
-        color = new Vector4(0f, 0f, 0f, 0f);
-        GetComponent<Renderer>().material.color = color;
-
-        Vector3 spikePos;
-        spikePos = spikeLeft.transform.position;
-        spikePos.y = spikeStartHeight;
-        spikeLeft.transform.position = spikePos;
-        spikePos.x = spikeRight.transform.position.x;
-        spikeRight.transform.position = spikePos;
-
-        spikeLeft.GetComponent<Renderer>().material.color = color;
-        spikeRight.GetComponent<Renderer>().material.color = color;
-        lightTransform.GetComponent<Renderer>().enabled = false;
-        createRobotOnRightSide = true;
-        this.GetComponent<BoxCollider2D>().enabled = false;
-        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
-        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
-    }
-
-    private void KillRobotChildren()
-    {
-        // Reset all the enemy bots...
-        Transform robot = transform.Find("Prb_SmallFlyingRobot(Clone)");
-        if (robot != null)
-        {
-            Destroy(robot.gameObject);
-        }
-        robotCount = 0;
-    }
+	#endregion
 }
 
