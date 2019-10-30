@@ -4,6 +4,7 @@ using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
 using Prime31;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -223,7 +224,7 @@ public class Player : MonoBehaviour
 		StopCoroutine(MovePlayerUp());
 
 		IsPlayerInactive = false;
-		Application.LoadLevel (0);
+        SceneManager.LoadScene(0);
 	}
 
 	// 
