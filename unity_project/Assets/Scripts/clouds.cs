@@ -24,6 +24,7 @@ public class Clouds : MonoBehaviour
 		if (name == "Cloud") { scaleAmount = new Vector2(0.3f, 0.3f); }
 		else if (name == "TransparentCloud1") { scaleAmount = new Vector2(0.5f, 0.5f); }
 		else if (name == "TransparentCloud2") { scaleAmount = new Vector2(0.5f, 0.5f); }
+
 	}
 	
 	/* Update is called once per frame */

@@ -5,8 +5,7 @@ using Prime31;
 [RequireComponent (typeof (CharacterController2D))]
 public class Movement : MonoBehaviour
 {
-	#region Variables
-
+    #region Variables
 	// Properties
 	public bool IsTurningLeft			{ get; protected set; }
 	public bool IsJumping 				{ get; protected set; }
@@ -16,7 +15,8 @@ public class Movement : MonoBehaviour
 	public bool IsExternalForceActive 	{ get; set; }
 	public Vector3 ExternalForce 		{ get; set; }
 	public Vector3 CheckPointPosition 	{ get; set; }
-	
+
+    public bool isGrounded;
 	// Protected Instance Variables
 	protected CharacterController2D charController;
     protected bool isFalling = false;
@@ -34,7 +34,10 @@ public class Movement : MonoBehaviour
     [SerializeField]
 	protected Vector3 moveVector = Vector3.zero;
     [SerializeField]
-    protected Vector3 startPosition;
+    protected Vector3 startPositionLocation;
+
+    [SerializeField]
+    protected GameObject StartPosition;
 
     protected Vector2 lastInput = Vector2.zero;
     protected bool lastInputJump = false;
@@ -47,16 +50,35 @@ public class Movement : MonoBehaviour
 	// Use this for initialization
 	protected void Awake()
 	{
-        startPosition = GameObject.Find("StartingPoint").transform.position;
+        startPositionLocation = StartPosition.transform.position;
         charController = gameObject.GetComponent<CharacterController2D>();
-	}
+
+    }
 	
 	// Use this for initialization
 	protected void Start ()
 	{
 		IsHurting = false;
-		transform.position = CheckPointPosition = startPosition;
+		transform.position = CheckPointPosition = startPositionLocation;
 	}
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        {
+            gameObject.transform.parent = collision.gameObject.transform;
+            Debug.Log("On Platform");
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        {
+            this.gameObject.transform.parent = null;
+            Debug.Log("Leaving Platform");
+        }
+    }
 
     #endregion
 
@@ -70,13 +92,13 @@ public class Movement : MonoBehaviour
 		if (moveVector.y > -terminalVelocity)
 		{
 			moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
-        }
+        } 
 		
         // player has landed on the ground
-		if (charController.isGrounded && moveVector.y < -1)
+		if (charController.isGrounded && moveVector.y < -1 && !isFalling)
 		{
 			IsJumping = false;
-			moveVector = new Vector3(moveVector.x, (-1), moveVector.z);
+            moveVector = new Vector3(moveVector.x, (-1), moveVector.z);
 
             // play landing sound
             if(wasJumping == true)
@@ -88,7 +110,7 @@ public class Movement : MonoBehaviour
 		}
 
         // determine if the player is falling
-        if( moveVector.y < 0)
+        if(!charController.isGrounded && moveVector.y < 0)
         {
             isFalling = true;
         }
@@ -147,6 +169,7 @@ public class Movement : MonoBehaviour
 	{
         // hold on to horizontal and vertical movement
         Vector2 currentInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
         // Check Up through jump button or "up" on the keyboard.
         bool isJumpingButtonPressed = Input.GetButton("Jump") | currentInput.y > 0f;
 		// Horizontal movement...
@@ -210,6 +233,8 @@ public class Movement : MonoBehaviour
 	
 	#region Public Functions
 	
+
+
 	//
 	public void Reset()
 	{
@@ -221,6 +246,7 @@ public class Movement : MonoBehaviour
 	//
 	public void HandleMovement()
 	{
+        isGrounded = charController.isGrounded;
 		if (IsFrozen == true)
 		{
 			moveVector = Vector3.zero;
