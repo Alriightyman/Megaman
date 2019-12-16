@@ -1,5 +1,18 @@
 # Megaman ##
 
+## Description (WIP)
+This project was originally based off [ellioman's Megaman 2 Airman Stage recreation](https://github.com/ellioman/Megaman). Very outdated, it's been updated to a more current version of Unity.  Prefabs have been updated to take advantage of new features that were not present in earlier versions of Unity. 
+
+### New Features
+- More accurate movement.  Jumping feels closer to the original games. Not perfect yet, but better than before. 
+- 2D sprites.  The original used 3D Objects and materials. This has been updated to use 2D renderers and collision. 
+- New 2D Character Controller. 
+- Animations.  Now uses animations instead of calculating which material to use based on current object actions. 
+
+
+## __Original Description Below__
+Everything below is the original description.
+
 ## Description ##
 This project was done in 2013 after graduating from Danmarks Tekniske Universitet. Decided to use time while unemployed to learn about Unity3D and what better way to learn than by recreating a part of one of your favorite games? 
 
