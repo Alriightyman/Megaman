@@ -61,25 +61,6 @@ public class Movement : MonoBehaviour
 		IsHurting = false;
 		transform.position = CheckPointPosition = startPositionLocation;
 	}
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
-        {
-            gameObject.transform.parent = collision.gameObject.transform;
-            Debug.Log("On Platform");
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
-        {
-            this.gameObject.transform.parent = null;
-            Debug.Log("Leaving Platform");
-        }
-    }
-
     #endregion
 
 

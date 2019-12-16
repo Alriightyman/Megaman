@@ -11,9 +11,10 @@ public class CirclingPlatform : MonoBehaviour
 	public float circleWidth; 	// What is the width of the ellipse/circle?
 	public float circleHeight; 	// What is the height of the ellipse/circle?
 	public float speedInSeconds; 	// How long should it take to move in a full circle?
-	
-	// Public Properties
-	public bool ShouldAnimate { get; set; }
+    public GameObject platformBoxCollider;
+
+    // Public Properties
+    public bool ShouldAnimate { get; set; }
 	
 	// Private Instance Variables
 	private Vector3 currentPos;
@@ -35,7 +36,7 @@ public class CirclingPlatform : MonoBehaviour
 		convertFromDeg = (fullCircle / fullCircleInDeg);
 		circleCenter = transform.position;
 		ShouldAnimate = false;
-	}
+    }
 	
 	// Called when the Collider other enters the trigger.
 	protected void OnTriggerEnter2D(Collider2D other)
@@ -45,14 +46,6 @@ public class CirclingPlatform : MonoBehaviour
 			GameEngine.Player.transform.parent =  gameObject.transform;
 		}
 	}
-
-    protected void OnTriggerStay2D(Collider2D other)
-    {
-        if (other.tag == "Player")
-        {
-            GameEngine.Player.transform.parent = gameObject.transform;
-        }
-    }
 
     // 
     protected void OnTriggerExit2D(Collider2D other)
