@@ -25,7 +25,7 @@ public class LevelCamera : MonoBehaviour
 	private Vector3 deltaPos;
 
     [SerializeField]
-    private Vector3 startPosition = Vector3.zero;
+    private Transform startPosition;
 	#endregion
 
 
@@ -35,10 +35,10 @@ public class LevelCamera : MonoBehaviour
 	protected void Start () 
 	{
 		//Vector3 startPosition = new Vector3(13.34303f, 11.51588f, -10f);
-		transform.position = startPosition; 
-		CheckpointPosition = startPosition;
-		
-		ShouldStayStill = false;
+		transform.position = new Vector3(startPosition.position.x, startPosition.position.y, -10f); 
+		CheckpointPosition = new Vector3(startPosition.position.x, startPosition.position.y, -10f);
+
+        ShouldStayStill = false;
 		IsTransitioning = false;
 		CanMoveRight = true;
 		CanMoveLeft = true;

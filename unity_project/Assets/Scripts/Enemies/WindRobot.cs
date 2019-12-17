@@ -38,7 +38,7 @@ public class WindRobot : MonoBehaviour
 	// Constructor
 	protected void Awake() 
 	{
-		Assert.IsTrue(animationMaterials.Count == 4);
+		//Assert.IsTrue(animationMaterials.Count == 4);
 	}
 
 	// Use this for initialization
@@ -157,33 +157,33 @@ public class WindRobot : MonoBehaviour
 		SendWindInfoToPlayer();
 	}
 
-	//  Three textures are used to simulate animation on the robot
+	//  Three textures are used to simulate animation on the robot TODO
 	protected void AssignTexture()
 	{
-		if (armsUp == true)
-		{
-			texIndex = (int) (Time.time / texArmsUpInterval);
-			GetComponent<Renderer>().material = animationMaterials[(texIndex % 2) + 2 ];
+		//if (armsUp == true)
+		//{
+		//	texIndex = (int) (Time.time / texArmsUpInterval);
+		//	GetComponent<Renderer>().material = animationMaterials[(texIndex % 2) + 2 ];
 			
-			if (Time.time - texChangeTimer >= 0.35f)
-			{
-				texChangeTimer = Time.time;
-				armsUp = !armsUp;
-			}
-		}
-		else
-		{
-			texIndex = (int) (Time.time / texArmsDownInterval);
-			GetComponent<Renderer>().material = animationMaterials[(texIndex % 2) ];
+		//	if (Time.time - texChangeTimer >= 0.35f)
+		//	{
+		//		texChangeTimer = Time.time;
+		//		armsUp = !armsUp;
+		//	}
+		//}
+		//else
+		//{
+		//	texIndex = (int) (Time.time / texArmsDownInterval);
+		//	GetComponent<Renderer>().material = animationMaterials[(texIndex % 2) ];
 			
-			if (Time.time - texChangeTimer >= 1.99f)
-			{
-				texChangeTimer = Time.time;
-				armsUp = !armsUp;
-			}
-		}
+		//	if (Time.time - texChangeTimer >= 1.99f)
+		//	{
+		//		texChangeTimer = Time.time;
+		//		armsUp = !armsUp;
+		//	}
+		//}
 		
-		GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScale);
+		//GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScale);
 	}
 
 	#endregion

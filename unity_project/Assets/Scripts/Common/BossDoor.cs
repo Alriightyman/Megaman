@@ -54,7 +54,8 @@ public class BossDoor : MonoBehaviour
 				isClosing = false;
 				hasPlayerGoneThrough = true;
 				GameEngine.Player.IsExternalForceActive = false;
-				GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_DOOR);
+                GameEngine.Player.ExternalForce = new Vector3(0.0f, 0.0f, 0.0f);
+                GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_DOOR);
 			}
 		}
 	}
