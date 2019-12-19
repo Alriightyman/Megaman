@@ -33,8 +33,8 @@ public class AirmanBoss : MonoBehaviour
 	protected Vector3 startingPosition = Vector3.zero;
 	protected Vector3 endPos = Vector3.zero;
 	protected Collider2D col = null;
-	protected Renderer rend = null;
-	protected Animation anim = null;
+	protected SpriteRenderer rend = null;
+	protected Animator anim = null;
 	protected List<Transform> windShots = new List<Transform>();
 	protected AirmanWindWeapon weapon = null;
 
@@ -48,13 +48,13 @@ public class AirmanBoss : MonoBehaviour
 	{
 		GameEngine.AirMan = this;
 
-		rend = gameObject.GetComponent<Renderer>();
+		rend = gameObject.GetComponent<SpriteRenderer>();
 		Assert.IsNotNull(rend);
 
 		col = gameObject.GetComponent<Collider2D>();
 		Assert.IsNotNull(col);
 
-		anim = gameObject.GetComponent<Animation>();
+		anim = gameObject.GetComponent<Animator>();
 		Assert.IsNotNull(anim);
 
 		player = FindObjectOfType<Player>();
@@ -116,8 +116,8 @@ public class AirmanBoss : MonoBehaviour
 
 	public void SetUpAirman()
 	{
-		anim["AirmanJumpToTheLeft"].speed = 1.65f;
-		anim["AirmanJumpToTheRight"].speed = 1.65f;
+		//anim["JumpLeft"].speed = 1.65f;
+		//anim["JumpRight"].speed = 1.65f;
 		
 		health.ShowHealthBar = true;
 		health.HealthbarPosition = new Vector2(30.0f, 10.0f);
@@ -278,13 +278,15 @@ public class AirmanBoss : MonoBehaviour
 	{
 		if (shouldFillHealthBar == true)
 		{
-			// Make the robot flex his muscles a little bit...
-			int texIndex = (int) (Time.time / 0.1);
-			rend.material = animationMaterials[texIndex % 3];			
-			rend.material.SetTextureScale("_MainTex", texScale);
-			
-			// Fill up the health bar...
-			if (health.CurrentHealth < health.MaximumHealth)
+            // Make the robot flex his muscles a little bit...
+            //int texIndex = (int) (Time.time / 0.1);
+            //rend.material = animationMaterials[texIndex % 3];			
+            //rend.material.SetTextureScale("_MainTex", texScale);
+            anim.SetBool("Shoot", false);
+            anim.SetBool("Stand", false);
+            anim.SetBool("Blow", true); ;
+            // Fill up the health bar...
+            if (health.CurrentHealth < health.MaximumHealth)
 			{
 				health.CurrentHealth = (health.CurrentHealth + 2.0f);
 			}
@@ -307,9 +309,9 @@ public class AirmanBoss : MonoBehaviour
 			float distCovered = (Time.time - startFallTime) * 10.0f;
 	        float fracJourney = distCovered / journeyLength;
 			transform.position = Vector3.Lerp(startingPosition, endPos, fracJourney);
-			rend.material.SetTextureScale("_MainTex", texScale);
-			
-			if (fracJourney >= 1.0)
+            //rend.material.SetTextureScale("_MainTex", texScale);
+            float amount = 2.0f;
+			if (fracJourney >= amount)
 			{
 				shouldFillHealthBar = true;
 				GameEngine.SoundManager.Play(AirmanLevelSounds.HEALTHBAR_FILLING);
@@ -322,29 +324,39 @@ public class AirmanBoss : MonoBehaviour
 	{
 		if (weapon.ShouldDisplayJumpingTex == true)
 		{
-			texIndex = (int) (Time.time / texInterval);
-			rend.material = animationMaterials[ (texIndex % 2) + 6];	
+			//texIndex = (int) (Time.time / texInterval);
+			//rend.material = animationMaterials[ (texIndex % 2) + 6];	
 		}
 		else if (weapon.ShouldDisplayShootingTex == true)
 		{
-			rend.material = animationMaterials[4];
-		}
+            //rend.material = animationMaterials[4];
+            //anim.Play("Shoot");
+            anim.SetBool("Shoot", true);
+            anim.SetBool("Stand", false);
+            anim.SetBool("Blow", false);
+        }
 		else if (weapon.ShouldDisplayBlowingTex == true)
 		{
-			texIndex = (int) (Time.time / texInterval);
-			rend.material = animationMaterials[ (texIndex % 2) + 2];	
+            //texIndex = (int) (Time.time / texInterval);
+            //rend.material = animationMaterials[ (texIndex % 2) + 2];	
+            anim.SetBool("Shoot", false);
+            anim.SetBool("Stand", false);
+            anim.SetBool("Blow", true); ;
 		}
 		else
 		{
-			rend.material = animationMaterials[0];
-		}
+            //rend.material = animationMaterials[0];
+            anim.SetBool("Shoot", false);
+            anim.SetBool("Stand", true);
+            anim.SetBool("Blow", false); ;
+        }
 		
 		if (health.IsHurting == true)
 		{
-			rend.material.color *= 0.75f + Random.value;
+			rend.color *= 0.75f + Random.value;
 		}
 		
-		texScale = (weapon.IsTurningLeft == true) ? texScaleLeft : texScaleRight;
-		rend.material.SetTextureScale("_MainTex", texScale);
+		rend.flipX = !weapon.IsTurningLeft;
+		//rend.material.SetTextureScale("_MainTex", texScale);
 	}
 }

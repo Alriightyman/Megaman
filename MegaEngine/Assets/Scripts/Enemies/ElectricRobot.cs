@@ -12,9 +12,12 @@ public class ElectricRobot : MonoBehaviour
 	[SerializeField] protected CirclingPlatform platform;
 	[SerializeField] protected BoxCollider2D robotCollider;
 	[SerializeField] protected List<Material> textureMaterials;
+    
+    private Animator robotAnim = null;
+    private Animator platformAnim = null;
 
-	// Protected Instance Variables
-	protected int health = 30;
+    // Protected Instance Variables
+    protected int health = 30;
 	protected int currentHealth;
 	protected int damage = 10;
 	protected int texIndex = 0;
@@ -31,7 +34,7 @@ public class ElectricRobot : MonoBehaviour
 	protected Vector3 turningLeftColliderPos = new Vector3(0.2f, -0.8f, 0f);
 	protected Vector3 turningRightColliderPos = new Vector3(-0.2f, -0.8f, 0f);
 	protected Collider2D col = null;
-	protected Renderer rend = null;
+	protected SpriteRenderer rend = null;
 
 	#endregion
 
@@ -44,9 +47,14 @@ public class ElectricRobot : MonoBehaviour
 		col = GetComponent<Collider2D>();
 		Assert.IsNotNull(col);
 
-		rend = GetComponent<Renderer>();
+		rend = GetComponent<SpriteRenderer>();
 		Assert.IsNotNull(rend);
-	}
+
+        robotAnim = GetComponent<Animator>();
+        Assert.IsNotNull(robotAnim);
+        platformAnim = platform.GetComponentInChildren<Animator>();
+        Assert.IsNotNull(platformAnim);
+    }
 
 	// Use this for initialization 
 	protected void Start()
@@ -110,7 +118,8 @@ public class ElectricRobot : MonoBehaviour
 	// 
 	protected void AssignTexture()
 	{
-		texIndex = (int) (Time.time / texChangeInterval);
+        platformAnim.Play("Platform");
+		//texIndex = (int) (Time.time / texChangeInterval);
 		
 		// Make the robot always face the player...
 		bool playerOnLeftSide = (GameEngine.Player.transform.position.x - transform.position.x < -1.0f);
@@ -118,9 +127,11 @@ public class ElectricRobot : MonoBehaviour
 		// If the robot is dead
 		if (isDead == true)
 		{
-			// display the platform textures...
-			rend.material = textureMaterials[(texIndex % 2) + 6 ];
-			rend.material.SetTextureScale("_MainTex", texScaleLeft);
+            robotAnim.StopPlayback();
+            // display the platform textures...
+            //rend.material = textureMaterials[(texIndex % 2) + 6 ];
+            //rend.material.SetTextureScale("_MainTex", texScaleLeft);
+            rend.enabled = false;
             //robotCollider.center = turningLeftColliderPos;
             robotCollider.offset = turningLeftColliderPos;
 		}
@@ -128,18 +139,22 @@ public class ElectricRobot : MonoBehaviour
 		// If the robot is shooting...
 		else if (isShooting == true)
 		{
-			rend.material = textureMaterials[(texIndex % 2) + 4 ];
-			texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
-			rend.material.SetTextureScale("_MainTex", texScale);
-			robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+            robotAnim.Play("Throw");
+            //rend.material = textureMaterials[(texIndex % 2) + 4 ];
+            //texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
+            //rend.material.SetTextureScale("_MainTex", texScale);
+            rend.flipX = !playerOnLeftSide;
+            robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 		else
 		{
+            robotAnim.Play("Wait");
 			// Assign the material
-			rend.material = textureMaterials[texIndex % 4];
-			texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
-			rend.material.SetTextureScale("_MainTex", texScale);
-			robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+			//rend.material = textureMaterials[texIndex % 4];
+			//texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
+			//rend.material.SetTextureScale("_MainTex", texScale);
+            rend.flipX = !playerOnLeftSide;
+            robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 	}
 	

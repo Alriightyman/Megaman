@@ -118,7 +118,7 @@ TextureImporter:
         width: 216
         height: 180
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -139,7 +139,7 @@ TextureImporter:
         width: 216
         height: 180
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -156,11 +156,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 453
-        y: 65
+        y: 66
         width: 222
         height: 186
       alignment: 9
-      pivot: {x: 0.5, y: 0.45}
+      pivot: {x: 0.51, y: 0.483}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -176,12 +176,12 @@ TextureImporter:
       name: Matasaburo_3
       rect:
         serializedVersion: 2
-        x: 677
+        x: 678
         y: 65
         width: 222
         height: 186
       alignment: 9
-      pivot: {x: 0.5, y: 0.45}
+      pivot: {x: 0.51, y: 0.483}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

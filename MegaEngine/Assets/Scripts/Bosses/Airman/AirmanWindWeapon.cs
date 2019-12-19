@@ -32,7 +32,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	protected float windDestroyDelay = 1.0f;
 	protected float windPower = 400.0f;
 	protected Player player = null;
-	protected Animation anim = null;
+	protected Animator anim = null;
 	protected List<Vector3> nextAttack;
 	protected List<Vector3> attack1Right = new List<Vector3>();
 	protected List<Vector3> attack2Right = new List<Vector3>();
@@ -53,7 +53,7 @@ public class AirmanWindWeapon : MonoBehaviour
 		player = FindObjectOfType<Player>();
 		Assert.IsNotNull(player);
 
-		anim = GetComponent<Animation>();
+		anim = GetComponent<Animator>();
 		Assert.IsNotNull(anim);
 	}
 	
@@ -62,8 +62,9 @@ public class AirmanWindWeapon : MonoBehaviour
 	{
 		InitAttackLists();
 		nextAttack = attack1Left;
-		
-		anim.Stop();
+
+        //anim.Stop();
+        anim.StopPlayback();
 		shootingCounter = 0;
 		
 		IsTurningLeft = true;
@@ -265,28 +266,39 @@ public class AirmanWindWeapon : MonoBehaviour
 	{
 		if (isPlayingAnimation == false)
 		{
+
 			if (IsTurningLeft == true)
 			{
-				anim.Play("AirmanJumpToTheLeft");
+                anim.SetTrigger("JumpLeft");
 			}
 			else
-			{
-				anim.Play("AirmanJumpToTheRight");
+			{                
+                anim.SetTrigger("JumpRight");
 			}
-			
-			ShouldDisplayJumpingTex = true;
+
+            anim.SetBool("Shoot", false);
+            anim.SetBool("Stand", false);
+            anim.SetBool("Blow", false);
+
+            ShouldDisplayJumpingTex = true;
 			isPlayingAnimation = true;			
 		}
 		
-		// If we're done playing the animation...
-		if (anim.IsPlaying("AirmanJumpToTheLeft") == false && anim.IsPlaying("AirmanJumpToTheRight") == false)
-		{
-			isPlayingAnimation = false;
+		// If we're done playing the animation...    
+        if(anim.GetCurrentAnimatorStateInfo(0).IsName("JumpLeft") == false && anim.GetCurrentAnimatorStateInfo(0).IsName("JumpRight") == false)
+        //if (anim.IsPlaying("AirmanJumpToTheLeft") == false && anim.IsPlaying("AirmanJumpToTheRight") == false)
+        {
+            //anim.applyRootMotion = true;
+            isPlayingAnimation = false;
 			ShouldDisplayJumpingTex = false;
 			IsTurningLeft = !IsTurningLeft;
 			isShooting = true;
 			isJumping = false;
 		}
+        else
+        {
+            
+        }
 	}
 
 	#endregion
@@ -303,7 +315,7 @@ public class AirmanWindWeapon : MonoBehaviour
 
 	public void Reset()
 	{
-		anim.Stop();
+		anim.StopPlayback();
 		shootingCounter = 0;
 		nextAttack = attack1Left;
 		IsTurningLeft = true;

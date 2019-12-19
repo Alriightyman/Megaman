@@ -47,7 +47,9 @@ public class ElectricFloorRobotShot : MonoBehaviour
 		{
 			texTimer = Time.time;
 			texDir *= -1;
-			GetComponent<Renderer>().material.SetTextureScale("_MainTex", new Vector2(texDir, 1));
+            //GetComponent<Renderer>().material.SetTextureScale("_MainTex", new Vector2(texDir, 1));
+            var rend = GetComponent<SpriteRenderer>();
+            rend.flipX = !rend.flipX;
 		}
 		
 		// Time to kill the shot?

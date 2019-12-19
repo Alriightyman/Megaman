@@ -29,7 +29,7 @@ public class WindRobot : MonoBehaviour
 	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
 	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 windDirection = new Vector3(-1.0f, 0f, 0f);
-
+    private Animator anim = null;
 	#endregion
 
 
@@ -38,7 +38,8 @@ public class WindRobot : MonoBehaviour
 	// Constructor
 	protected void Awake() 
 	{
-		//Assert.IsTrue(animationMaterials.Count == 4);
+        //Assert.IsTrue(animationMaterials.Count == 4);
+        anim = GetComponent<Animator>();
 	}
 
 	// Use this for initialization
@@ -160,6 +161,7 @@ public class WindRobot : MonoBehaviour
 	//  Three textures are used to simulate animation on the robot TODO
 	protected void AssignTexture()
 	{
+        anim.Play("Idle");
 		//if (armsUp == true)
 		//{
 		//	texIndex = (int) (Time.time / texArmsUpInterval);

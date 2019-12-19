@@ -21,8 +21,8 @@ public class AirmanWind : MonoBehaviour
 	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
 	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 windPosition = Vector3.zero;
-	protected Renderer rend = null;
-
+	protected SpriteRenderer rend = null;
+    private Animator anim = null;
 	#endregion
 	
 	
@@ -31,9 +31,12 @@ public class AirmanWind : MonoBehaviour
 	// Constructor
 	protected void Awake()
 	{
-		rend = GetComponent<Renderer>();
+		rend = GetComponent<SpriteRenderer>();
 		Assert.IsNotNull(rend);
-	}
+
+        anim = GetComponent<Animator>();
+        anim.Play("Wind");
+    }
 
 	// Update is called once per frame
 	protected void Update () 
@@ -47,14 +50,15 @@ public class AirmanWind : MonoBehaviour
 				beginSequence = false;
 			}
 		}
-		
-		// Update the textures...
-		texIndex = (int) (Time.time / texChangeInterval);
-		rend.material = animationMaterials[texIndex % (animationMaterials.Count-1)];
-		rend.material.SetTextureScale("_MainTex", texScale);
-		
-		// If the wind is being blown away...
-		if (leaving == true)
+
+        // Update the textures...
+        //texIndex = (int) (Time.time / texChangeInterval);
+        //rend.material = animationMaterials[texIndex % (animationMaterials.Count-1)];
+        //rend.material.SetTextureScale("_MainTex", texScale);
+        rend.flipX = !shouldBlowLeft;
+
+        // If the wind is being blown away...
+        if (leaving == true)
 		{
 			// Move the wind away...
 			if (shouldBlowLeft)
