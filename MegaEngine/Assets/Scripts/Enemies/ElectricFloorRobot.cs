@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class ElectricFloorRobot : MonoBehaviour 
 {
@@ -12,14 +13,16 @@ public class ElectricFloorRobot : MonoBehaviour
 	protected float distanceToStop = 14.0f;
 	protected float attackDelay = 2.0f;
 	protected float attackTimer;
+    protected int health = 30;
+    protected int currentHealth;
 
-	#endregion
+    #endregion
 
 
-	#region MonoBehaviour
+    #region MonoBehaviour
 
-	// Use this for initialization
-	protected void Start () 
+    // Use this for initialization
+    protected void Start () 
 	{
 		attackTimer = Time.time;
 	}
@@ -74,6 +77,23 @@ public class ElectricFloorRobot : MonoBehaviour
 	{
 		KillChildren();
 	}
-	
-	#endregion
+
+    protected void TakeDamage(int damageTaken)
+    {
+        GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
+        currentHealth -= damageTaken;
+
+        if (currentHealth <= 0)
+        {
+            KillRobot();
+        }
+    }
+
+    private void KillRobot()
+    {
+        KillChildren();
+        Destroy(gameObject);
+    }
+
+    #endregion
 }
