@@ -9,6 +9,13 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	
 	// Unity Editor Variables
 	public Rigidbody2D flyingRobot;
+    [SerializeField] private Transform spawnPointLeft;
+    [SerializeField] private Transform spawnPointRight;
+    [SerializeField] private Transform leftYPos;
+    [SerializeField] private Transform rightYPos;
+    [SerializeField] protected float spikeRisingSpeed = 0.075f;              //
+    [SerializeField] protected float spikeLoweringSpeed = 1.00f;                //
+    [SerializeField] private float maxSpikeHeight = 0.6f;
 
     // should only be 3 bots MAX, so this value needs to be static
     private static int robotCount = 0;                          
@@ -22,8 +29,6 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	protected float lightStartTime;							//
 	protected float distanceToDisappear = 32.0f;			//
 	protected float spikeStartHeight;						//
-	protected float spikeRisingSpeed = 0.075f;				//
-	protected float spikeLoweringSpeed = 1.00f;				//
 	protected float spikeWaitTimer = 0.0f;					// Timer used for timing the spike while they wait
 	protected float spikeDelayTime = 2.0f; 					// How long should the spike wait at the top?
     [SerializeField]
@@ -37,7 +42,6 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	protected GameObject spikeRight;						//
 
     bool canMakeRobots = false;
-    const float maxSpikeHeight = 0.6f;
     #endregion
 
 
@@ -141,12 +145,15 @@ public class RedHornBeast : MonoBehaviour, IResetable
     #region Protected Functions
 
     // 
-    protected void CreateRobot( float speed, Vector3 pos, Vector3 vel )
+    protected SmallFlyingRobot CreateRobot( float speed, Vector3 pos, Vector3 vel)
 	{
-        Rigidbody2D robot = Instantiate(flyingRobot, pos, transform.rotation);
+        Rigidbody2D robot = Instantiate(flyingRobot, transform.position, transform.rotation);
         Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+        robot.gameObject.transform.position = pos;
         robot.transform.parent = gameObject.transform;
         robot.velocity = vel;
+
+        return robot.gameObject.GetComponent<SmallFlyingRobot>();
 	}
 	
 	// 
@@ -158,16 +165,18 @@ public class RedHornBeast : MonoBehaviour, IResetable
             // get the gameobject transform that is a child of this gameobject
             if ( createRobotOnRightSide )
 			{                
-				Vector3 pos = transform.Find("SpawnPointRight").position;
-                pos.x += transform.localScale.x / 2.0f;
-				CreateRobot( 0.0f, pos, Vector3.right );
+				Vector3 pos = spawnPointRight.position;
+				SmallFlyingRobot bot = CreateRobot( 0.0f, pos, Vector3.right );
+                bot.RightXPos = rightYPos.position.x;
+                bot.YPos = leftYPos.position.y;
 			}
 			else 
 			{
-				Vector3 pos = transform.Find("SpawnPointLeft").position;
-                pos.x -= transform.localScale.x / 2.0f;
-				CreateRobot( 0.0f, pos, -Vector3.right );
-			}
+				Vector3 pos = spawnPointLeft.position;
+                SmallFlyingRobot bot = CreateRobot( 0.0f, pos, -Vector3.right );
+                bot.LefttXPos = leftYPos.position.x;
+                bot.YPos = leftYPos.position.y;
+            }
 
             robotCreateDelayTimer = Time.time;
             createRobotOnRightSide = !createRobotOnRightSide;
@@ -180,11 +189,11 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	{
 		if ( spikeRising )
 		{
-			spikeTransforms = new Vector3(0f, spikeLeftPos.y * Time.deltaTime * spikeRisingSpeed, 0f);
+			spikeTransforms = new Vector3(0f, spikeLeftPos.y * Time.deltaTime * -spikeRisingSpeed, 0f);
 			spikeLeft.transform.localPosition += spikeTransforms;
 			spikeRight.transform.localPosition += spikeTransforms;
 			
-			if ( spikeLeft.transform.localPosition.y - spikeLeftPos.y >= maxSpikeHeight)
+			if ( spikeLeft.transform.localPosition.y  >= maxSpikeHeight)
 			{
 				spikeRising = false;
 				spikeLowering = false;
@@ -193,7 +202,7 @@ public class RedHornBeast : MonoBehaviour, IResetable
 		// 
 		else if ( spikeLowering )
 		{
-			spikeTransforms = new Vector3(0f, spikeLeftPos.y * Time.deltaTime * spikeLoweringSpeed, 0f);
+			spikeTransforms = new Vector3(0f, spikeLeftPos.y * Time.deltaTime * -spikeLoweringSpeed, 0f);
 			spikeLeft.transform.localPosition -= spikeTransforms;
 			spikeRight.transform.localPosition -= spikeTransforms;
 			
@@ -278,7 +287,7 @@ public class RedHornBeast : MonoBehaviour, IResetable
 	private void KillRobotChildren()
 	{
 		// Reset all the enemy bots...
-		Transform robot = transform.Find("Prb_SmallFlyingRobot(Clone)");
+		Transform robot = transform.Find("PetitGoblin(Clone)");
 		if ( robot != null)
 		{
 			Destroy(robot.gameObject);

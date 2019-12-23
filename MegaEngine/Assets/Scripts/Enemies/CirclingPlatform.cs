@@ -24,7 +24,8 @@ public class CirclingPlatform : MonoBehaviour
 	private float fullCircle = (2.0f*Mathf.PI);
 	private float fullCircleInDeg = 360.0f;
 	private float convertFromDeg;
-
+    private Vector3 initPos = new Vector3(0, 0, 0);
+    bool start = false;
 	#endregion
 
 	#region MonoBehaviour
@@ -36,10 +37,16 @@ public class CirclingPlatform : MonoBehaviour
 		convertFromDeg = (fullCircle / fullCircleInDeg);
 		circleCenter = transform.position;
 		ShouldAnimate = false;
+        start = true;
+        initPos = new Vector3(currentPos.x, currentPos.y, currentPos.z);
     }
-	
-	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other)
+    private void Awake()
+    {
+        
+    }
+
+    // Called when the Collider other enters the trigger.
+    protected void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -59,7 +66,7 @@ public class CirclingPlatform : MonoBehaviour
 	// Update is called once per frame
 	protected void Update()
 	{
-		if (speedInSeconds <= 0)
+        if (speedInSeconds <= 0)
 		{
 			return;
 		}
@@ -79,9 +86,43 @@ public class CirclingPlatform : MonoBehaviour
 			currentPos.x = circleCenter.x + (circleWidth/2.0f) * Mathf.Cos(angle);
 			currentPos.y = circleCenter.y + (circleHeight/2.0f) * Mathf.Sin(angle);
 			
-			transform.position = currentPos;
-		}
+			transform.position = currentPos;           
+
+        }
 	}
 
-	#endregion
+    void OnDrawGizmos()
+    {
+        // Display the explosion radius when selected
+        //Gizmos.color = Color.white;
+        //Gizmos.DrawWireSphere(transform.position, circleHeight);
+        if (start == false)
+            DrawEllipse(transform.position, transform.forward, transform.up, circleWidth * transform.localScale.x, circleHeight * transform.localScale.y, 32, Color.yellow); 
+        else
+            DrawEllipse(initPos, transform.forward, transform.up, circleWidth * transform.localScale.x, circleHeight * transform.localScale.y, 32, Color.yellow); 
+
+    }
+
+    private static void DrawEllipse(Vector3 pos, Vector3 forward, Vector3 up, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+    {
+        float angle = 0f;
+        Quaternion rot = Quaternion.LookRotation(forward, up);
+        Vector3 lastPoint = Vector3.zero;
+        Vector3 thisPoint = Vector3.zero;
+
+        for (int i = 0; i < segments + 1; i++)
+        {
+            thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX /2;
+            thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY/ 2;
+
+            if (i > 0)
+            {
+                Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+            }
+
+            lastPoint = thisPoint;
+            angle += 360f / segments;
+        }
+    }
+    #endregion
 }

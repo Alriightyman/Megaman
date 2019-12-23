@@ -1,84 +1,89 @@
 using UnityEngine;
 using System.Collections;
 using Prime31;
+using System;
 
 [RequireComponent (typeof (CharacterController2D))]
 public class Movement : MonoBehaviour
 {
     #region Variables
 	// Properties
-	public bool IsTurningLeft			{ get; protected set; }
-	public bool IsJumping 				{ get; protected set; }
-	public bool IsWalking				{ get; protected set; }
-	public bool IsHurting				{ get; set; }
-	public bool IsFrozen 				{ get; set; }
-	public bool IsExternalForceActive 	{ get; set; }
-	public Vector3 ExternalForce 		{ get; set; }
-	public Vector3 CheckPointPosition 	{ get; set; }
+	public bool IsTurningLeft { get; protected set; }
+	public bool IsJumping { get; protected set; }
+	public bool IsWalking { get; protected set; }
+	public bool IsHurting { get; set; }
+	public bool IsFrozen  { get; set; }
+	public bool IsExternalForceActive { get; set; }
+	public Vector3 ExternalForce { get; set; }
+	public Vector3 CheckPointPosition { get; set; }
+    public bool IsEnteringLevel { get; set; }
+    public bool IsFalling { get; set; } = false;
 
-    public bool isGrounded;
-	// Protected Instance Variables
-	protected CharacterController2D charController;
-    protected bool isFalling = false;
-	protected bool cheating = false;
-    [SerializeField]
-    protected float gravity = 75f; //40f;	 			// Downward force
-    [SerializeField]
-	protected float terminalVelocity = 30f;	// Max downward speed
-    [SerializeField]
-    protected float jumpSpeed = 25f; //20f;			// Upward speed
-    [SerializeField]
-    protected float moveSpeed = 8f; //10f;			// Left/Right speed    
-	protected float verticalVelocity;
-	protected float hurtingForce = 1.0f;
-    [SerializeField]
-	protected Vector3 moveVector = Vector3.zero;
-    [SerializeField]
-    protected Vector3 startPositionLocation;
+    // Downward force, originally 40f		
+    [SerializeField] protected float gravity = 75f;
+    // Max downward speed
+    [SerializeField] protected float terminalVelocity = 30f;
+    // Upward speed, origianlly 20f			
+    [SerializeField] protected float jumpSpeed = 25f;
+    // Left/Right speed, originally 10f
+    [SerializeField] protected float moveSpeed = 8f;         		
+    [SerializeField] private float landingSpeed = 1f;
+    [SerializeField] protected float hurtingForce = 1.0f;
+    [SerializeField] protected Vector3 moveVector = Vector3.zero;
+    [SerializeField] protected Vector3 startPositionLocation;
+    [SerializeField] protected GameObject StartPosition;
 
-    [SerializeField]
-    protected GameObject StartPosition;
 
+    // Protected Instance Variables
     protected Vector2 lastInput = Vector2.zero;
     protected bool lastInputJump = false;
+    protected float verticalVelocity;
+    public bool isGrounded;
+    protected CharacterController2D charController;
+    
+    protected bool cheating = false;
+    private bool wasJumping = false;
+ 
+    #endregion
 
-	#endregion
-	
-	
-	#region MonoBehaviour
-
-	// Use this for initialization
-	protected void Awake()
+    #region MonoBehaviour
+    // Use this for initialization
+    protected void Awake()
 	{
-        startPositionLocation = StartPosition.transform.position;
+        
         charController = gameObject.GetComponent<CharacterController2D>();
-
     }
 	
 	// Use this for initialization
 	protected void Start ()
 	{
-		IsHurting = false;
-		transform.position = CheckPointPosition = startPositionLocation;
+        startPositionLocation = StartPosition.transform.position;
+        CheckPointPosition = startPositionLocation;
+        IsHurting = false;
+        //transform.position = CheckPointPosition = startPositionLocation;
+        transform.position = new Vector2(startPositionLocation.x, transform.position.y);
 	}
     #endregion
 
 
     #region Protected Functions
-    private bool wasJumping = false;
 	//
 	protected void ApplyGravity()
 	{
+        // drop faster if entering level from above
+        var finalGravity = IsEnteringLevel ? gravity * landingSpeed : gravity;
+
         // cap downward speed
 		if (moveVector.y > -terminalVelocity)
 		{
-			moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
+			moveVector = new Vector3(moveVector.x, moveVector.y - finalGravity * Time.deltaTime, moveVector.z);
         } 
 		
         // player has landed on the ground
-		if (charController.isGrounded && moveVector.y < -1 && !isFalling)
+		if (charController.isGrounded && moveVector.y < -1 && !IsFalling)
 		{
-			IsJumping = false;
+            // no longer jumping
+			IsJumping = false; 
             moveVector = new Vector3(moveVector.x, (-1), moveVector.z);
 
             // play landing sound
@@ -87,17 +92,29 @@ public class Movement : MonoBehaviour
                 GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
             }
 
+            // no longer jumping
             wasJumping = false;
 		}
 
+        //Animator anim = GetComponent<Animator>();
+
+
         // determine if the player is falling
-        if(!charController.isGrounded && moveVector.y < 0)
+        if (!charController.isGrounded && moveVector.y < 0)
         {
-            isFalling = true;
+            //if (!IsFalling && !IsEnteringLevel)
+            //{
+            //    //anim.Play("Falling");
+            //    anim.SetBool("IsFalling", true);
+            //}
+
+            IsFalling = true;
+
         }
         else
         {
-            isFalling = false;
+            IsFalling = false;
+            //anim.SetBool("IsFalling", false);
         }
 	}
 	
@@ -152,7 +169,7 @@ public class Movement : MonoBehaviour
         Vector2 currentInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         // Check Up through jump button or "up" on the keyboard.
-        bool isJumpingButtonPressed = Input.GetButton("Jump") | currentInput.y > 0f;
+        bool isJumpingButtonPressed = Input.GetButton("Jump");
 		// Horizontal movement...
 		float deadZone = 0.01f;
 		verticalVelocity = moveVector.y;
@@ -189,7 +206,7 @@ public class Movement : MonoBehaviour
                 }
             }
 
-            if ( !isJumpingButtonPressed && lastInputJump == true && isFalling == false )
+            if ( !isJumpingButtonPressed && lastInputJump == true && IsFalling == false )
             {
                 verticalVelocity = 0.0f;
             }
@@ -222,6 +239,7 @@ public class Movement : MonoBehaviour
 		IsFrozen = false;
 		IsHurting = false;
 		transform.position = CheckPointPosition;
+        IsEnteringLevel = true;
 	}
 
 	//
@@ -236,9 +254,15 @@ public class Movement : MonoBehaviour
 		}
 		else
 		{
-			CheckMovement();
+            if (!IsEnteringLevel)
+            {
+                CheckMovement();
+            }
+
 			ProcessMovement();
 		}
+
+        Debug.Log(String.Format("Player Time: {0}", Time.deltaTime));
 	}
 
 	#endregion

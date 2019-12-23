@@ -27,9 +27,6 @@ public class AirmanBoss : MonoBehaviour
 	protected float hurtingTimer;
 	protected Player player;
 	protected Health health;
-	protected Vector2 texScale = new Vector2(-1.0f, -1.0f);
-	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
-	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 startingPosition = Vector3.zero;
 	protected Vector3 endPos = Vector3.zero;
 	protected Collider2D col = null;
@@ -159,7 +156,6 @@ public class AirmanBoss : MonoBehaviour
 		health.IsDead = false;
 		isFighting = false;
 		shouldFillHealthBar = false;
-		texScale = texScaleLeft;
 		
 		GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = true;
 		GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");

@@ -8,7 +8,7 @@ public enum AirmanLevelSounds
 	DEATH,
 	HURTING,
 	LANDING,
-	SHOOTING,
+    SHOOTING,
 	BOSS_MUSIC,
 	BOSS_DOOR,
 	BOSS_HURTING,

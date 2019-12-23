@@ -4,6 +4,7 @@ using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Prime31;
 
 public class Player : MonoBehaviour
 {
@@ -11,9 +12,8 @@ public class Player : MonoBehaviour
 
     // Unity Editor Variables
     [SerializeField] protected Rigidbody2D deathParticlePrefab;
-    [SerializeField] protected Renderer playerTexRend;
     [SerializeField] protected Transform playerTexObj;
-    [SerializeField] protected List<Material> playerMaterials;
+    CharacterController2D controller;
 
     // Public Properties
     public bool IsPlayerInactive { get; set; }
@@ -32,16 +32,14 @@ public class Player : MonoBehaviour
     protected float walkingTexInterval = 0.2f;
     protected float standingTexInterval = 0.3f;
     protected Health health = null;
-    protected Vector2 texScaleLeft = new Vector2(1.0f, -1.0f);
-    protected Vector2 texScaleRight = new Vector2(-1.0f, -1.0f);
-    //protected Collider col = null;
     protected BoxCollider2D col = null;
     protected Movement movement = null;
     protected Shooting shooting = null;
     protected LevelCamera levelCamera = null;
-
+    protected bool startPlaying = false;
     private Animator animator;
-
+    private SpriteRenderer renderer;
+    int lives = 3;
     #endregion
 
 
@@ -53,7 +51,6 @@ public class Player : MonoBehaviour
         GameEngine.Player = this;
 
         Assert.IsNotNull(deathParticlePrefab);
-        Assert.IsTrue(playerMaterials.Count == 17);
 
         levelCamera = FindObjectOfType<LevelCamera>();
         Assert.IsNotNull(levelCamera);
@@ -72,6 +69,10 @@ public class Player : MonoBehaviour
 
         animator = GetComponent<Animator>();
         Assert.IsNotNull(animator);
+
+        controller = GetComponent<CharacterController2D>();
+
+        renderer = GetComponent<SpriteRenderer>();
     }
 
     // Use this for initialization 
@@ -80,6 +81,9 @@ public class Player : MonoBehaviour
         IsPlayerInactive = false;
         health.HealthbarPosition = new Vector2(10, 10);
         health.ShowHealthBar = true;
+        movement.IsEnteringLevel = true;
+        StartCoroutine("EnterLevel");
+
     }
 
     // Update is called once per frame 
@@ -90,57 +94,94 @@ public class Player : MonoBehaviour
             // Handle the horizontal and Vertical movements
             movement.HandleMovement();
 
-            // Handle shooting
-            if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetButtonDown("Fire1")) && shooting.CanShoot == true)
+            if (startPlaying == true)
             {
-                shooting.Shoot(movement.IsTurningLeft);
-                GameEngine.SoundManager.Play(AirmanLevelSounds.SHOOTING);
-            }
 
-            // Handle health
-            if (health.IsHurting)
-            {
-                if (Time.time - health.HurtingTimer >= health.HurtingDelay)
+                // Handle shooting
+                if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetButtonDown("Fire1")) && shooting.CanShoot == true)
                 {
-                    movement.IsHurting = false;
-                    health.IsHurting = false;
-                    CanShoot = true;
-                    Invoke("ResetInvincibility", 3f);
+                    shooting.Shoot(movement.IsTurningLeft);
+                }
+
+                // Handle health
+                if (health.IsHurting)
+                {
+                    if (Time.time - health.HurtingTimer >= health.HurtingDelay)
+                    {
+                        movement.IsHurting = false;
+                        health.IsHurting = false;
+                        CanShoot = true;
+
+                        StartCoroutine("InvincibleBlink");
+
+                        Invoke("ResetInvincibility", 3f);
+                    }
+                }
+
+                // don't "blink" while hurt animation is showing
+                //if (IsInvincible && !animator.GetCurrentAnimatorStateInfo(0).IsName("Hurt"))
+                //{
+                //    var color = GetComponent<SpriteRenderer>().color;
+                //    color.a = (color.a == 0f) ? 1f : 0f;
+                //    GetComponent<SpriteRenderer>().color = color;
+                //}
+
+                bool flip = true;
+                if (movement.IsTurningLeft == true)
+                {
+                    flip = false;
+                }
+
+                GetComponent<SpriteRenderer>().flipX = flip;
+
+                // Setup Animations
+                //SetAnimation();
+                SetAnimationState();
+
+                // keep the z axis as zero <-- Should always be zero.
+                if (transform.position.z != 0)
+                {
+                    Vector3 pos = transform.position;
+                    pos.z = 0;
+                    transform.position = pos;
                 }
             }
-
-            if (IsInvincible)
-            {
-                //playerTexRend.enabled = !playerTexRend.enabled;
-                var color = GetComponent<SpriteRenderer>().color;
-                color.a = (color.a == 0f) ? 1f : 0f;
-                GetComponent<SpriteRenderer>().color = color;
-            }
-
-            bool flip = true;
-            if (movement.IsTurningLeft == true)
-            {
-                flip = false;
-            }
-
-            GetComponent<SpriteRenderer>().flipX = flip;
-
-            // Assign the appropriate texture to the player...
-            AssignTexture();
-
-            // keep the z axis as zero
-            if (transform.position.z != 0)
-            {
-                Vector3 pos = transform.position;
-                pos.z = 0;
-                transform.position = pos;
-            }
         }
+    }
+    private IEnumerator InvincibleBlink()
+    {
+        while (true)
+        {
+            var color = GetComponent<SpriteRenderer>().color;
+            color.a = (color.a == 0f) ? 1f : 0f;
+            GetComponent<SpriteRenderer>().color = color;
+            yield return new WaitForSeconds(0f);
+        }
+        //
+    }
+
+    private IEnumerator EnterLevel()
+    {
+        animator.SetTrigger("EnteringLevel");
+        yield return new WaitUntil(new System.Func<bool>(() => controller.isGrounded));
+        StartCoroutine("Landing");
+
+    }
+
+    private IEnumerator Landing()
+    {
+        StopCoroutine("EnterLevel");
+         yield return new WaitUntil(new System.Func<bool>(() => { animator.SetBool("IsGrounded", controller.isGrounded); return animator.GetCurrentAnimatorStateInfo(0).IsName("Standing"); }));
+        startPlaying = true;
+        movement.IsEnteringLevel = false;
+        StopCoroutine("Landing");
     }
 
     private void ResetInvincibility()
     {
         IsInvincible = false;
+
+        StopCoroutine("InvincibleBlink");
 
         var color = GetComponent<SpriteRenderer>().color;
         color.a = 1f;
@@ -164,7 +205,10 @@ public class Player : MonoBehaviour
         health.Reset();
         movement.Reset();
         shooting.Reset();
+        animator.StopPlayback();
         IsPlayerInactive = false;
+        animator.Play("EnterLevel");
+        StartCoroutine("EnterLevel");
     }
 
     // 
@@ -172,29 +216,26 @@ public class Player : MonoBehaviour
     {
         Rigidbody2D particle = (Rigidbody2D)Instantiate(deathParticlePrefab, pos, transform.rotation);
         Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
-        particle.transform.Rotate(90, 0, 0);
+        //particle.transform.Rotate(90, 0, 0);
         particle.velocity = vel * speed;
     }
 
     // 
     protected IEnumerator CreateDeathParticles(Vector3 pos)
     {
-        float deathParticleSpeed = 6.0f;
+        float deathParticleSpeed = 6.0f / 6;
 
         // Before the wait...
-        Vector3 p1 = pos + Vector3.up;
-        Vector3 p2 = pos - Vector3.up;
-        Vector3 p3 = pos + Vector3.right;
-        Vector3 p4 = pos - Vector3.right;
+        Vector3 p1 = pos + Vector3.up / 6;
+        Vector3 p2 = pos - Vector3.up / 6;
+        Vector3 p3 = pos + Vector3.right / 6;
+        Vector3 p4 = pos - Vector3.right / 6;
 
-        Vector3 p5 = pos + Vector3.up + Vector3.right;
-        Vector3 p6 = pos + Vector3.up - Vector3.right;
-        Vector3 p7 = pos - Vector3.up - Vector3.right;
-        Vector3 p8 = pos - Vector3.up + Vector3.right;
+        Vector3 p5 = pos + Vector3.up/6 + Vector3.right / 6;
+        Vector3 p6 = pos + Vector3.up/6 - Vector3.right / 6;
+        Vector3 p7 = pos - Vector3.up/6 - Vector3.right / 6;
+        Vector3 p8 = pos - Vector3.up/6 + Vector3.right / 6;
 
-        p1.z = p2.z = -5;
-        p3.z = p4.z = -7;
-        p5.z = p6.z = p7.z = p8.z = -9;
 
         this.CreateDeathParticle(deathParticleSpeed, p1, (transform.up));
         this.CreateDeathParticle(deathParticleSpeed, p2, (-transform.up));
@@ -205,6 +246,7 @@ public class Player : MonoBehaviour
         this.CreateDeathParticle(deathParticleSpeed, p7, (-transform.up - transform.right));
         this.CreateDeathParticle(deathParticleSpeed, p8, (-transform.up + transform.right));
 
+        renderer.enabled = false;
         // Start the wait...
         yield return new WaitForSeconds(0.7f);
 
@@ -228,15 +270,15 @@ public class Player : MonoBehaviour
     // TODO: Fix
     protected IEnumerator MakeThePlayerLeaveStageRoutine()
     {
-        playerTexRend.material = playerMaterials[14];
-        yield return new WaitForSeconds(0.05f);
+        //playerTexRend.material = playerMaterials[14];
+        //yield return new WaitForSeconds(0.05f);
 
-        playerTexRend.material = playerMaterials[15];
-        yield return new WaitForSeconds(0.05f);
+        //playerTexRend.material = playerMaterials[15];
+        //yield return new WaitForSeconds(0.05f);
 
-        GameEngine.SoundManager.Play(AirmanLevelSounds.LEAVE_LEVEL);
-        playerTexRend.material = playerMaterials[16];
-        playerTexObj.localScale = new Vector3(0.04f, 1.0f, 0.2f);
+        //GameEngine.SoundManager.Play(AirmanLevelSounds.LEAVE_LEVEL);
+        //playerTexRend.material = playerMaterials[16];
+        //playerTexObj.localScale = new Vector3(0.04f, 1.0f, 0.2f);
 
         StartCoroutine(MovePlayerUp());
 
@@ -268,60 +310,20 @@ public class Player : MonoBehaviour
         Reset();
     }
 
-    // 	
-    protected void AssignTexture()
+    protected void SetAnimationState()
     {
-        if (health.IsHurting == true && health.IsDead == false)
-        {
-            animator.Play("Hurt");
-        }
-        else if (movement.IsJumping == true)
-        {
-            if (shooting.IsShooting == true)
-            {
-                animator.Play("JumpShoot");
-            }
-            else
-            {
-                animator.Play("Jumping");
-            }
-        }
-        else if (movement.IsWalking == true)
-        {
+        var characterController = GetComponent<CharacterController2D>();
 
-            if (shooting.IsShooting == true)
-            {
-                var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                if (stateInfo.IsName("Walking") == true)
-                {
-                    animator.Play("WalkShoot", 0, stateInfo.normalizedTime);
-                }
-                else
-                {
-                    animator.Play("WalkShoot");
-                }
-
-            }
-            else
-            {
-                animator.Play("Walking");
-            }
-        }
-        // Standing...
-        else
-        {
-            if (shooting.IsShooting == true)
-            {
-                animator.Play("Shooting");
-            }
-            else
-            {
-                animator.Play("Standing");
-            }
-        }
+        animator.SetBool("IsHurt", health.IsHurting && !health.IsDead);
+        animator.SetFloat("WalkingSwitch", (movement.IsWalking && shooting.IsShooting) ? 1f : 0f);
+        animator.SetBool("IsWalking", movement.IsWalking);
+        animator.SetBool("IsJumping", movement.IsJumping);
+        animator.SetBool("IsFalling", movement.IsFalling);
+        animator.SetBool("IsShooting", shooting.IsShooting);
+        animator.SetBool("IsGrounded", characterController.isGrounded);
     }
 
-    #endregion
+   #endregion
 
     #region Public Functions
 
@@ -362,6 +364,7 @@ public class Player : MonoBehaviour
     {
         GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
         levelCamera.ShouldStayStill = false;
+        renderer.enabled = true;
     }
     #endregion
 }

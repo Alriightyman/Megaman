@@ -7,17 +7,19 @@ public class Shooting : MonoBehaviour
 
 	// Unity Editor Variables
 	[SerializeField] protected GameObject shotPrefab;
-    [SerializeField] Transform shotSpawnPoint;
-	// Properties
-	public bool CanShoot 	{ get; set; }
+    [SerializeField] private Transform shotSpawnPoint;
+    [SerializeField] protected float shotSpeed = 20f;
+    [SerializeField]  protected float delayBetweenShots = 0.2f;
+
+    // Properties
+    public bool CanShoot 	{ get; set; }
 	public bool IsShooting 	{ get; set; }
 	
 	// Protected Instance Variables
 	protected Vector3 shotPos;
-	protected float shotSpeed = 20f;
-	protected float delayBetweenShots = 0.2f;
 	protected float shootingTimer;
-
+    private int shotCount = 0;
+    private const int MaxShots = 3;
 	#endregion
 	
 	
@@ -37,8 +39,9 @@ public class Shooting : MonoBehaviour
 		{
 			if (Time.time - shootingTimer >= delayBetweenShots)
 			{
-				IsShooting = false;	
-			}
+				IsShooting = false;
+
+            }
 		}
 	}
 
@@ -57,22 +60,37 @@ public class Shooting : MonoBehaviour
 	//
 	public void Shoot(bool isTurningLeft)
 	{
-		IsShooting = true;
-		shootingTimer = Time.time;
-        shotPos = new Vector3(transform.position.x + ((isTurningLeft == true) ? shotSpawnPoint.localPosition.x : -shotSpawnPoint.localPosition.x),
-                                transform.position.y + shotSpawnPoint.localPosition.y, 
-                                0f); //transform.position + transform.right * ((isTurningLeft == true) ? -1.6f : 1.6f);
+        if (shotCount < MaxShots)
+        {
+            shotCount++;
+            IsShooting = true;
 
+            shootingTimer = Time.time;
+            shotPos = new Vector3(transform.position.x + ((isTurningLeft == true) ? shotSpawnPoint.localPosition.x : -shotSpawnPoint.localPosition.x),
+                                    transform.position.y + shotSpawnPoint.localPosition.y,
+                                    0f);
 
-        GameObject rocketObj = Instantiate(shotPrefab, shotPos, transform.rotation);
-        Rigidbody2D rocketRBody = rocketObj.GetComponent<Rigidbody2D>();		
-		Physics2D.IgnoreCollision(rocketRBody.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-		
-		Shot s = rocketRBody.GetComponent<Shot>();
-		s.VelocityDirection = (isTurningLeft == true) ? -transform.right : transform.right;
-		s.ShotSpeed = shotSpeed;
+            GameObject rocketObj = Instantiate(shotPrefab, shotPos, transform.rotation);
+            Rigidbody2D rocketRBody = rocketObj.GetComponent<Rigidbody2D>();
+            Physics2D.IgnoreCollision(rocketRBody.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+
+            Shot s = rocketRBody.GetComponent<Shot>();
+            s.VelocityDirection = (isTurningLeft == true) ? -transform.right : transform.right;
+            s.ShotSpeed = shotSpeed;
+            rocketObj.GetComponent<Shot>().parent = this;
+
+            GameEngine.SoundManager.Play(AirmanLevelSounds.SHOOTING);
+        }
 	}
 
+    public void ShotDestroyed()
+    {
+        shotCount--;
+        if(shotCount < 0)
+        {
+            shotCount = 0;
+        }
+    }
 	#endregion
 
 }

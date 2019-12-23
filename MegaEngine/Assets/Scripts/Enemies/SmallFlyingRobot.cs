@@ -3,26 +3,38 @@ using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Interfaces;
+using System;
+using Prime31;
 
 public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 {
 	#region Variables
-
-	// Protected Instance Variables
-	private bool shouldAttack = false;
+    [SerializeField]
+    private float robotSpeed = 35;
+    // Protected Instance Variables
+    private bool shouldAttack = false;
     private int damage = 10;
     private int health = 10;
-    private float robotSpeed = 35;
     private float attackDelay = 0.7f;
     private float attackDelayTimer;
     private float distanceToDisappear = 32.0f;
     private Renderer renderer2D = null;
     private Rigidbody2D rigidBody = null;
     private bool onRightSide = false;
-    [SerializeField]
-    private float xAmount = 2f;
-    [SerializeField]
-    private float yAmount = 2.5f;
+    private CharacterController2D controller;
+
+
+    private float rightXPos;
+    private float leftXPos;
+    private float yPos;
+    //private float xAmount = 2f;
+    //[SerializeField]
+    //private float yAmount = 2.5f;
+
+    public float RightXPos { get { return rightXPos; } set { rightXPos = value; } }
+    public float LefttXPos { get { return leftXPos; } set { leftXPos = value; } }
+    public float YPos { get { return yPos; } set { yPos = value; } }
+
     #endregion
 
 
@@ -37,6 +49,8 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 		renderer2D = GetComponent<Renderer>();
 		Assert.IsNotNull(renderer2D);
 
+        controller = GetComponent<CharacterController2D>();
+
         GameEngine.GetResetableObjectList().Add(this);
     }
 
@@ -48,15 +62,14 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
         {
             onRightSide = true;
         }
+        rigidBody.velocity = Vector2.zero;
 	}
 
     // Update is called once per frame 
     private void Update()
 	{
         MoveIntoPosition();
-
-        MoveTowardsPlayer();
-		
+        MoveTowardsPlayer();		
 	}
 
     //
@@ -83,26 +96,6 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 	#region Private Functions
 	
 	//
-	private void KillRobot()
-	{
-        if (this != null)
-        {
-            transform.parent.gameObject.GetComponent<RedHornBeast>().MinusRobotCount();
-            Destroy(gameObject);
-        }
-	}
-
-	//
-	private void TakeDamage(int damageTaken)
-	{
-		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
-		health -= damageTaken;
-		if (health <= 0)
-		{
-			KillRobot();
-		}
-	}
-
     private void MoveIntoPosition()
     {
         if (shouldAttack == false)
@@ -113,9 +106,11 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 
             if (xPosSet)
             {
+                Debug.Log(gameObject.name + "Is in X position.");
                 inPosition = MoveVeritcalToPosition();
                 if (inPosition)
                 {
+                    Debug.Log(gameObject.name + "Is in Y position.");
                     shouldAttack = true;
                 }
             }
@@ -135,7 +130,8 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
             }
             else
             {
-                rigidBody.velocity = direction.normalized * (Time.deltaTime * robotSpeed);
+                //rigidBody.velocity = ;
+                controller.move(direction.normalized * robotSpeed * Time.deltaTime);
             }
         }
     }
@@ -148,11 +144,13 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
         {
             direction = -1;
         }
-
-        if ((onRightSide && gameObject.transform.localPosition.x <= xAmount * direction) ||
-             (!onRightSide && gameObject.transform.localPosition.x >= xAmount * direction))
+        //Debug.Log(String.Format("Rightside: {0}; currentPos: {1}; desiredPosition: {2}", onRightSide, gameObject.transform.localPosition, rightXPos));
+        if((onRightSide && gameObject.transform.position.x <= rightXPos) ||
+          (!onRightSide && gameObject.transform.position.x >= leftXPos))
         {
-            rigidBody.velocity = new Vector2(direction * (Time.deltaTime * robotSpeed), 0f);
+            //rigidBody.velocity = new Vector2(direction * robotSpeed * Time.deltaTime, 0f) ;
+            controller.move(new Vector2(direction * robotSpeed * Time.deltaTime, 0f));
+            Debug.Log(String.Format("Velocity: {0}; Speed: {1}; Delta Time: {2}",rigidBody.velocity,robotSpeed, Time.deltaTime));
             return false;
         }
 
@@ -161,14 +159,35 @@ public sealed class SmallFlyingRobot : MonoBehaviour, IResetable
 
     private bool MoveVeritcalToPosition()
     {
-        rigidBody.velocity = new Vector2(0f, (Time.deltaTime * robotSpeed * 8f));
-        if (gameObject.transform.localPosition.y > yAmount)
+        //rigidBody.velocity = new Vector2(0f, robotSpeed * Time.deltaTime );
+        controller.move(new Vector2(0f, robotSpeed * Time.deltaTime ));
+        if (gameObject.transform.position.y > yPos)
         {
             return true;
         }
         return false;
     }
 
+
+    private void KillRobot()
+    {
+        if (this != null)
+        {
+            transform.parent.gameObject.GetComponent<RedHornBeast>().MinusRobotCount();
+            Destroy(gameObject);
+        }
+    }
+
+    //
+    private void TakeDamage(int damageTaken)
+    {
+        GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
+        health -= damageTaken;
+        if (health <= 0)
+        {
+            KillRobot();
+        }
+    }
     #endregion
 
 

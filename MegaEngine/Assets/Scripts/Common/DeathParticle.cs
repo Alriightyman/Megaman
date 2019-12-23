@@ -11,7 +11,7 @@ public class DeathParticle : MonoBehaviour
 	protected float timeStart;
 	protected Vector3 initialScale = Vector3.one;
 	protected Vector2 scaleAmount = new Vector2(.75f, .75f);
-
+    private SpriteRenderer renderer = null;
 	#endregion
 	
 	
@@ -22,7 +22,9 @@ public class DeathParticle : MonoBehaviour
 	{
 		this.timeStart = Time.time;
 		this.initialScale = transform.localScale;
-	}
+        renderer = GetComponent<SpriteRenderer>();
+
+    }
 	
 	// Update is called once per frame
 	protected void Update() 
@@ -33,10 +35,10 @@ public class DeathParticle : MonoBehaviour
 			float scaleStatus = Time.time * this.scaleSpeed;
 			transform.localScale = new Vector3(
 	                    this.initialScale.x + Mathf.PingPong(scaleStatus, scaleAmount.x), 
-						this.initialScale.y,
-						this.initialScale.z + Mathf.PingPong(scaleStatus, scaleAmount.y));
-			transform.Rotate(new Vector3(0, Time.time * Time.deltaTime, 0));
-		}
+						this.initialScale.y + Mathf.PingPong(scaleStatus, scaleAmount.y),
+						0);
+            renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, Random.Range(0.5f, 1f));
+        }
 		
 		if (Time.time - this.timeStart >= lifeSpan)
 		{

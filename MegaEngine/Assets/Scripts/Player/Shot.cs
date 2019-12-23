@@ -8,11 +8,13 @@ public class Shot : MonoBehaviour
 	// Properties
 	public Vector3 VelocityDirection 	{ get; set; }
 	public float ShotSpeed 				{ get; set; }
-	
+
+    public Shooting parent { get; set; }
+
 	// Protected Instance Variables
-	protected float lifeSpan = 1.2f;
+	//protected float lifeSpan = 1.2f;
 	protected int damage = 10;
-	protected float timeStart;
+	//protected float timeStart;
 
 	#endregion
 	
@@ -22,16 +24,16 @@ public class Shot : MonoBehaviour
 	// Use this for initialization
 	protected void Start () 
 	{
-		timeStart = Time.time;
+		//timeStart = Time.time;
 	}
 
 	// Update is called once per frame
 	protected void Update () 
 	{
-		if (Time.time - timeStart >= lifeSpan)
-		{
-			Destroy(gameObject);
-		}
+		//if (Time.time - timeStart >= lifeSpan)
+		//{
+		//	Destroy(this);
+		//}
 		
 		GetComponent<Rigidbody2D>().velocity = VelocityDirection * ShotSpeed;
 	}
@@ -92,7 +94,7 @@ public class Shot : MonoBehaviour
 	// 
 	protected void IncreaseLifeSpan(float increase)
 	{
-		lifeSpan += increase;	
+		//lifeSpan += increase;	
 	}
 	
 	// 
@@ -108,6 +110,16 @@ public class Shot : MonoBehaviour
 			Destroy(gameObject);
 		}
 	}
-	
-	#endregion
+
+    private void OnBecameInvisible()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        parent.ShotDestroyed();        
+    }
+
+    #endregion
 }

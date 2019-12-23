@@ -3,7 +3,10 @@ using System.Collections;
 
 public class SoundManager : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
+    [SerializeField]
+    [Range(0,1)]
+    private int VolumeScale = 1;
 
 	// Protected Instance Variables
 	protected string path = "Sounds/";
@@ -34,37 +37,37 @@ public class SoundManager : MonoBehaviour
 	protected void Start()
 	{
 		AudioClip stageMusicClip = (AudioClip) Resources.Load( path + "StageMusic" );
-		stageMusic = AddAudio(stageMusicClip, true, true, 0.50f);
+		stageMusic = AddAudio(stageMusicClip, true, true, VolumeScale * 0.50f);
 		
 		AudioClip stageEndMusicClip = (AudioClip) Resources.Load( path + "StageEndMusic" );
-		stageEndMusic = AddAudio(stageEndMusicClip, false, false, 1.0f);
+		stageEndMusic = AddAudio(stageEndMusicClip, false, false, VolumeScale * 1.0f);
 		
 		AudioClip deathSoundClip = (AudioClip) Resources.Load( path + "DeathSound" );
-		deathSound = AddAudio(deathSoundClip, false, false, 0.25f);
+		deathSound = AddAudio(deathSoundClip, false, false, VolumeScale * 0.25f);
 		
 		AudioClip healthBarFillSoundClip = (AudioClip) Resources.Load( path + "HealthBarFillSound" );
-		healthBarFillSound = AddAudio(healthBarFillSoundClip, true, false, 1.0f);
+		healthBarFillSound = AddAudio(healthBarFillSoundClip, true, false, VolumeScale * 1.0f);
 		
 		AudioClip hurtingSoundClip = (AudioClip) Resources.Load( path + "HurtingSound" );
-		hurtingSound = AddAudio(hurtingSoundClip, false, false, 1.0f);
+		hurtingSound = AddAudio(hurtingSoundClip, false, false, VolumeScale * 1.0f);
 		
 		AudioClip landingSoundClip = (AudioClip) Resources.Load( path + "LandingSound" );
-		landingSound = AddAudio(landingSoundClip, false, false, 1.0f);
+		landingSound = AddAudio(landingSoundClip, false, false, VolumeScale * 1.0f);
 		
 		AudioClip shootingSoundClip = (AudioClip) Resources.Load( path + "ShootingSound" );
-		shootingSound = AddAudio(shootingSoundClip, false, false, 1.0f);		
+		shootingSound = AddAudio(shootingSoundClip, false, false, VolumeScale * 1.0f);		
 		
 		AudioClip bossMusicClip = (AudioClip) Resources.Load( path + "BossMusic" );
-		bossMusic = AddAudio(bossMusicClip, true, true, 0.90f);
+		bossMusic = AddAudio(bossMusicClip, true, true, VolumeScale * 0.90f);
 		
 		AudioClip bossDoorSoundClip = (AudioClip) Resources.Load( path + "BossDoorSound" );
-		bossDoorSound = AddAudio(bossDoorSoundClip, false, false, 0.75f);
+		bossDoorSound = AddAudio(bossDoorSoundClip, false, false, VolumeScale * 0.75f);
 		
 		AudioClip bossHurtingSoundClip = (AudioClip) Resources.Load( path + "BossHurtingSound" );
-		bossHurtingSound = AddAudio(bossHurtingSoundClip, false, false, 0.95f);
+		bossHurtingSound = AddAudio(bossHurtingSoundClip, false, false, VolumeScale * 0.95f);
 		
 		AudioClip megamanLeavesClip = (AudioClip) Resources.Load( path + "MegamanLeaveStageSound" );
-		megamanLeavesStageSound = AddAudio(megamanLeavesClip, false, false, 0.99f);
+		megamanLeavesStageSound = AddAudio(megamanLeavesClip, false, false, VolumeScale * 0.99f);
 		
 		Play(AirmanLevelSounds.STAGE);
 	}
@@ -179,6 +182,5 @@ public class SoundManager : MonoBehaviour
 	}
 
 	#endregion
-
 
 }
