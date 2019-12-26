@@ -118,24 +118,16 @@ public class Player : MonoBehaviour
                     }
                 }
 
-                // don't "blink" while hurt animation is showing
-                //if (IsInvincible && !animator.GetCurrentAnimatorStateInfo(0).IsName("Hurt"))
+
+                //bool flip = true;
+                //if (movement.IsTurningLeft == true)
                 //{
-                //    var color = GetComponent<SpriteRenderer>().color;
-                //    color.a = (color.a == 0f) ? 1f : 0f;
-                //    GetComponent<SpriteRenderer>().color = color;
+                //    flip = false;
                 //}
 
-                bool flip = true;
-                if (movement.IsTurningLeft == true)
-                {
-                    flip = false;
-                }
-
-                GetComponent<SpriteRenderer>().flipX = flip;
+                GetComponent<SpriteRenderer>().flipX = !movement.IsTurningLeft;
 
                 // Setup Animations
-                //SetAnimation();
                 SetAnimationState();
 
                 // keep the z axis as zero <-- Should always be zero.

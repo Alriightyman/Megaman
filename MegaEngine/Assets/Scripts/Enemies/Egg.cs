@@ -84,7 +84,7 @@ public class Egg : MonoBehaviour
 	protected void CreateBird(Vector3 pos, bool goLeft)
 	{
         Rigidbody2D littleBirdRobot = Instantiate(littleBird, pos, transform.rotation);
-		littleBirdRobot.GetComponent<LittleBird>().Attack(goLeft, 7.0f + Random.Range(0.0f, 1.0f));
+		littleBirdRobot.GetComponent<Copipi>().Attack(goLeft, 7.0f + Random.Range(0.0f, 1.0f));
 		Physics2D.IgnoreCollision(littleBirdRobot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 	}
 

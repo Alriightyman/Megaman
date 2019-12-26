@@ -10,7 +10,6 @@ public class AirmanBoss : MonoBehaviour
 	// Unity Editor Variables
 	[SerializeField] protected Rigidbody2D deathParticlePrefab;
 	[SerializeField] protected float deathParticleSpeed;
-	[SerializeField] protected List<Material> animationMaterials;
 	[SerializeField] protected float touchDamage;
 	[SerializeField] protected Transform startMarker;
 	[SerializeField] protected Transform endMarker;
@@ -280,7 +279,7 @@ public class AirmanBoss : MonoBehaviour
             //rend.material.SetTextureScale("_MainTex", texScale);
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
-            anim.SetBool("Blow", true); ;
+            anim.SetBool("Flex", true); ;
             // Fill up the health bar...
             if (health.CurrentHealth < health.MaximumHealth)
 			{
