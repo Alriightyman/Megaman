@@ -10,6 +10,7 @@ namespace Prime31
     [RequireComponent(typeof(BoxCollider2D))]
     public class CharacterController2D : MonoBehaviour
     {
+        [SerializeField] private bool IsUnscaledTime = false;
         #region internal types
 
         struct CharacterRaycastOrigins
@@ -243,6 +244,7 @@ namespace Prime31
         /// <param name="deltaMovement">Delta movement.</param>
         public void move(Vector3 deltaMovement)
         {
+            float deltaTime = IsUnscaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
             // save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
             collisionState.wasGroundedLastFrame = collisionState.below;
 

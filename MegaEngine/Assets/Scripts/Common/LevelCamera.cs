@@ -64,13 +64,13 @@ public class LevelCamera : MonoBehaviour
 		deltaPos = playerPos - transform.position;
 		
 		// Check the x pos 
-		if ((deltaPos.x < 0.0f && CanMoveLeft) || (deltaPos.x > 0.0f && CanMoveRight)) 		
+		if ((deltaPos.x < 0.0f && CanMoveLeft) || (deltaPos.x > 0.0f && CanMoveRight) || GameEngine.LevelStarting) 		
 		{
 			transform.position = new Vector3(playerPos.x, transform.position.y, transform.position.z);
 		}
 		
 		// Check the y pos 
-		if ((deltaPos.y < 0.0f && CanMoveDown) || (deltaPos.y > 0.0f && CanMoveUp)) 		
+		if ((deltaPos.y < 0.0f && CanMoveDown) || (deltaPos.y > 0.0f && CanMoveUp) || GameEngine.LevelStarting) 		
 		{
 			transform.position = new Vector3(transform.position.x, playerPos.y, transform.position.z);
 		}
@@ -80,6 +80,11 @@ public class LevelCamera : MonoBehaviour
 		{
             SceneManager.LoadScene(0);
         } 
+
+        //if(GameEngine.LevelStarting == true)
+        //{
+        //    GameEngine.LevelStarting = false;
+        //}
 	}
 
 	#endregion
@@ -99,6 +104,5 @@ public class LevelCamera : MonoBehaviour
 		CanMoveDown = CheckpointCanMoveDown;		
 		transform.position = CameraPosition;
 	}
-
 	#endregion
 }

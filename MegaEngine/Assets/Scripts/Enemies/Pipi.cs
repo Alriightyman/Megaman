@@ -34,7 +34,8 @@ public class Pipi : MonoBehaviour
 		{
 			transform.position += (-Vector3.right * speed * Time.deltaTime);
 			
-			if (Time.time - lifeTimer >= lifeSpan)
+            if(!GetComponent<SpriteRenderer>().isVisible)
+			//if (Time.time - lifeTimer >= lifeSpan)
 			{
 				Destroy (gameObject);	
 			}
@@ -84,6 +85,5 @@ public class Pipi : MonoBehaviour
 	{
 
 	}
-	
 	#endregion
 }

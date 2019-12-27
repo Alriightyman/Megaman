@@ -10,14 +10,13 @@ public class Scworm : MonoBehaviour
 	[SerializeField] protected Rigidbody2D shotPrefab;
 	
 	// Protected Instance Variables
-	protected float distanceToStop = 14.0f;
+	[SerializeField] protected float distanceToStop = 14.0f;
 	protected float attackDelay = 2.0f;
 	protected float attackTimer;
     protected int health = 30;
     protected int currentHealth;
 
     #endregion
-
 
     #region MonoBehaviour
 
@@ -95,5 +94,12 @@ public class Scworm : MonoBehaviour
         Destroy(gameObject);
     }
 
+    #endregion
+
+    #region Gizmos
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(transform.position, distanceToStop);
+    }
     #endregion
 }

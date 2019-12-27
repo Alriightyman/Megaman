@@ -10,8 +10,8 @@ public class ScwormShot : MonoBehaviour
 	protected bool keepAttacking = false;
 	protected float texChangeDelay = 0.1f;
 	protected float texTimer;
-	protected float gravity = 11.8f;
-	protected float jumpAmount = 10.0f;
+	[SerializeField] protected float gravity = 118f;
+	[SerializeField] protected float jumpAmount = 10.0f;
 	protected float verticalVelocity;
 	protected float lifeSpan = 5.0f;
 	protected float lifeTimer;

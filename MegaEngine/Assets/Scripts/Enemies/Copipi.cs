@@ -6,7 +6,7 @@ public class Copipi : MonoBehaviour
 	#region Variables
 
 	// Protected Instance Variables
-	[SerializeField] protected float speed = 7.5f;
+	protected float speed = 7.5f;
 	protected bool attacking = false;
 	protected Vector3 direction;
 	protected float lifeSpan = 10.0f;

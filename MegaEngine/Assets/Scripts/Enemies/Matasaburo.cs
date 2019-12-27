@@ -8,8 +8,9 @@ public class Matasaburo : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	public List<Material> animationMaterials;
-	
+	[SerializeField] protected float windRange = 12.0f;
+	[SerializeField] protected float windPower = 250.0f;
+
 	// Protected Instance Variables
 	protected bool armsUp = false;
 	protected bool weaponActivated = false;
@@ -19,8 +20,7 @@ public class Matasaburo : MonoBehaviour
 	protected int health = 30;
 	protected int texIndex;
 	protected int currentHealth;
-	protected float windRange = 12.0f;
-	protected float windPower = 250.0f;
+
 	protected float distanceToPlayer;
 	protected float texChangeTimer;
 	protected float texArmsUpInterval = 0.1f;
@@ -202,5 +202,21 @@ public class Matasaburo : MonoBehaviour
 		currentHealth = health;
 	}
 
-	#endregion
+    #endregion
+	
+    #region Gizmos
+	private void OnDrawGizmosSelected()
+	{
+		var renderer = gameObject.GetComponent<SpriteRenderer>();
+        var center = renderer.sprite.rect.center.y /renderer.sprite.rect.width;
+		var direction = renderer.flipX ? 1 : -1;
+		var airFlowLine = new Vector3(transform.position.x + windRange * direction, 
+                                        transform.position.y - center, 
+                                        transform.position.z);
+		var centerPosition = new Vector3(transform.position.x, transform.position.y - center, transform.position.z);
+        Gizmos.color = Color.red;
+		Gizmos.DrawLine(centerPosition, airFlowLine);
+	}
+
+    #endregion
 }

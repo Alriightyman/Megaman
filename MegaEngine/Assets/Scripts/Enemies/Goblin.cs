@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using Assets.Scripts.Interfaces;
 
-public class Goblin : MonoBehaviour, IResetable
+public class Goblin : MonoBehaviour//, IResetable
 {
 	#region Variables
 	
@@ -13,33 +13,33 @@ public class Goblin : MonoBehaviour, IResetable
     [SerializeField] private Transform spawnPointRight;
     [SerializeField] private Transform leftYPos;
     [SerializeField] private Transform rightYPos;
-    [SerializeField] protected float spikeRisingSpeed = 0.075f;              //
-    [SerializeField] protected float spikeLoweringSpeed = 1.00f;                //
+    [SerializeField] private float spikeRisingSpeed = 0.075f;              //
+    [SerializeField] private float spikeLoweringSpeed = 1.00f;                //
     [SerializeField] private float maxSpikeHeight = 0.6f;
+    [SerializeField] private float distanceToDisappear = 32.0f;			//
 
     // should only be 3 bots MAX, so this value needs to be static
     private static int robotCount = 0;                          
                                                                 
-    // Protected Instance Variables
-    protected bool shouldAppear = false;					//
-	protected bool startFighting = false;					//
-	protected bool spikeRising = true;						//
-	protected bool spikeLowering = false;					//
-	protected bool createRobotOnRightSide = true;			//
-	protected float lightStartTime;							//
-	protected float distanceToDisappear = 32.0f;			//
-	protected float spikeStartHeight;						//
-	protected float spikeWaitTimer = 0.0f;					// Timer used for timing the spike while they wait
-	protected float spikeDelayTime = 2.0f; 					// How long should the spike wait at the top?
+    // private Instance Variables
+    private bool shouldAppear = false;					//
+	private bool startFighting = false;					//
+	private bool spikeRising = true;						//
+	private bool spikeLowering = false;					//
+	private bool createRobotOnRightSide = true;			//
+	private float lightStartTime;							//
+	private float spikeStartHeight;						//
+	private float spikeWaitTimer = 0.0f;					// Timer used for timing the spike while they wait
+	private float spikeDelayTime = 2.0f; 					// How long should the spike wait at the top?
     [SerializeField]
-	protected float robotCreateDelay = 1.0f; 				// Used so that a small delay is between creating robots
-	protected float robotCreateDelayTimer; 					// Used so that a small delay is between creating robots
-	protected Vector3 spikeTransforms;						// Used for transforming the spike when fighting
-	protected Vector3 spikeLeftPos;							//
-	protected Vector4 color = new Vector4(0f, 0f, 0f, 0f);	//
-	protected Transform lightTransform;						//
-	protected GameObject spikeLeft;							//
-	protected GameObject spikeRight;						//
+	private float robotCreateDelay = 1.0f; 				// Used so that a small delay is between creating robots
+	private float robotCreateDelayTimer; 					// Used so that a small delay is between creating robots
+	private Vector3 spikeTransforms;						// Used for transforming the spike when fighting
+	private Vector3 spikeLeftPos;							//
+	private Vector4 color = new Vector4(0f, 0f, 0f, 0f);	//
+	private Transform lightTransform;						//
+	private GameObject spikeLeft;							//
+	private GameObject spikeRight;						//
 
     bool canMakeRobots = false;
     #endregion
@@ -48,47 +48,54 @@ public class Goblin : MonoBehaviour, IResetable
     #region MonoBehaviour
 
     // The Constructor function in Unity...
-    protected void Awake () 
+    /// <summary>
+    /// sets the light transform and the spikes
+    /// </summary>
+    private void Awake () 
 	{
-		lightTransform = gameObject.transform.Find("Light").transform;
+		lightTransform = transform.Find("Light").transform;
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
 		spikeRight = transform.Find("SpikeRight").gameObject;
 
-        GameEngine.GetResetableObjectList().Add(this);
+        //GameEngine.GetResetableObjectList().Add(this);
+        GameEngine.AddResetCallback(new Action(ResetObject));
     }
 	
 	// Use this for initialization
-	protected void Start ()
+    /// <summary>
+    /// Disable light and make goblin and spikes invisible
+    /// </summary>
+	private void Start ()
 	{
-		lightTransform.GetComponent<Renderer>().enabled = false;
-        this.GetComponent<BoxCollider2D>().enabled = false;
-        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
-        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
+		lightTransform.GetComponent<SpriteRenderer>().enabled = false;
+        //GetComponent<BoxCollider2D>().enabled = false;
+        //spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
+        //spikeRight.GetComponent<BoxCollider2D>().enabled = false;
         spikeLeftPos = spikeLeft.transform.localPosition;
 		spikeStartHeight = spikeLeft.transform.position.y;
 		
 		// Make the robot and its children invisible...
-		GetComponent<Renderer>().material.color = color;
-		spikeLeft.GetComponent<Renderer>().material.color = color;
-		spikeRight.GetComponent<Renderer>().material.color = color;
+		GetComponent<SpriteRenderer>().color = color;
+		spikeLeft.GetComponent<SpriteRenderer>().color = color;
+		spikeRight.GetComponent<SpriteRenderer>().color = color;
 	}
 	
 	// Update is called once per frame
-	protected void Update ()
+	private void Update ()
 	{
 		if ( startFighting == true ) 
 		{
+            // update spikes, make light blink, and create
 			MoveSpikes();
 			MakeLightBlink();
-			CreateSmallFlyingRobots();
+			CreatePetitGoblinRobots();
 			
 			// Stop fighting if the player is too far away
 			if ( (GameEngine.Player.transform.position - transform.position).magnitude >= distanceToDisappear )
 			{
-				ResetRedHornBeast();
+				ResetGoblin();
 			}
 		}
-		
 		else if ( shouldAppear == true )
 		{
 			if ( color.x >= 1.0 )
@@ -105,18 +112,20 @@ public class Goblin : MonoBehaviour, IResetable
 				color.x = color.y = color.z = color.w += Time.deltaTime * 3.5f;
 			}
 
-            GetComponent<Renderer>().material.color = color;
-            spikeLeft.GetComponent<Renderer>().material.color = color;
-			spikeRight.GetComponent<Renderer>().material.color = color;
+            GetComponent<SpriteRenderer>().color = color;
+            spikeLeft.GetComponent<SpriteRenderer>().color = color;
+			spikeRight.GetComponent<SpriteRenderer>().color = color;
 		}
 	}
 
-    protected void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
+        // if the player is colliding, allow Goblin to make robots
         if(collision.gameObject.tag == "Player")
         {
             canMakeRobots = true;
         }
+        // if a player shot is colliding, ricochet it at a 45 degree angle.
         else if(collision.gameObject.tag == "shot")
         {
             var boxcollider = collision.gameObject.GetComponent<BoxCollider2D>();
@@ -128,12 +137,12 @@ public class Goblin : MonoBehaviour, IResetable
             var velocity = shot.VelocityDirection;
             shot.VelocityDirection = new Vector3(-velocity.x, Math.Abs(velocity.x), velocity.z);
             GameEngine.SoundManager.Play(AirmanLevelSounds.LANDING);
-
         }
     }
 
-    protected void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D collision)
     {
+        // when the player leaves the goblin, stop making robots
         if (collision.gameObject.tag == "Player")
         {
             canMakeRobots = false;
@@ -142,10 +151,16 @@ public class Goblin : MonoBehaviour, IResetable
     #endregion
 
 
-    #region Protected Functions
+    #region private Functions
 
-    // 
-    protected PetitGoblin CreateRobot( float speed, Vector3 pos, Vector3 vel)
+    /// <summary>
+    /// Creates a new petit goblin. Sets its position, speed, velocity
+    /// </summary>
+    /// <param name="speed">new petit goblin's speed</param>
+    /// <param name="pos">new petit goblin's position</param>
+    /// <param name="vel">new petit goblin's velocity</param>
+    /// <returns>PetitGoblin </returns>
+    private PetitGoblin CreateRobot( float speed, Vector3 pos, Vector3 vel)
 	{
         Rigidbody2D robot = Instantiate(flyingRobot, transform.position, transform.rotation);
         Physics2D.IgnoreCollision(robot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
@@ -156,8 +171,11 @@ public class Goblin : MonoBehaviour, IResetable
         return robot.gameObject.GetComponent<PetitGoblin>();
 	}
 	
-	// 
-	protected void CreateSmallFlyingRobots()
+	/// <summary>
+    /// Creates a new petit goblin after a small delay
+    /// Can only have 3 petit goblins at a time between all Goblins
+    /// </summary>
+	private void CreatePetitGoblinRobots()
 	{
         // have 3 robots max :)
 		if (canMakeRobots && robotCount < 3 && Time.time - robotCreateDelayTimer >= robotCreateDelay)
@@ -184,8 +202,10 @@ public class Goblin : MonoBehaviour, IResetable
 		}
 	}
 	
-	// 
-	protected void MoveSpikes()
+	/// <summary>
+    /// Lowers and raises the spikes on the Goblin
+    /// </summary>
+	private void MoveSpikes()
 	{
 		if ( spikeRising )
 		{
@@ -222,13 +242,15 @@ public class Goblin : MonoBehaviour, IResetable
 		}
 	}
 	
-	// 
-	protected void MakeLightBlink()
+	/// <summary>
+    /// Makes the light rapidly blink
+    /// </summary>
+	private void MakeLightBlink()
 	{
 		if ( Time.time - lightStartTime >= 0.1f )
 		{
 			lightStartTime = Time.time;
-			lightTransform.GetComponent<Renderer>().enabled = !lightTransform.GetComponent<Renderer>().enabled;
+			lightTransform.GetComponent<SpriteRenderer>().enabled = !lightTransform.GetComponent<SpriteRenderer>().enabled;
 		}
 	}
 
@@ -237,35 +259,42 @@ public class Goblin : MonoBehaviour, IResetable
 
     #region Public Functions
 
-    // 
-    public void Reset()
+    /// <summary>
+    /// Reset Object
+    /// </summary>
+    public void ResetObject()
     {
-        ResetRedHornBeast();
+        ResetGoblin();
         KillRobotChildren();
     }
 
-    // 
+    /// <summary>
+    /// Set Goblin to appear
+    /// </summary>
     public void Appear()
     {
         shouldAppear = true;
         lightStartTime = Time.time;
     }
 
-    // 
-    public void MinusRobotCount()
+    /// <summary>
+    /// Decrement Robot Count and create a new robot
+    /// </summary>
+    public void DecrementRobotCount()
     {
         robotCount--;
-        CreateSmallFlyingRobots();
+        CreatePetitGoblinRobots();
     }
 
     #endregion
 
-    private void ResetRedHornBeast()
+
+    private void ResetGoblin()
 	{
 		shouldAppear = false;
 		startFighting = false;
 		color = new Vector4(0f, 0f, 0f, 0f);
-		GetComponent<Renderer>().material.color = color;
+		GetComponent<SpriteRenderer>().color = color;
 		
 		Vector3 spikePos;
 		spikePos = spikeLeft.transform.position;
@@ -274,9 +303,9 @@ public class Goblin : MonoBehaviour, IResetable
 		spikePos.x = spikeRight.transform.position.x;
 		spikeRight.transform.position = spikePos;
 		
-		spikeLeft.GetComponent<Renderer>().material.color = color;
-		spikeRight.GetComponent<Renderer>().material.color = color;
-		lightTransform.GetComponent<Renderer>().enabled = false;
+		spikeLeft.GetComponent<SpriteRenderer>().color = color;
+		spikeRight.GetComponent<SpriteRenderer>().color = color;
+		lightTransform.GetComponent<SpriteRenderer>().enabled = false;
 		createRobotOnRightSide = true;
         this.GetComponent<BoxCollider2D>().enabled = false;
         spikeLeft.GetComponent<BoxCollider2D>().enabled = false;

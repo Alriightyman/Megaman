@@ -2,13 +2,14 @@ using UnityEngine;
 using System.Collections;
 using Assets.Scripts.Interfaces;
 
-public class DeathTrigger : MonoBehaviour, IResetable
+public class DeathTrigger : MonoBehaviour//, IResetable
 {
     #region MonoBehaviour
 
     protected void Awake()
     {
-        GameEngine.GetResetableObjectList().Add(this);
+        //GameEngine.GetResetableObjectList().Add(this);
+        GameEngine.AddResetCallback(new System.Action(ResetObject));
     }
 
     // Kill/Respawn the player when he enters the trigger.
@@ -23,7 +24,7 @@ public class DeathTrigger : MonoBehaviour, IResetable
 
     #endregion
 
-    public void Reset()
+    public void ResetObject()
     {
         gameObject.GetComponent<Collider2D>().enabled = true;
     }

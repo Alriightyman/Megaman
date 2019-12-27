@@ -12,7 +12,8 @@ public class KaminariGoro : MonoBehaviour
 	[SerializeField] protected CirclingPlatform platform;
 	[SerializeField] protected BoxCollider2D robotCollider;
 	[SerializeField] protected List<Material> textureMaterials;
-    
+    [SerializeField] protected float distanceToStop = 32.0f;
+
     private Animator robotAnim = null;
     private Animator platformAnim = null;
 
@@ -24,7 +25,7 @@ public class KaminariGoro : MonoBehaviour
 	protected bool isShooting = false;
 	protected bool isDead = false;
 	protected float texChangeInterval = 0.1f;
-	protected float distanceToStop = 32.0f;
+	
 	protected float shootingRangeDiameter = 10f;
 	protected float shootAgainDelay = 2f;
 	protected float shootingTimer;
@@ -52,6 +53,7 @@ public class KaminariGoro : MonoBehaviour
 
         robotAnim = GetComponent<Animator>();
         Assert.IsNotNull(robotAnim);
+
         platformAnim = platform.GetComponentInChildren<Animator>();
         Assert.IsNotNull(platformAnim);
     }
@@ -61,10 +63,12 @@ public class KaminariGoro : MonoBehaviour
 	{
 		texScale = texScaleLeft;
 		currentHealth = health;
-	}
+        platformAnim.Play("Platform");
 
-	// Update is called once per frame 
-	protected void Update() 
+    }
+
+    // Update is called once per frame 
+    protected void Update() 
 	{
 		// Stop fighting if the player is too far away
 		if ((GameEngine.Player.transform.transform.position - transform.position).magnitude >= distanceToStop)
@@ -118,7 +122,6 @@ public class KaminariGoro : MonoBehaviour
 	// 
 	protected void AssignTexture()
 	{
-        platformAnim.Play("Platform");
 		//texIndex = (int) (Time.time / texChangeInterval);
 		
 		// Make the robot always face the player...

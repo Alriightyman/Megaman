@@ -6,19 +6,19 @@ using Assets.Scripts.Interfaces;
 using System;
 using Prime31;
 
-public sealed class PetitGoblin : MonoBehaviour, IResetable
+public sealed class PetitGoblin : MonoBehaviour//, IResetable
 {
 	#region Variables
     [SerializeField]
     private float robotSpeed = 35;
+    private float distanceToDisappear = 32.0f;
     // Protected Instance Variables
     private bool shouldAttack = false;
     private int damage = 10;
     private int health = 10;
     private float attackDelay = 0.7f;
     private float attackDelayTimer;
-    private float distanceToDisappear = 32.0f;
-    private Renderer renderer2D = null;
+    private SpriteRenderer renderer2D = null;
     private Rigidbody2D rigidBody = null;
     private bool onRightSide = false;
     private CharacterController2D controller;
@@ -46,12 +46,12 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
 		rigidBody = GetComponent<Rigidbody2D>();
 		Assert.IsNotNull(rigidBody);
 
-		renderer2D = GetComponent<Renderer>();
+		renderer2D = GetComponent<SpriteRenderer>();
 		Assert.IsNotNull(renderer2D);
 
         controller = GetComponent<CharacterController2D>();
 
-        GameEngine.GetResetableObjectList().Add(this);
+        //sGameEngine.GetResetableObjectList().Add(this);
     }
 
     // Use this for initialization 
@@ -106,11 +106,9 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
 
             if (xPosSet)
             {
-                Debug.Log(gameObject.name + "Is in X position.");
                 inPosition = MoveVeritcalToPosition();
                 if (inPosition)
                 {
-                    Debug.Log(gameObject.name + "Is in Y position.");
                     shouldAttack = true;
                 }
             }
@@ -123,8 +121,9 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
         {
             Vector3 direction = GameEngine.Player.transform.position - transform.position;
 
-            // Kill this object if the player is too far away
-            if (direction.magnitude >= distanceToDisappear)
+            // Kill this object if it is off screen
+            //if (direction.magnitude >= distanceToDisappear)
+            if(!renderer2D.isVisible)
             {
                 KillRobot();
             }
@@ -150,7 +149,6 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
         {
             //rigidBody.velocity = new Vector2(direction * robotSpeed * Time.deltaTime, 0f) ;
             controller.move(new Vector2(direction * robotSpeed * Time.deltaTime, 0f));
-            Debug.Log(String.Format("Velocity: {0}; Speed: {1}; Delta Time: {2}",rigidBody.velocity,robotSpeed, Time.deltaTime));
             return false;
         }
 
@@ -173,7 +171,7 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
     {
         if (this != null)
         {
-            transform.parent.gameObject.GetComponent<Goblin>().MinusRobotCount();
+            transform.parent.gameObject.GetComponent<Goblin>().DecrementRobotCount();
             Destroy(gameObject);
         }
     }
@@ -194,7 +192,7 @@ public sealed class PetitGoblin : MonoBehaviour, IResetable
     #region Public Functions
 
     // 
-    public void Reset()
+    public void ResetObject()
 	{
 		KillRobot();	
 	}
