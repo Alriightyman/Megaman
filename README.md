@@ -19,6 +19,8 @@ I decided to recreate the airman stage from Megaman 2. The game was initially cr
 - Updated UI. UI is now using the more updated Unity UI.
 - Power ups.  Power ups, such as health, are not present. 
 - Enemy object behave like the originals should. (Airman demo)
+- Includes Titlescreen, Pause Menu, Robot Master selections and intro and more!
+- Many bug fixes
 
 ## Requirements ##
 The project uses Unity 2019.2.1f.

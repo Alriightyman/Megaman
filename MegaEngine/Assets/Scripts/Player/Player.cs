@@ -2,10 +2,11 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Prime31;
 
+// requires a Rigidbody2D simply for the OnTriggerEvents.
+[RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
     #region Variables
@@ -13,7 +14,6 @@ public class Player : MonoBehaviour
     // Unity Editor Variables
     [SerializeField] protected Rigidbody2D deathParticlePrefab;
     [SerializeField] protected Transform playerTexObj;
-    CharacterController2D controller;
 
     // Public Properties
     public bool IsPlayerInactive { get; set; }
@@ -37,9 +37,12 @@ public class Player : MonoBehaviour
     protected Shooting shooting = null;
     protected LevelCamera levelCamera = null;
     protected bool startPlaying = false;
+
+    private CharacterController2D controller;
     private Animator animator;
-    private SpriteRenderer renderer;
-    int lives = 3;
+    private SpriteRenderer spriteRenderer;
+    private int lives = 3;
+
     #endregion
 
 
@@ -72,7 +75,7 @@ public class Player : MonoBehaviour
 
         controller = GetComponent<CharacterController2D>();
 
-        renderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Use this for initialization 
@@ -89,6 +92,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame 
     protected void Update()
     {
+
         if (IsPlayerInactive == false)
         {
             // Handle the horizontal and Vertical movements
@@ -118,24 +122,16 @@ public class Player : MonoBehaviour
                     }
                 }
 
-                // don't "blink" while hurt animation is showing
-                //if (IsInvincible && !animator.GetCurrentAnimatorStateInfo(0).IsName("Hurt"))
+
+                //bool flip = true;
+                //if (movement.IsTurningLeft == true)
                 //{
-                //    var color = GetComponent<SpriteRenderer>().color;
-                //    color.a = (color.a == 0f) ? 1f : 0f;
-                //    GetComponent<SpriteRenderer>().color = color;
+                //    flip = false;
                 //}
 
-                bool flip = true;
-                if (movement.IsTurningLeft == true)
-                {
-                    flip = false;
-                }
-
-                GetComponent<SpriteRenderer>().flipX = flip;
+                GetComponent<SpriteRenderer>().flipX = !movement.IsTurningLeft;
 
                 // Setup Animations
-                //SetAnimation();
                 SetAnimationState();
 
                 // keep the z axis as zero <-- Should always be zero.
@@ -162,6 +158,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator EnterLevel()
     {
+        Time.timeScale = 0;        
         animator.SetTrigger("EnteringLevel");
         yield return new WaitUntil(new System.Func<bool>(() => controller.isGrounded));
         StartCoroutine("Landing");
@@ -172,9 +169,11 @@ public class Player : MonoBehaviour
     {
         StopCoroutine("EnterLevel");
          yield return new WaitUntil(new System.Func<bool>(() => { animator.SetBool("IsGrounded", controller.isGrounded); return animator.GetCurrentAnimatorStateInfo(0).IsName("Standing"); }));
+        Time.timeScale = 1;
         startPlaying = true;
         movement.IsEnteringLevel = false;
         StopCoroutine("Landing");
+        GameEngine.LevelStarting = false;
     }
 
     private void ResetInvincibility()
@@ -209,6 +208,7 @@ public class Player : MonoBehaviour
         IsPlayerInactive = false;
         animator.Play("EnterLevel");
         StartCoroutine("EnterLevel");
+        GameEngine.LevelStarting = true;
     }
 
     // 
@@ -246,7 +246,7 @@ public class Player : MonoBehaviour
         this.CreateDeathParticle(deathParticleSpeed, p7, (-transform.up - transform.right));
         this.CreateDeathParticle(deathParticleSpeed, p8, (-transform.up + transform.right));
 
-        renderer.enabled = false;
+        spriteRenderer.enabled = false;
         // Start the wait...
         yield return new WaitForSeconds(0.7f);
 
@@ -302,6 +302,7 @@ public class Player : MonoBehaviour
         shooting.CanShoot = false;
 
         yield return new WaitForSeconds(3.6f);
+        GameEngine.LevelStarting = true;
 
         // Reset the camera
         levelCamera.Reset();
@@ -364,7 +365,7 @@ public class Player : MonoBehaviour
     {
         GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
         levelCamera.ShouldStayStill = false;
-        renderer.enabled = true;
+        spriteRenderer.enabled = true;
     }
     #endregion
 }

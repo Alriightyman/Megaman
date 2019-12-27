@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using Assets.Scripts.Interfaces;
 
-public class CirclingPlatform : MonoBehaviour
+public class CirclingPlatform : MonoBehaviour//, IResetable
 {
 	#region Variables
 
@@ -11,7 +12,6 @@ public class CirclingPlatform : MonoBehaviour
 	public float circleWidth; 	// What is the width of the ellipse/circle?
 	public float circleHeight; 	// What is the height of the ellipse/circle?
 	public float speedInSeconds; 	// How long should it take to move in a full circle?
-    public GameObject platformBoxCollider;
 
     // Public Properties
     public bool ShouldAnimate { get; set; }
@@ -26,23 +26,18 @@ public class CirclingPlatform : MonoBehaviour
 	private float convertFromDeg;
     private Vector3 initPos = new Vector3(0, 0, 0);
     bool start = false;
-	#endregion
+    #endregion
 
-	#region MonoBehaviour
-
-	// Use this for initialization
-	void Start() 
-	{
-		currentPos = transform.position;
-		convertFromDeg = (fullCircle / fullCircleInDeg);
-		circleCenter = transform.position;
-		ShouldAnimate = false;
-        start = true;
-        initPos = new Vector3(currentPos.x, currentPos.y, currentPos.z);
-    }
+    #region MonoBehaviour
     private void Awake()
     {
-        
+        GameEngine.AddResetCallback(new System.Action(ResetObject));
+
+    }
+    // Use this for initialization
+    void Start() 
+	{
+        ResetObject();
     }
 
     // Called when the Collider other enters the trigger.
@@ -90,6 +85,10 @@ public class CirclingPlatform : MonoBehaviour
 
         }
 	}
+    #endregion
+
+    #region Gizmos
+
 
     void OnDrawGizmos()
     {
@@ -123,6 +122,16 @@ public class CirclingPlatform : MonoBehaviour
             lastPoint = thisPoint;
             angle += 360f / segments;
         }
+    }
+
+    public void ResetObject()
+    {
+        currentPos = transform.position;
+        convertFromDeg = (fullCircle / fullCircleInDeg);
+        circleCenter = transform.position;
+        ShouldAnimate = false;
+        start = true;
+        initPos = new Vector3(currentPos.x, currentPos.y, currentPos.z);
     }
     #endregion
 }

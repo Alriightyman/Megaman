@@ -5,9 +5,9 @@ public class BossDoor : MonoBehaviour
 {
 	#region Variables
 
-	// Protected Instance Variables
-	protected float playerSpeed = 250f;
-	protected float doorSpeed = 10f;
+	// Protected Instance Variables 
+	[SerializeField] protected float playerSpeed = 25f;
+	[SerializeField] protected float doorSpeed = 10f;
 	protected bool isOpening = false;
 	protected bool isClosing = false;
 	protected bool hasPlayerGoneThrough = false;

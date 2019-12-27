@@ -1,20 +1,24 @@
 using UnityEngine;
 using System.Collections;
 
+// needed for collision with platform
+//[RequireComponent(typeof(Rigidbody2D))]
 public class Egg : MonoBehaviour 
 {
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody2D littleBird;
-	
-	// Protected Instance Variables
-	protected bool falling = false;
-	protected float speed = 7.0f;
-	protected float lifeSpan = 5.0f;
+	[SerializeField] protected GameObject copipi;
+    [SerializeField] protected float speed = 7.0f;
+    [SerializeField] protected float velSlower = 7.0f;
+    [SerializeField] private float copipiSpeed = 75.0f;
+
+    // Protected Instance Variables
+    protected bool falling = false;
+    protected float lifeSpan = 5.0f;
 	protected float lifeTimer;
 	protected float xVel = 0.0f;
-	protected float velSlower = 7.0f;
+	
 	protected float damage = 10.0f;	
 
 	#endregion
@@ -33,27 +37,27 @@ public class Egg : MonoBehaviour
 		// If we are crashing into a platform...
 		else if (other.tag == "platform")
 		{
-			float dist = 1.25f;
+			float dist = 25f;
 			bool goLeft = (GameEngine.Player.transform.position.x < transform.position.x);
 			CreateBird(transform.position, goLeft);
-			CreateBird(transform.position + Vector3.up, goLeft);
-			CreateBird(transform.position + Vector3.down, goLeft);
-			CreateBird(transform.position + Vector3.left, goLeft);
-			CreateBird(transform.position + Vector3.right, goLeft);
+			//CreateBird(transform.position + Vector3.up, goLeft);
+			//CreateBird(transform.position + Vector3.down, goLeft);
+			//CreateBird(transform.position + Vector3.left, goLeft);
+			//CreateBird(transform.position + Vector3.right, goLeft);
 			
-			CreateBird(transform.position + Vector3.up * dist + Vector3.left, goLeft);
-			CreateBird(transform.position + Vector3.up * dist + Vector3.right, goLeft);
+			//CreateBird(transform.position + Vector3.up * dist + Vector3.left, goLeft);
+			//CreateBird(transform.position + Vector3.up * dist + Vector3.right, goLeft);
 			CreateBird(transform.position + Vector3.down * dist + Vector3.left, goLeft);
-			CreateBird(transform.position + Vector3.down * dist + Vector3.right, goLeft);
+			//CreateBird(transform.position + Vector3.down * dist + Vector3.right, goLeft);
 			
-			CreateBird(transform.position + Vector3.up * (dist/2.0f) + Vector3.left * (dist/2.0f), goLeft);
+			//CreateBird(transform.position + Vector3.up * (dist/2.0f) + Vector3.left * (dist/2.0f), goLeft);
 			CreateBird(transform.position + Vector3.up * (dist/2.0f) + Vector3.right * (dist/2.0f), goLeft);
-			CreateBird(transform.position + Vector3.down * (dist/2.0f) + Vector3.left * (dist/2.0f), goLeft);
-			CreateBird(transform.position + Vector3.down * (dist/2.0f) + Vector3.right * (dist/2.0f), goLeft);
+			//CreateBird(transform.position + Vector3.down * (dist/2.0f) + Vector3.left * (dist/2.0f), goLeft);
+			//CreateBird(transform.position + Vector3.down * (dist/2.0f) + Vector3.right * (dist/2.0f), goLeft);
 			
-			CreateBird(transform.position + Vector3.up * (dist/3.0f) + Vector3.left * (dist/3.0f), goLeft);
-			CreateBird(transform.position + Vector3.up * (dist/3.0f) + Vector3.right * (dist/3.0f), goLeft);
-			CreateBird(transform.position + Vector3.down * (dist/3.0f) + Vector3.left * (dist/3.0f), goLeft);
+			//CreateBird(transform.position + Vector3.up * (dist/3.0f) + Vector3.left * (dist/3.0f), goLeft);
+			//CreateBird(transform.position + Vector3.up * (dist/3.0f) + Vector3.right * (dist/3.0f), goLeft);
+			//CreateBird(transform.position + Vector3.down * (dist/3.0f) + Vector3.left * (dist/3.0f), goLeft);
 			CreateBird(transform.position + Vector3.down * (dist/3.0f) + Vector3.right * (dist/3.0f), goLeft);
 			
 			Destroy(gameObject);
@@ -83,8 +87,8 @@ public class Egg : MonoBehaviour
 	// 
 	protected void CreateBird(Vector3 pos, bool goLeft)
 	{
-        Rigidbody2D littleBirdRobot = Instantiate(littleBird, pos, transform.rotation);
-		littleBirdRobot.GetComponent<LittleBird>().Attack(goLeft, 7.0f + Random.Range(0.0f, 1.0f));
+        GameObject littleBirdRobot = Instantiate(copipi, pos, transform.rotation);
+		littleBirdRobot.GetComponent<Copipi>().Attack(goLeft, copipiSpeed + Random.Range(0.0f, 10.0f));
 		Physics2D.IgnoreCollision(littleBirdRobot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
 	}
 

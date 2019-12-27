@@ -10,10 +10,11 @@ public class GameEngine
 	public static Player Player { get; set; }
 	public static SoundManager SoundManager { get; set; }
 	public static AirmanBoss AirMan { get; set; }
+    public static bool LevelStarting { get; set; } = true;
 
 	protected static event Action ResetCallbackList;
 
-    private static List<IResetable> resetableObjects = new List<IResetable>();
+   // private static List<IResetable> resetableObjects = new List<IResetable>();
 
     public static void AddResetCallback(Action resetCallback)
 	{
@@ -25,15 +26,15 @@ public class GameEngine
 		ResetCallbackList -= resetCallback;
 	}
 
-    public static List<IResetable> GetResetableObjectList()
-    {
-        lock (resetableObjects)
-        {
-            if (resetableObjects == null)
-                resetableObjects = new List<IResetable>();
-        }
-        return resetableObjects;
-    }
+    //public static List<IResetable> GetResetableObjectList()
+    //{
+    //    lock (resetableObjects)
+    //    {
+    //        if (resetableObjects == null)
+    //            resetableObjects = new List<IResetable>();
+    //    }
+    //    return resetableObjects;
+    //}
 
     public static IEnumerator Reset()
     {
@@ -41,10 +42,13 @@ public class GameEngine
 
         Player.KillPlayer();
         yield return new WaitForSeconds(3.6f);
-        foreach (IResetable resetableObject in resetableObjects)
-        {
-            resetableObject.Reset();
-        }
+        //foreach (IResetable resetableObject in resetableObjects)
+        //{
+        //    resetableObject.ResetObject();
+        //}
+
+        ResetCallbackList?.Invoke();
+
         if (AirMan != null)
             AirMan.Reset();
 

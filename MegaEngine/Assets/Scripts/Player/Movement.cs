@@ -57,11 +57,12 @@ public class Movement : MonoBehaviour
 	// Use this for initialization
 	protected void Start ()
 	{
+        float offset = 128f;
         startPositionLocation = StartPosition.transform.position;
         CheckPointPosition = startPositionLocation;
         IsHurting = false;
         //transform.position = CheckPointPosition = startPositionLocation;
-        transform.position = new Vector2(startPositionLocation.x, transform.position.y);
+        transform.position = new Vector2(startPositionLocation.x, startPositionLocation.y + offset);
 	}
     #endregion
 
@@ -76,7 +77,7 @@ public class Movement : MonoBehaviour
         // cap downward speed
 		if (moveVector.y > -terminalVelocity)
 		{
-			moveVector = new Vector3(moveVector.x, moveVector.y - finalGravity * Time.deltaTime, moveVector.z);
+			moveVector = new Vector3(moveVector.x, moveVector.y - finalGravity * Time.unscaledDeltaTime, moveVector.z);
         } 
 		
         // player has landed on the ground
@@ -124,7 +125,7 @@ public class Movement : MonoBehaviour
 		// 
 		if (IsExternalForceActive == true)
 		{
-			moveVector += ExternalForce * Time.deltaTime;
+			moveVector += ExternalForce * Time.unscaledDeltaTime;
 		}
 	}
 	
@@ -159,7 +160,7 @@ public class Movement : MonoBehaviour
 		ApplyGravity();
 		
 		//move character in world-space
-		charController.move(moveVector * Time.deltaTime);        
+		charController.move(moveVector * Time.unscaledDeltaTime);        
 	}
 
 	//
@@ -262,7 +263,6 @@ public class Movement : MonoBehaviour
 			ProcessMovement();
 		}
 
-        Debug.Log(String.Format("Player Time: {0}", Time.deltaTime));
 	}
 
 	#endregion
