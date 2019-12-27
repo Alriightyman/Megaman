@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
 
     // Unity Editor Variables
     [SerializeField] protected Rigidbody2D deathParticlePrefab;
-    [SerializeField] protected Transform playerTexObj;
+    [SerializeField] private float deathParticleSpeed = 75f;
 
     // Public Properties
     public bool IsPlayerInactive { get; set; }
@@ -223,18 +223,16 @@ public class Player : MonoBehaviour
     // 
     protected IEnumerator CreateDeathParticles(Vector3 pos)
     {
-        float deathParticleSpeed = 6.0f / 6;
-
         // Before the wait...
-        Vector3 p1 = pos + Vector3.up / 6;
-        Vector3 p2 = pos - Vector3.up / 6;
-        Vector3 p3 = pos + Vector3.right / 6;
-        Vector3 p4 = pos - Vector3.right / 6;
+        Vector3 p1 = pos + Vector3.up;
+        Vector3 p2 = pos - Vector3.up;
+        Vector3 p3 = pos + Vector3.right;
+        Vector3 p4 = pos - Vector3.right ;
 
-        Vector3 p5 = pos + Vector3.up/6 + Vector3.right / 6;
-        Vector3 p6 = pos + Vector3.up/6 - Vector3.right / 6;
-        Vector3 p7 = pos - Vector3.up/6 - Vector3.right / 6;
-        Vector3 p8 = pos - Vector3.up/6 + Vector3.right / 6;
+        Vector3 p5 = pos + Vector3.up  + Vector3.right ;
+        Vector3 p6 = pos + Vector3.up  - Vector3.right ;
+        Vector3 p7 = pos - Vector3.up  - Vector3.right ;
+        Vector3 p8 = pos - Vector3.up  + Vector3.right ;
 
 
         this.CreateDeathParticle(deathParticleSpeed, p1, (transform.up));
