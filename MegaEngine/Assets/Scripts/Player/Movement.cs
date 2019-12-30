@@ -101,25 +101,14 @@ public class Movement : MonoBehaviour
             wasJumping = false;
 		}
 
-        //Animator anim = GetComponent<Animator>();
-
-
         // determine if the player is falling
         if (!charController.isGrounded && moveVector.y < 0)
         {
-            //if (!IsFalling && !IsEnteringLevel)
-            //{
-            //    //anim.Play("Falling");
-            //    anim.SetBool("IsFalling", true);
-            //}
-
             IsFalling = true;
-
         }
         else
         {
             IsFalling = false;
-            //anim.SetBool("IsFalling", false);
         }
 	}
 	

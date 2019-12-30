@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections;
+using Extensions;
+using UnityEngine.Assertions;
 
 public class BossDoor : MonoBehaviour 
 {
@@ -8,10 +9,16 @@ public class BossDoor : MonoBehaviour
 	// Protected Instance Variables 
 	[SerializeField] protected float playerSpeed = 25f;
 	[SerializeField] protected float doorSpeed = 10f;
+
+    public bool IsDoorOpen { get; set; }
+
+    private BoxCollider2D boxCol2D;
 	protected bool isOpening = false;
 	protected bool isClosing = false;
 	protected bool hasPlayerGoneThrough = false;
-	protected Vector3 startScale = Vector3.zero;
+    private Vector3 startPosition;
+    private Vector3 stopPosition;
+    private GameObject door;
 
 	#endregion
 
@@ -21,8 +28,16 @@ public class BossDoor : MonoBehaviour
 	// Use this for initialization 
 	protected void Start()
 	{
-		startScale = transform.localScale;
-	}
+        boxCol2D = GetComponent<BoxCollider2D>();
+        Assert.IsNotNull(boxCol2D);
+
+        door = gameObject.GetChildWithName("Door");
+        Assert.IsNotNull(door);
+
+        startPosition = transform.position;
+        stopPosition = new Vector3(startPosition.x, startPosition.y + boxCol2D.size.y, startPosition.z);
+
+    }
 
 	// Update is called once per frame 
 	protected void Update() 
@@ -34,10 +49,12 @@ public class BossDoor : MonoBehaviour
 		
 		if (isOpening)
 		{
-			scaleCube(-doorSpeed * Time.deltaTime);
+			MoveDoor(doorSpeed * Time.deltaTime);
 			
-			if (transform.localScale.y <= 0.5)
+			if (door.transform.position.y >= stopPosition.y)
 			{
+                door.transform.position = stopPosition;
+                IsDoorOpen = true;
 				isOpening = false;
 				GameEngine.Player.IsExternalForceActive = true;
 				GameEngine.Player.ExternalForce = new Vector3 (playerSpeed, 0.0f, 0.0f);
@@ -47,12 +64,15 @@ public class BossDoor : MonoBehaviour
 		
 		else if (isClosing)
 		{
-			scaleCube(doorSpeed * Time.deltaTime);
+			MoveDoor(-doorSpeed * Time.deltaTime);
 			
-			if (transform.localScale.y >= startScale.y)
+			if (door.transform.position.y <= startPosition.y)
 			{
+                IsDoorOpen = false;
+                door.transform.position = startPosition;
 				isClosing = false;
 				hasPlayerGoneThrough = true;
+                GameEngine.Player.IsFrozen = false;
 				GameEngine.Player.IsExternalForceActive = false;
                 GameEngine.Player.ExternalForce = new Vector3(0.0f, 0.0f, 0.0f);
                 GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_DOOR);
@@ -71,24 +91,15 @@ public class BossDoor : MonoBehaviour
 		isOpening = false;
 		isClosing = false;
 		hasPlayerGoneThrough = false;
-        gameObject.GetComponent<Collider2D>().enabled = true;
+        boxCol2D.enabled = true;
 
     }
 
-    //
-    protected void scaleCube(float scaleAmount)
+    // Moves the oject into the spritemask so it... disappears.
+    protected void MoveDoor(float speed)
 	{
-		Vector3 sc = transform.localScale;
-		Vector3 pos = transform.localPosition;
-		
-		//Scale the object on X axis in local units
-		sc.y += scaleAmount;
-		transform.localScale = sc;
- 
-		//Move the object on X axis in local units
-		pos.y -= scaleAmount / 1.3f; 
-		transform.localPosition = pos;
-	}
+        door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y + speed, door.transform.position.z);
+    }
 
 	#endregion
 	
@@ -99,7 +110,7 @@ public class BossDoor : MonoBehaviour
 	public void OpenDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider2D>().enabled = false;
+        boxCol2D.enabled = false;
 		isOpening = true;
 	}
 	
@@ -107,7 +118,7 @@ public class BossDoor : MonoBehaviour
 	public void CloseDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider2D>().enabled = true;
+        boxCol2D.enabled = true;
 		isClosing = true;
 	}	
 	

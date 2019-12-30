@@ -86,7 +86,6 @@ public class Player : MonoBehaviour
         health.ShowHealthBar = true;
         movement.IsEnteringLevel = true;
         StartCoroutine("EnterLevel");
-
     }
 
     // Update is called once per frame 

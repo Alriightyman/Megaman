@@ -29,7 +29,7 @@ public class CameraTrigger : MonoBehaviour
 	protected bool isTransitioning = false;
 	protected Vector3 startPosition;
 	protected float startTime;
-
+    private bool isStartTimeSet = false;
 	#endregion
 
 
@@ -47,22 +47,27 @@ public class CameraTrigger : MonoBehaviour
 	{
 		if (isTransitioning == true)
 		{
-			transitionStatus = (Time.time - startTime) / transitionDuration;
-			levelCamera.CameraPosition = Vector3.Lerp(startPosition, freezeEndPosition, transitionStatus);
-			
-			if (transitionStatus  >= 1.0)
-			{
-                GameEngine.Player.IsFrozen = false;
-				isTransitioning = false;
-				levelCamera.IsTransitioning = false;
-				levelCamera.CameraPosition = freezeEndPosition;
-				levelCamera.CanMoveLeft = onExitCanMoveLeft;
-				levelCamera.CanMoveRight = onExitCanMoveRight;
-				levelCamera.CanMoveUp = onExitCanMoveUp;
-				levelCamera.CanMoveDown = onExitCanMoveDown;
+
+            transitionStatus = (Time.time - startTime) / transitionDuration;
+            levelCamera.CameraPosition = Vector3.Lerp(startPosition, freezeEndPosition, transitionStatus);
+
+            if (transitionStatus >= 1.0)
+            {
+                if (!isABossDoorTrigger)
+                {
+                    GameEngine.Player.IsFrozen = false;
+                }
+
+                isTransitioning = false;
+                levelCamera.IsTransitioning = false;
+                levelCamera.CameraPosition = freezeEndPosition;
+                levelCamera.CanMoveLeft = onExitCanMoveLeft;
+                levelCamera.CanMoveRight = onExitCanMoveRight;
+                levelCamera.CanMoveUp = onExitCanMoveUp;
+                levelCamera.CanMoveDown = onExitCanMoveDown;
                 levelCamera.MinPosition = NewCameraMinPosition;
                 levelCamera.MaxPosition = NewCameraMaxPosition;
-			}
+            }
 		}
 	}
 
@@ -75,28 +80,26 @@ public class CameraTrigger : MonoBehaviour
 			levelCamera.CanMoveRight = onEnterCanMoveRight;
 			levelCamera.CanMoveUp = onEnterCanMoveUp;
 			levelCamera.CanMoveDown = onEnterCanMoveDown;
-			
-            if(!onEnterCanMoveRight)
+
+            if (shouldMoveCamera == true)
             {
-                levelCamera.MaxPosition = levelCamera.transform.position;
+                GameEngine.Player.IsFrozen = true;
+                startPosition = levelCamera.CameraPosition;
+                isTransitioning = true;
+                startTime = Time.time;
+                levelCamera.IsTransitioning = true;
             }
 
-			if (isABossDoorTrigger)
+            if (isABossDoorTrigger)
 			{
 				bossDoor.OpenDoor();
 				GameEngine.Player.IsFrozen = true;
 				levelCamera.IsTransitioning = true;
+                isTransitioning = false;
+                StartCoroutine("DoorShut");
 			}
 			
-			if (shouldMoveCamera == true)
-			{
-                GameEngine.Player.IsFrozen = true;
-				startPosition = levelCamera.CameraPosition;
-				isTransitioning = true;
-				startTime = Time.time;
-				levelCamera.IsTransitioning = true;
-               
-			}
+
 		}
     }
 	
@@ -117,13 +120,62 @@ public class CameraTrigger : MonoBehaviour
 
             if (isABossDoorTrigger)
 			{
-				GameEngine.Player.IsFrozen = false;
 				bossDoor.CloseDoor();
 				GetComponent<Collider2D>().enabled = false;
 			}
 		}
     }
-	
-	#endregion
+
+    private IEnumerator DoorShut()
+    {
+        yield return new WaitUntil(new System.Func<bool>(() => { return bossDoor.IsDoorOpen == true; }));
+        startTime = Time.time;
+        isTransitioning = true;
+    }
+
+    #endregion
+
+
+
+    #region Gizmos
+    private void OnDrawGizmos()
+    {
+        
+        //var boxCol2D = GetComponent<BoxCollider2D>();
+        //// 
+        //// draw an icon for all directions available
+        //if (onEnterCanMoveUp)
+        //{
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y + boxCol2D.size.y / 2, transform.position.z));
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - boxCol2D.size.y / 2, transform.position.z));
+
+        //    Gizmos.DrawIcon(new Vector3(transform.position.x, transform.position.y + boxCol2D.size.y, transform.position.z)
+        //                    , "ArrowUp.png", true);
+        //}
+        //if (onEnterCanMoveDown)
+        //{
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y + boxCol2D.size.y / 2, transform.position.z));
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - boxCol2D.size.y / 2, transform.position.z));
+
+        //    Gizmos.DrawIcon(new Vector3(transform.position.x, transform.position.y - boxCol2D.size.y, transform.position.z)
+        //                    , "ArrowDown.png", true);
+        //}
+        //if (onEnterCanMoveLeft)
+        //{
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + boxCol2D.size.x / 2, transform.position.y, transform.position.z));
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x - boxCol2D.size.x / 2, transform.position.y, transform.position.z));
+
+        //    Gizmos.DrawIcon(new Vector3(transform.position.x - boxCol2D.size.x, transform.position.y, transform.position.z)
+        //                    , "ArrowLeft.png", true);
+        //}
+        //if (onEnterCanMoveRight)
+        //{
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + boxCol2D.size.x / 2, transform.position.y, transform.position.z));
+        //    Gizmos.DrawLine(transform.position, new Vector3(transform.position.x - boxCol2D.size.x / 2, transform.position.y, transform.position.z));
+        //    Gizmos.DrawIcon(new Vector3(transform.position.x + boxCol2D.size.x, transform.position.y, transform.position.z)
+        //                    , "ArrowRight.png",true);
+        //}
+    }
+    #endregion
 }
 
