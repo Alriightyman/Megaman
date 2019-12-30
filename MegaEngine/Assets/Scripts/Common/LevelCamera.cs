@@ -7,47 +7,64 @@ public class LevelCamera : MonoBehaviour
 	#region Variables
 
 	// Public Properties
-	public Vector3 CameraPosition		{ get{return transform.position;} set{transform.position = value;} }
-	public Vector3 CheckpointPosition 	{ get; set; }
+	public Vector3 CameraPosition   { get{return transform.position;} set{transform.position = value;} }
+	public Vector3 CheckpointPosition   { get; set; }
 	public bool CheckpointCanMoveLeft 	{ get; set; }
 	public bool CheckpointCanMoveRight 	{ get; set; }
-	public bool CheckpointCanMoveUp 	{ get; set; }
-	public bool CheckpointCanMoveDown 	{ get; set; }
-	public bool CanMoveLeft				{ get; set; }
-	public bool CanMoveRight			{ get; set; }
-	public bool CanMoveUp				{ get; set; }
-	public bool CanMoveDown				{ get; set; }
-	public bool IsTransitioning			{ get; set; }
-	public bool ShouldStayStill			{ get; set; }
-	
-	// Private Instance Variables
+	public bool CheckpointCanMoveUp { get; set; }
+	public bool CheckpointCanMoveDown   { get; set; }
+    public bool CanMoveLeft;//	    { get; set; }
+    public bool CanMoveRight;//    { get; set; }
+    public bool CanMoveUp;//				{ get; set; }
+    public bool CanMoveDown;//				{ get; set; }
+    public bool IsTransitioning;//			{ get; set; }
+    public bool ShouldStayStill;//			{ get; set; }
+    public Vector3 MaxPosition;
+    public Vector3 MinPosition;
+    private GameObject LeftBound, RightBound;
+
+    // Private Instance Variables
+    private Vector3 playerCheckpointPosition;
 	private Vector3 playerPos;
 	private Vector3 deltaPos;
+    
+    [SerializeField] private Checkpoint startPosition;
+    #endregion
 
-    [SerializeField]
-    private Transform startPosition;
-	#endregion
 
-
-	#region MonoBehaviour
-	
-	// Use this for initialization
-	protected void Start () 
+    #region MonoBehaviour
+    protected void Awake()
+    {
+        LeftBound = GameObject.Find("LeftBound");
+        RightBound = GameObject.Find("RightBound");
+        //float height = Camera.main.orthographicSize * 2;
+        //float width = height * Screen.width / Screen.height; // basically height * screen aspect ratio
+        //RightBound.transform.localScale = Vector3.one * height / 6f;
+        //LeftBound.transform.localScale = Vector3.one * height / 6f;
+    }
+    // Use this for initialization
+    protected void Start () 
 	{
+        Vector3 position = startPosition != null ? startPosition.CameraPosition : CheckpointPosition;
+
 		//Vector3 startPosition = new Vector3(13.34303f, 11.51588f, -10f);
-		transform.position = new Vector3(startPosition.position.x, startPosition.position.y, -10f); 
-		CheckpointPosition = new Vector3(startPosition.position.x, startPosition.position.y, -10f);
+		transform.position = new Vector3(position.x, position.y, -10f); 
+		CheckpointPosition = new Vector3(position.x, position.y, -10f);
+
+        MinPosition = CheckpointPosition;
 
         ShouldStayStill = false;
 		IsTransitioning = false;
-		CanMoveRight = true;
-		CanMoveLeft = true;
-		CanMoveUp = false;
-		CanMoveDown = false;
+		CanMoveRight = startPosition != null ? startPosition.CanMoveRight : CanMoveRight;
+		CanMoveLeft = startPosition != null ? startPosition.CanMoveLeft : CanMoveLeft;
+		CanMoveUp = startPosition != null ? startPosition.CanMoveUp : CanMoveUp;
+		CanMoveDown = startPosition != null ? startPosition.CanMoveDown : CanMoveDown;
 		CheckpointCanMoveLeft = false;
 		CheckpointCanMoveRight = true;
 		CheckpointCanMoveUp = false;
 		CheckpointCanMoveDown = false;
+
+        GameEngine.Player.CheckpointPosition = startPosition != null ? startPosition.PlayerPosition : GameEngine.Player.CheckpointPosition;
 	}
 	
 	// Update is called once per frame
@@ -62,21 +79,48 @@ public class LevelCamera : MonoBehaviour
 		// Make the camera follow the player...
 		playerPos = GameEngine.Player.transform.position;
 		deltaPos = playerPos - transform.position;
-		
+        var newPosition = transform.position;
+        
+
 		// Check the x pos 
-		if ((deltaPos.x < 0.0f && CanMoveLeft) || (deltaPos.x > 0.0f && CanMoveRight) || GameEngine.LevelStarting) 		
+		if ( (deltaPos.x < 0.0f && CanMoveLeft) 
+            || (deltaPos.x > 0.0f && CanMoveRight))	
 		{
-			transform.position = new Vector3(playerPos.x, transform.position.y, transform.position.z);
+            newPosition = new Vector3(playerPos.x, newPosition.y, newPosition.z);
 		}
 		
 		// Check the y pos 
-		if ((deltaPos.y < 0.0f && CanMoveDown) || (deltaPos.y > 0.0f && CanMoveUp) || GameEngine.LevelStarting) 		
+		if ((deltaPos.y < 0.0f && CanMoveDown) || (deltaPos.y > 0.0f && CanMoveUp)) 		
 		{
-			transform.position = new Vector3(transform.position.x, playerPos.y, transform.position.z);
+            newPosition = new Vector3(newPosition.x, playerPos.y, newPosition.z);
 		}
 		
-		// Make the level restart if the user presses escape...
-		if (Input.GetKeyDown (KeyCode.Escape)) 
+        // check if camera has gone too far
+        if(newPosition.x >= MaxPosition.x)
+        {
+            newPosition = new Vector3(MaxPosition.x, newPosition.y, newPosition.z);
+        }
+
+        if (newPosition.x <= MinPosition.x)
+        {
+            newPosition = new Vector3(MinPosition.x, newPosition.y, newPosition.z);
+        }
+
+        if (newPosition.y >= MaxPosition.y)
+        {
+            newPosition = new Vector3(newPosition.x, MaxPosition.y, newPosition.z);
+        }
+
+        if (newPosition.y <= MinPosition.y)
+        {
+            newPosition = new Vector3(newPosition.x, MinPosition.y, newPosition.z);
+        }
+
+
+        transform.position = newPosition;
+
+        // Make the level restart if the user presses escape...
+        if (Input.GetKeyDown (KeyCode.Escape)) 
 		{
             SceneManager.LoadScene(0);
         } 

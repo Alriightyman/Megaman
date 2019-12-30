@@ -13,13 +13,20 @@ public class Checkpoint : MonoBehaviour
 	[SerializeField] protected bool cameraCanMoveUp;
 	[SerializeField] protected bool cameraCanMoveDown;
 
-	#endregion
-	
-	
-	#region MonoBehaviour
+    // Properties
+    public Vector3 PlayerPosition { get { return playerPosition; } }
+    public Vector3 CameraPosition { get { return cameraPosition; } }
+    public bool CanMoveRight { get { return cameraCanMoveRight; } }
+    public bool CanMoveLeft { get { return cameraCanMoveLeft; } }
+    public bool CanMoveUp { get { return cameraCanMoveUp; } }
+    public bool CanMoveDown { get { return cameraCanMoveDown; } }
+    #endregion
 
-	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other) 
+
+    #region MonoBehaviour
+
+    // Called when the Collider other enters the trigger.
+    protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
