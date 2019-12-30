@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Assertions;
-using System.Collections;
-using System.Collections.Generic;
+using Extensions;
 
 public class KaminariGoro : MonoBehaviour 
 {
@@ -11,8 +10,9 @@ public class KaminariGoro : MonoBehaviour
 	[SerializeField] protected Rigidbody2D electricShot;
 	[SerializeField] protected CirclingPlatform platform;
 	[SerializeField] protected BoxCollider2D robotCollider;
-	[SerializeField] protected List<Material> textureMaterials;
     [SerializeField] protected float distanceToStop = 32.0f;
+    [SerializeField] protected float shootingRangeDiameter = 10f;
+    [SerializeField] private float shotSpeed = 50f;
 
     private Animator robotAnim = null;
     private Animator platformAnim = null;
@@ -21,17 +21,12 @@ public class KaminariGoro : MonoBehaviour
     protected int health = 30;
 	protected int currentHealth;
 	protected int damage = 10;
-	protected int texIndex = 0;
 	protected bool isShooting = false;
 	protected bool isDead = false;
-	protected float texChangeInterval = 0.1f;
-	
-	protected float shootingRangeDiameter = 10f;
+    private bool canShoot = false;
+
 	protected float shootAgainDelay = 2f;
 	protected float shootingTimer;
-	protected Vector2 texScale;
-	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
-	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
 	protected Vector3 turningLeftColliderPos = new Vector3(0.2f, -0.8f, 0f);
 	protected Vector3 turningRightColliderPos = new Vector3(-0.2f, -0.8f, 0f);
 	protected Collider2D col = null;
@@ -61,9 +56,9 @@ public class KaminariGoro : MonoBehaviour
 	// Use this for initialization 
 	protected void Start()
 	{
-		texScale = texScaleLeft;
 		currentHealth = health;
         platformAnim.Play("Platform");
+        robotAnim.Play("Wait");
 
     }
 
@@ -83,7 +78,7 @@ public class KaminariGoro : MonoBehaviour
 			CheckIfRobotCanShoot();
 			
 			// Put the correct texture on the robot
-			AssignTexture();
+			SetAnimations();
 		}
 	}	
 
@@ -120,9 +115,8 @@ public class KaminariGoro : MonoBehaviour
 	}
 
 	// 
-	protected void AssignTexture()
+	protected void SetAnimations()
 	{
-		//texIndex = (int) (Time.time / texChangeInterval);
 		
 		// Make the robot always face the player...
 		bool playerOnLeftSide = (GameEngine.Player.transform.position.x - transform.position.x < -1.0f);
@@ -131,31 +125,20 @@ public class KaminariGoro : MonoBehaviour
 		if (isDead == true)
 		{
             robotAnim.StopPlayback();
-            // display the platform textures...
-            //rend.material = textureMaterials[(texIndex % 2) + 6 ];
-            //rend.material.SetTextureScale("_MainTex", texScaleLeft);
             rend.enabled = false;
-            //robotCollider.center = turningLeftColliderPos;
             robotCollider.offset = turningLeftColliderPos;
 		}
 		
 		// If the robot is shooting...
-		else if (isShooting == true)
+		else if (isShooting == true && canShoot == true)
 		{
             robotAnim.Play("Throw");
-            //rend.material = textureMaterials[(texIndex % 2) + 4 ];
-            //texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
-            //rend.material.SetTextureScale("_MainTex", texScale);
+            canShoot = false;
             rend.flipX = !playerOnLeftSide;
             robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 		else
 		{
-            robotAnim.Play("Wait");
-			// Assign the material
-			//rend.material = textureMaterials[texIndex % 4];
-			//texScale = (playerOnLeftSide == true) ? texScaleLeft : texScaleRight;
-			//rend.material.SetTextureScale("_MainTex", texScale);
             rend.flipX = !playerOnLeftSide;
             robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
@@ -167,13 +150,29 @@ public class KaminariGoro : MonoBehaviour
 		isShooting = true;
 		shootingTimer = Time.time;
 
-        Rigidbody2D shot = (Rigidbody2D) Instantiate(electricShot, transform.position, transform.rotation);
+        Rigidbody2D shot = Instantiate(electricShot, transform.position, transform.rotation);
 		shot.transform.parent = gameObject.transform;
 		Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), col);
-		
-		KaminariGoroShot shotScript = shot.GetComponent<KaminariGoroShot>();
+        Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), platform.GetComponent<Collider2D>());
+        var PlatformCollider = platform.gameObject.GetChildWithName("PlatformBoxCollider");
+        Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), PlatformCollider.GetComponent<Collider2D>());
+
+        KaminariGoroShot shotScript = shot.GetComponent<KaminariGoroShot>();
 		if (shotScript)
 		{
+            shotScript.Speed = shotSpeed;
+            
+            // set the target's position for the shot to aim at.
+            var offset = platform.gameObject.GetChildWithName("Target");
+
+            var direction = -1;
+            if ((offset.transform.localPosition.x < 0 && !rend.flipX) || (offset.transform.localPosition.x > 0 && rend.flipX))
+            {
+                direction = 1;
+            }
+ 
+            offset.transform.localPosition = new Vector3(offset.transform.localPosition.x * direction, offset.transform.localPosition.y, offset.transform.localPosition.z);
+            shotScript.target = offset.transform;
 			shotScript.TargetDirection = GameEngine.Player.transform.position;
 		}
 	}
@@ -191,6 +190,7 @@ public class KaminariGoro : MonoBehaviour
 				// If the robot is ready to shoot...
 				if (isShooting == false && Time.time - shootingTimer >= shootAgainDelay)
 				{
+                    canShoot = true;
 					Shoot();
 				}
 			}
@@ -216,5 +216,13 @@ public class KaminariGoro : MonoBehaviour
 		currentHealth = health;
 	}
 
-	#endregion
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + shootingRangeDiameter / 2, transform.position.y, transform.position.z));
+        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x - shootingRangeDiameter / 2, transform.position.y, transform.position.z));
+
+    }
+
+    #endregion
 }

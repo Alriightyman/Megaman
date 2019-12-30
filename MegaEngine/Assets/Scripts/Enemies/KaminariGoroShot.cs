@@ -3,48 +3,64 @@ using System.Collections;
 
 public class KaminariGoroShot : MonoBehaviour
 {
-	#region Variables
+    #region Variables
 
-	// Public Properties
-	public Vector3 TargetDirection
-	{ 
-		get { return targetDirection; }
-		set 
-		{
-			targetDirection = value - transform.position;
-			targetDirection.Normalize();
-			SetTextureScale();
-		}
-	}
-	
-	// Protected Instance Variables
-	protected Vector3 targetDirection;
-	protected float lifeSpan = 3f;
-	protected float damage = 10f;
-	protected float speed = 150f;
-	protected float timeStart;
-	protected Vector2 texScaleRightDown = new Vector2(1.0f, -1.0f);
-	protected Vector2 texScaleLeftDown = new Vector2(-1.0f, -1.0f);
-	protected Vector2 texScaleRightUp = new Vector2(1.0f, 1.0f);
-	protected Vector2 texScaleLeftUp = new Vector2(-1.0f, 1.0f);
-	
-	#endregion
-	
-	
-	#region MonoBehaviour
+    // Public Properties
+    public Vector3 TargetDirection
+    {
+        get { return targetDirection; }
+        set
+        {
+            targetDirection = value - transform.position;
+            targetDirection.Normalize();
+            //spriteRenderer.flipX = targetDirection == 1 ? true : false;
+            //SetTextureScale();
+        }
+    }
+    public float Speed { set { speed = value; } }
 
-	/* Use this for initialization */
-	protected void Start ()
-	{
-		timeStart = Time.time;
-	}
-	
-	/* Update is called once per frame */
-	protected void Update ()
-	{
-		GetComponent<Rigidbody2D>().velocity = targetDirection * speed * Time.deltaTime;
-		
-		if (Time.time - timeStart >= lifeSpan)
+    // Protected Instance Variables
+    protected Vector3 targetDirection;
+    protected float lifeSpan = 3f;
+    protected float damage = 10f;
+    protected float speed = 150f;
+    protected float timeStart;
+    protected Vector3 moveVector;
+    [SerializeField] protected float gravity = 118f;
+    [SerializeField] protected float jumpAmount = 10.0f;
+    public Transform target;
+    protected float verticalVelocity;
+    private SpriteRenderer spriteRenderer;
+
+
+    #endregion
+
+
+    #region MonoBehaviour
+
+    /* Use this for initialization */
+    protected void Start()
+    {
+        timeStart = Time.time;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        moveVector = (target.position - transform.position);
+        moveVector.y = jumpAmount;
+        verticalVelocity = jumpAmount;
+    }
+
+    /* Update is called once per frame */
+    protected void Update()
+    {
+        verticalVelocity = moveVector.y;
+        moveVector = (target.position - transform.position);
+        moveVector.y = verticalVelocity;
+
+        ApplyGravity();
+
+        transform.position += moveVector * Time.deltaTime;
+        
+        // destroy object if lifespan is 0 or if it is off the screen
+        if ((Time.time - timeStart >= lifeSpan)  || !spriteRenderer.isVisible)
 		{
 			transform.parent.gameObject.SendMessage("SetIsShooting", false);
 			Destroy(gameObject);
@@ -63,42 +79,18 @@ public class KaminariGoroShot : MonoBehaviour
 		InflictDamage(collision.gameObject);
 	}
 
-	#endregion
+    #endregion
 
 
-	#region Protected Functions
+    #region Protected Functions
 
-	// 
-	protected void SetTextureScale()
-	{
-		// Left?
-		if (targetDirection.x <= 0.0f)
-		{
-			if (targetDirection.y <= 0.0f)
-			{
-				GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScaleLeftDown);
-			}
-			else 
-			{
-				GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScaleLeftUp);
-			}
-		}
-		// Right...
-		else
-		{
-			if (targetDirection.y <= 0.0f)
-			{
-				GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScaleRightDown);
-			}
-			else
-			{
-				GetComponent<Renderer>().material.SetTextureScale("_MainTex", texScaleRightUp);
-			}
-		}
-	}
-	
-	// 
-	protected void InflictDamage(GameObject objectHit)
+    protected void ApplyGravity()
+    {
+        moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
+    }
+
+    // 
+    protected void InflictDamage(GameObject objectHit)
 	{
 		if (objectHit.tag == "Player")
 		{
