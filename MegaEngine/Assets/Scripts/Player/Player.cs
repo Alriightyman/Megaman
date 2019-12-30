@@ -206,9 +206,7 @@ public class Player : MonoBehaviour
         shooting.Reset();
         animator.StopPlayback();
         IsPlayerInactive = false;
-        animator.Play("EnterLevel");
-        StartCoroutine("EnterLevel");
-        GameEngine.LevelStarting = true;
+
     }
 
     // 
@@ -364,6 +362,10 @@ public class Player : MonoBehaviour
         GameEngine.SoundManager.Play(AirmanLevelSounds.STAGE);
         levelCamera.ShouldStayStill = false;
         spriteRenderer.enabled = true;
+        transform.position = GameEngine.Player.CheckpointPosition;
+        animator.Play("EnterLevel");
+        StartCoroutine("EnterLevel");
+        GameEngine.LevelStarting = true;
     }
     #endregion
 }

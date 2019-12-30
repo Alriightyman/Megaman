@@ -20,7 +20,9 @@ public class CameraTrigger : MonoBehaviour
 	[SerializeField] protected bool shouldMoveCamera;
 	[SerializeField] protected float transitionDuration;
 	[SerializeField] protected Vector3 freezeEndPosition;
-	
+    [SerializeField] private Vector3 NewCameraMaxPosition;
+    [SerializeField] private Vector3 NewCameraMinPosition;
+
 	// Protected Instance Variables
 	protected LevelCamera levelCamera;
 	protected float transitionStatus = 0.0f;
@@ -50,6 +52,7 @@ public class CameraTrigger : MonoBehaviour
 			
 			if (transitionStatus  >= 1.0)
 			{
+                GameEngine.Player.IsFrozen = false;
 				isTransitioning = false;
 				levelCamera.IsTransitioning = false;
 				levelCamera.CameraPosition = freezeEndPosition;
@@ -57,6 +60,8 @@ public class CameraTrigger : MonoBehaviour
 				levelCamera.CanMoveRight = onExitCanMoveRight;
 				levelCamera.CanMoveUp = onExitCanMoveUp;
 				levelCamera.CanMoveDown = onExitCanMoveDown;
+                levelCamera.MinPosition = NewCameraMinPosition;
+                levelCamera.MaxPosition = NewCameraMaxPosition;
 			}
 		}
 	}
@@ -71,6 +76,11 @@ public class CameraTrigger : MonoBehaviour
 			levelCamera.CanMoveUp = onEnterCanMoveUp;
 			levelCamera.CanMoveDown = onEnterCanMoveDown;
 			
+            if(!onEnterCanMoveRight)
+            {
+                levelCamera.MaxPosition = levelCamera.transform.position;
+            }
+
 			if (isABossDoorTrigger)
 			{
 				bossDoor.OpenDoor();
@@ -80,10 +90,12 @@ public class CameraTrigger : MonoBehaviour
 			
 			if (shouldMoveCamera == true)
 			{
+                GameEngine.Player.IsFrozen = true;
 				startPosition = levelCamera.CameraPosition;
 				isTransitioning = true;
 				startTime = Time.time;
 				levelCamera.IsTransitioning = true;
+               
 			}
 		}
     }
@@ -97,8 +109,13 @@ public class CameraTrigger : MonoBehaviour
 			levelCamera.CanMoveRight = onExitCanMoveRight;
 			levelCamera.CanMoveUp = onExitCanMoveUp;
 			levelCamera.CanMoveDown = onExitCanMoveDown;
-			
-			if (isABossDoorTrigger)
+
+
+            levelCamera.MaxPosition = NewCameraMaxPosition;
+            levelCamera.MinPosition = NewCameraMinPosition;
+
+
+            if (isABossDoorTrigger)
 			{
 				GameEngine.Player.IsFrozen = false;
 				bossDoor.CloseDoor();

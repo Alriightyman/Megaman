@@ -31,7 +31,10 @@ public class Movement : MonoBehaviour
     [SerializeField] protected float hurtingForce = 1.0f;
     [SerializeField] protected Vector3 moveVector = Vector3.zero;
     [SerializeField] protected Vector3 startPositionLocation;
-    [SerializeField] protected GameObject StartPosition;
+    /// <summary>
+    /// Used for debugging purposes
+    /// </summary>
+    [SerializeField] protected GameObject DebugStartPosition;
 
 
     // Protected Instance Variables
@@ -58,7 +61,8 @@ public class Movement : MonoBehaviour
 	protected void Start ()
 	{
         float offset = 128f;
-        startPositionLocation = StartPosition.transform.position;
+
+        startPositionLocation = DebugStartPosition != null ? DebugStartPosition.transform.position : CheckPointPosition;
         CheckPointPosition = startPositionLocation;
         IsHurting = false;
         //transform.position = CheckPointPosition = startPositionLocation;
