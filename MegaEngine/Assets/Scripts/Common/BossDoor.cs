@@ -71,10 +71,12 @@ public class BossDoor : MonoBehaviour
 		isOpening = false;
 		isClosing = false;
 		hasPlayerGoneThrough = false;
-	}
-	
-	//
-	protected void scaleCube(float scaleAmount)
+        gameObject.GetComponent<Collider2D>().enabled = true;
+
+    }
+
+    //
+    protected void scaleCube(float scaleAmount)
 	{
 		Vector3 sc = transform.localScale;
 		Vector3 pos = transform.localPosition;
@@ -97,7 +99,7 @@ public class BossDoor : MonoBehaviour
 	public void OpenDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider2D>().isTrigger = true;
+		gameObject.GetComponent<Collider2D>().enabled = false;
 		isOpening = true;
 	}
 	
@@ -105,7 +107,7 @@ public class BossDoor : MonoBehaviour
 	public void CloseDoor()
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_DOOR);
-		gameObject.GetComponent<Collider2D>().isTrigger = false;
+		gameObject.GetComponent<Collider2D>().enabled = true;
 		isClosing = true;
 	}	
 	

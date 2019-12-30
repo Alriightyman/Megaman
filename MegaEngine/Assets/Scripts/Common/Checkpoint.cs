@@ -37,6 +37,8 @@ public class Checkpoint : MonoBehaviour
 			cam.CheckpointCanMoveRight = cameraCanMoveRight;
 			cam.CheckpointCanMoveUp = cameraCanMoveUp;
 			cam.CheckpointCanMoveDown = cameraCanMoveDown;
+            cam.CheckpointMinPosition = cam.MinPosition;
+            cam.CheckpoiontMaxPosition = cam.MaxPosition;
 			Destroy(this.gameObject);
 		}
 	}

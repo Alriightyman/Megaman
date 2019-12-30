@@ -127,7 +127,7 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
 
     public void ResetObject()
     {
-        currentPos = transform.position;
+        transform.position = initPos;
         convertFromDeg = (fullCircle / fullCircleInDeg);
         circleCenter = transform.position;
         ShouldAnimate = false;
