@@ -34,7 +34,7 @@ The project uses Unity 2019.2.1f.
 
 ## Images ##
 
-![](.\Readme Content\Airman1.png)
-![](.\Readme Content\Airman2.png)
-![](.\Readme Content\Airman4.png)
-![](.\Readme Content\Airman3.png)
+![](https://raw.githubusercontent.com/Alriightyman/Megaman/Development/Readme%20Content/Airman1.png)
+![](https://raw.githubusercontent.com/Alriightyman/Megaman/Development/Readme%20Content/Airman2.png)
+![](https://raw.githubusercontent.com/Alriightyman/Megaman/Development/Readme%20Content/Airman4.png)
+![](https://raw.githubusercontent.com/Alriightyman/Megaman/Development/Readme%20Content/Airman3.png)
