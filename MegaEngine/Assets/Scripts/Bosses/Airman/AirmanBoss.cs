@@ -42,7 +42,8 @@ public class AirmanBoss : MonoBehaviour
     [SerializeField] Transform JumpLeftPosition;
     [SerializeField] Transform JumpRightPosition;
     [SerializeField] Transform JumpMidPosition;
-    [SerializeField] protected float verticalVelocity;
+    protected float verticalVelocity;
+    [SerializeField] private float moveSpeed = 10f;
     private Vector3 movement= Vector3.zero;
     private Vector3 desiredLocation = Vector3.zero;
 
@@ -110,13 +111,19 @@ public class AirmanBoss : MonoBehaviour
 		}
 	}
 
+    private bool pointReached = false;
 	// 
-	protected void OnTriggerStay2D(Collider2D other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
 			other.gameObject.SendMessage("TakeDamage", touchDamage);
 		}
+
+        if(other.tag == "Point")
+        {
+            pointReached = true;
+        }
 	}
 
 	// Called when the behaviour becomes disabled or inactive
@@ -344,7 +351,7 @@ public class AirmanBoss : MonoBehaviour
 	{
 		if (weapon.ShouldJump == true)
 		{
-            if(!isJumping)
+            if(!isJumping && IsJumping)
                 StartCoroutine("JumpRoutine");	
 		}
 		else if (weapon.ShouldShoot == true)
@@ -382,7 +389,7 @@ public class AirmanBoss : MonoBehaviour
 
         if (isJumping)
         {
-            movement = (desiredLocation - transform.position) * 10f;
+            movement = (desiredLocation - transform.position) * moveSpeed;
         }
         if (GetComponent<CharacterController2D>().isGrounded)
         {
@@ -406,13 +413,20 @@ public class AirmanBoss : MonoBehaviour
         anim.SetBool("IsJumping", true);
         desiredLocation = JumpMidPosition.position;
         jumpAmount = jumpLowAmout;
+        yield return new WaitForEndOfFrame();
+
+        jumpAmount = 0f;
+        pointReached = false;
         yield return new WaitUntil(new System.Func<bool>(() => 
         {
-            bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
-            returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x : transform.position.x <= desiredLocation.x;
-            return returnValue;
+            //bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
+            //returnValue &= rend.flipX 
+            //? transform.position.x >= desiredLocation.x - 1  
+            //: transform.position.x <= desiredLocation.x + 1;
+            return pointReached;
         }));
 
+        
         anim.SetBool("IsJumping", false);
         anim.SetBool("Flex", true);
         yield return new WaitForSeconds(1f);
@@ -423,13 +437,19 @@ public class AirmanBoss : MonoBehaviour
         desiredLocation = rend.flipX ? JumpRightPosition.position : JumpLeftPosition.position;
         jumpAmount = jumpHighAmout;
 
+        yield return new WaitForSeconds(.25f);
+
+        yield return new WaitForEndOfFrame();
+
+        jumpAmount = 0f;
+
         yield return new WaitUntil(new System.Func<bool>(() => 
         {
-            bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
-            returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x : transform.position.x <= desiredLocation.x;
-            return returnValue;
+            //bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
+            //returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x -1: transform.position.x <= desiredLocation.x+1;
+            return pointReached;
         }));
-        
+        pointReached = false;
         anim.SetBool("IsJumping", false);
         anim.Play("Wait");
         isJumping = false;

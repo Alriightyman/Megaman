@@ -8,9 +8,9 @@ public class Health : MonoBehaviour
 	// Unity Editor Variables
 	public Texture2D emptyTex;
 	public Texture2D fullTex;
-	
-	// Public Properties
-	public float MaximumHealth { get; set; }
+
+    // Public Properties
+    public float MaximumHealth;// { get; set; }
 	public float HurtingTimer { get; set; }
 	public float HurtingDelay { get; set; }
 	public bool IsHurting { get; set; }
@@ -36,7 +36,7 @@ public class Health : MonoBehaviour
 	// Protected Instance Variables
 	protected HealthBar healthbar = null;
 	protected float startHealth = 100f;
-	protected float currentHealth = 100f;
+	[SerializeField] protected float currentHealth = 100f;
 
 	#endregion
 

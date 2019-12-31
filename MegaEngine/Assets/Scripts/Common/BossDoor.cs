@@ -65,16 +65,17 @@ public class BossDoor : MonoBehaviour
 		else if (isClosing)
 		{
 			MoveDoor(-doorSpeed * Time.deltaTime);
-			
-			if (door.transform.position.y <= startPosition.y)
+
+            GameEngine.Player.IsFrozen = false;
+            GameEngine.Player.ExternalForce = new Vector3(0.0f, 0.0f, 0.0f);
+
+            if (door.transform.position.y <= startPosition.y)
 			{
                 IsDoorOpen = false;
                 door.transform.position = startPosition;
 				isClosing = false;
 				hasPlayerGoneThrough = true;
-                GameEngine.Player.IsFrozen = false;
-				GameEngine.Player.IsExternalForceActive = false;
-                GameEngine.Player.ExternalForce = new Vector3(0.0f, 0.0f, 0.0f);
+                GameEngine.Player.IsExternalForceActive = false;
                 GameEngine.SoundManager.Stop(AirmanLevelSounds.BOSS_DOOR);
 			}
 		}

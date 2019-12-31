@@ -9,7 +9,8 @@ public class AirmanWindWeapon : MonoBehaviour
 
 	// Unity Editor Variables
 	public Transform weaponPrefab;
-	
+    public Transform projectileSpawnPoint;
+
 	// Public Properties
 	public bool IsTurningLeft { get; set; }
 	public bool ShouldShoot { get; set; }
@@ -108,19 +109,19 @@ public class AirmanWindWeapon : MonoBehaviour
 	protected void InitAttackLists()
 	{
 		// Create the attack 1 list...
-		attack1Left.Add(new Vector3(-20.0f, 7.0f, 0.0f));
-		attack1Left.Add(new Vector3(-16.0f, 2.0f, 0.0f));
-		attack1Left.Add(new Vector3(-14.0f, 5.0f, 0.0f));
-		attack1Left.Add(new Vector3(-9.0f, 0.0f, 0.0f));
-		attack1Left.Add(new Vector3(-6.0f, 8.0f, 0.0f));
-		attack1Left.Add(new Vector3(-3.0f, 4.0f, 0.0f));
+		attack1Left.Add(new Vector3(-20.0f*10, 7.0f * 10, 0.0f));
+		attack1Left.Add(new Vector3(-16.0f * 10, 2.0f * 10, 0.0f));
+		attack1Left.Add(new Vector3(-14.0f * 10, 5.0f * 10, 0.0f));
+		attack1Left.Add(new Vector3(-9.0f * 10, 0.0f, 0.0f));
+		attack1Left.Add(new Vector3(-6.0f * 10, 8.0f * 10, 0.0f));
+		attack1Left.Add(new Vector3(-3.0f * 10, 4.0f * 10, 0.0f));
 		
-		attack1Right.Add(new Vector3(20.0f, 7.0f, 0.0f));
-		attack1Right.Add(new Vector3(16.0f, 2.0f, 0.0f));
-		attack1Right.Add(new Vector3(14.0f, 5.0f, 0.0f));
-		attack1Right.Add(new Vector3(9.0f, 0.0f, 0.0f));
-		attack1Right.Add(new Vector3(6.0f, 8.0f, 0.0f));
-		attack1Right.Add(new Vector3(3.0f, 4.0f, 0.0f));
+		attack1Right.Add(new Vector3(20.0f * 10, 7.0f * 10, 0.0f));
+		attack1Right.Add(new Vector3(16.0f * 10, 2.0f * 10, 0.0f));
+		attack1Right.Add(new Vector3(14.0f * 10, 5.0f * 10, 0.0f));
+		attack1Right.Add(new Vector3(9.0f * 10, 0.0f, 0.0f));
+		attack1Right.Add(new Vector3(6.0f * 10, 8.0f * 10, 0.0f));
+		attack1Right.Add(new Vector3(3.0f * 10, 4.0f * 10, 0.0f));
 		
 		// Create the attack 2 list...
 		attack2Left.Add(new Vector3(-18.0f, 6.0f, 0.0f));
@@ -156,8 +157,8 @@ public class AirmanWindWeapon : MonoBehaviour
 	// 
 	protected void CreateWindShot(Vector3 pos)
 	{
-		Transform windTransform = (Transform) Instantiate(weaponPrefab, transform.position, transform.rotation);
-		windTransform.SendMessage("SetPosition", transform.position + pos);
+		Transform windTransform = (Transform) Instantiate(weaponPrefab, projectileSpawnPoint.position, transform.rotation);
+		windTransform.SendMessage("SetPosition", projectileSpawnPoint.position + pos);
 		windTransform.transform.parent = gameObject.transform;
 
 		AirmanWind wind = windTransform.GetComponent<AirmanWind>();
