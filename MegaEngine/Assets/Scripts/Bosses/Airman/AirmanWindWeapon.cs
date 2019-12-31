@@ -12,9 +12,9 @@ public class AirmanWindWeapon : MonoBehaviour
 	
 	// Public Properties
 	public bool IsTurningLeft { get; set; }
-	public bool ShouldDisplayShootingTex { get; set; }
-	public bool ShouldDisplayJumpingTex  { get; set; }
-	public bool ShouldDisplayBlowingTex  { get; set; }
+	public bool ShouldShoot { get; set; }
+	public bool ShouldJump  { get; set; }
+	public bool ShouldBlow  { get; set; }
 
 	// Protected Const Variables
 	protected const int NUM_OF_SHOTS_BEFORE_JUMPING = 3;
@@ -74,9 +74,9 @@ public class AirmanWindWeapon : MonoBehaviour
 		isFighting = false;
 		isPlayingAnimation = false;
 		shouldDestroyWind = false;
-		ShouldDisplayShootingTex = false;
-		ShouldDisplayJumpingTex = false;
-		ShouldDisplayBlowingTex = false;
+		ShouldShoot = false;
+		ShouldJump = false;
+		ShouldBlow = false;
 	}
 
 	// Update is called once per frame
@@ -183,7 +183,7 @@ public class AirmanWindWeapon : MonoBehaviour
 				
 				player.IsExternalForceActive = false;
 				isBlowing = false;
-				ShouldDisplayBlowingTex = false;
+				ShouldBlow = false;
 				isShooting = true;
 				shouldDestroyWind = false;
 				fightingTimer = Time.time;	
@@ -211,8 +211,8 @@ public class AirmanWindWeapon : MonoBehaviour
 				}
 				
 				player.IsExternalForceActive = true;
-				ShouldDisplayShootingTex = false;
-				ShouldDisplayBlowingTex = true;
+				ShouldShoot = false;
+				ShouldBlow = true;
 				shouldDestroyWind = true;
 				fightingTimer = Time.time;
 			}
@@ -253,44 +253,35 @@ public class AirmanWindWeapon : MonoBehaviour
 			}
 			
 			// Set the appropriate variables
-			ShouldDisplayShootingTex = true;
+			ShouldShoot = true;
 			isBlowing = true;
 			isShooting = false;
 			fightingTimer = Time.time;
 			shootingCounter++;
 		}
 	}
-	
-	// 
-	protected void Jump()
-	{
-		if (isPlayingAnimation == false)
-		{
 
-			if (IsTurningLeft == true)
-			{
-                anim.SetTrigger("JumpLeft");
-			}
-			else
-			{                
-                anim.SetTrigger("JumpRight");
-			}
-
+    // 
+    protected void Jump()
+    {
+        if (isPlayingAnimation == false)
+        {
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
             anim.SetBool("Blow", false);
+            //anim.SetBool("Flex", true);
 
-            ShouldDisplayJumpingTex = true;
-			isPlayingAnimation = true;			
-		}
-		
-		// If we're done playing the animation...    
-        if(anim.GetCurrentAnimatorStateInfo(0).IsName("JumpLeft") == false && anim.GetCurrentAnimatorStateInfo(0).IsName("JumpRight") == false)
-        //if (anim.IsPlaying("AirmanJumpToTheLeft") == false && anim.IsPlaying("AirmanJumpToTheRight") == false)
+            ShouldJump = true;
+            GetComponent<AirmanBoss>().IsJumping = true;
+            isPlayingAnimation = true;
+        }
+
+        // If we're done playing the animation...    
+        if (!GetComponent<AirmanBoss>().IsJumping)
         {
             //anim.applyRootMotion = true;
             isPlayingAnimation = false;
-			ShouldDisplayJumpingTex = false;
+			ShouldJump = false;
 			IsTurningLeft = !IsTurningLeft;
 			isShooting = true;
 			isJumping = false;
@@ -325,9 +316,9 @@ public class AirmanWindWeapon : MonoBehaviour
 		isJumping = false;
 		isPlayingAnimation = false;
 		shouldDestroyWind = false;
-		ShouldDisplayShootingTex = false;
-		ShouldDisplayJumpingTex = false;
-		ShouldDisplayBlowingTex = false;
+		ShouldShoot = false;
+		ShouldJump = false;
+		ShouldBlow = false;
 		
 		player.IsExternalForceActive = false;
 		for(int i = 0; i < windShots.Count; i++)

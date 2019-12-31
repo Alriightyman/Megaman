@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
+using Prime31;
 
 public class AirmanBoss : MonoBehaviour 
 {
@@ -13,14 +14,20 @@ public class AirmanBoss : MonoBehaviour
 	[SerializeField] protected float touchDamage;
 	[SerializeField] protected Transform startMarker;
 	[SerializeField] protected Transform endMarker;
-	
-	// Protected Instance Variables
-	protected int texIndex = 0;
+
+    public bool IsJumping { get; set; }
+    public bool IsShooting { get; set; }
+    public bool IsFlexing { get; set; }
+    public bool IsBlowing { get; set; }
+
+    // Protected Instance Variables
+    protected int texIndex = 0;
 	protected bool isPlayingBeginSequence = false;
 	protected bool shouldFillHealthBar = false;
 	protected bool hasBeenIntroduced = false;
-	protected bool isFighting = false;	
-	protected float texInterval = 0.1f;
+	protected bool isFighting = false;
+    private bool isJumping = false;
+    protected float texInterval = 0.1f;
 	protected float startFallTime;
 	protected float journeyLength;
 	protected float hurtingTimer;
@@ -28,7 +35,18 @@ public class AirmanBoss : MonoBehaviour
 	protected Health health;
 	protected Vector3 startingPosition = Vector3.zero;
 	protected Vector3 endPos = Vector3.zero;
-	protected Collider2D col = null;
+    [SerializeField] protected float gravity = 118f;
+    [SerializeField] protected float jumpAmount = 10.0f;
+    [SerializeField] private float jumpLowAmout = 10f;
+    [SerializeField] private float jumpHighAmout = 20f;
+    [SerializeField] Transform JumpLeftPosition;
+    [SerializeField] Transform JumpRightPosition;
+    [SerializeField] Transform JumpMidPosition;
+    [SerializeField] protected float verticalVelocity;
+    private Vector3 movement= Vector3.zero;
+    private Vector3 desiredLocation = Vector3.zero;
+
+    protected Collider2D col = null;
 	protected SpriteRenderer rend = null;
 	protected Animator anim = null;
 	protected List<Transform> windShots = new List<Transform>();
@@ -77,8 +95,11 @@ public class AirmanBoss : MonoBehaviour
 		else if (isFighting)
 		{
 			// Assign the appropriate texture...
-			AssignTexture();
-			
+			SetAnimationState();
+
+            // update movement
+            UpdateMovement();
+
 			if (health.IsHurting == true)
 			{
 				if (Time.time - hurtingTimer >= health.HurtingDelay)
@@ -134,7 +155,7 @@ public class AirmanBoss : MonoBehaviour
 		startFallTime = Time.time;
 		endPos = endMarker.position;
 		journeyLength = Vector3.Distance(startingPosition, endPos);
-	}
+    }
 
 	//
 	public void Reset()
@@ -274,12 +295,10 @@ public class AirmanBoss : MonoBehaviour
 		if (shouldFillHealthBar == true)
 		{
             // Make the robot flex his muscles a little bit...
-            //int texIndex = (int) (Time.time / 0.1);
-            //rend.material = animationMaterials[texIndex % 3];			
-            //rend.material.SetTextureScale("_MainTex", texScale);
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
-            anim.SetBool("Flex", true); ;
+            anim.SetBool("Flex", false);
+            anim.Play("Flex");
             // Fill up the health bar...
             if (health.CurrentHealth < health.MaximumHealth)
 			{
@@ -293,6 +312,7 @@ public class AirmanBoss : MonoBehaviour
 				isPlayingBeginSequence = false;
 				isFighting = true;
 				player.CanShoot = true;
+                player.IsFrozen = false;
 				GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = false;
 				weapon.Attack();
 			}
@@ -301,12 +321,17 @@ public class AirmanBoss : MonoBehaviour
 		// Make the boss fall down...
 		else
 		{
-			float distCovered = (Time.time - startFallTime) * 10.0f;
+            if(player.IsGrounded)
+            {
+                player.IsFrozen = true;
+                
+                player.CanShoot = false;
+            }
+			float distCovered = (Time.time - startFallTime) * 50.0f;
 	        float fracJourney = distCovered / journeyLength;
 			transform.position = Vector3.Lerp(startingPosition, endPos, fracJourney);
-            //rend.material.SetTextureScale("_MainTex", texScale);
-            float amount = 2.0f;
-			if (fracJourney >= amount)
+
+            if(transform.position.y <= endMarker.position.y)
 			{
 				shouldFillHealthBar = true;
 				GameEngine.SoundManager.Play(AirmanLevelSounds.HEALTHBAR_FILLING);
@@ -315,32 +340,27 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//	
-	protected void AssignTexture()
+	protected void SetAnimationState()
 	{
-		if (weapon.ShouldDisplayJumpingTex == true)
+		if (weapon.ShouldJump == true)
 		{
-			//texIndex = (int) (Time.time / texInterval);
-			//rend.material = animationMaterials[ (texIndex % 2) + 6];	
+            if(!isJumping)
+                StartCoroutine("JumpRoutine");	
 		}
-		else if (weapon.ShouldDisplayShootingTex == true)
+		else if (weapon.ShouldShoot == true)
 		{
-            //rend.material = animationMaterials[4];
-            //anim.Play("Shoot");
             anim.SetBool("Shoot", true);
             anim.SetBool("Stand", false);
             anim.SetBool("Blow", false);
         }
-		else if (weapon.ShouldDisplayBlowingTex == true)
+		else if (weapon.ShouldBlow == true)
 		{
-            //texIndex = (int) (Time.time / texInterval);
-            //rend.material = animationMaterials[ (texIndex % 2) + 2];	
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
             anim.SetBool("Blow", true); ;
 		}
-		else
+		else if( !isJumping )
 		{
-            //rend.material = animationMaterials[0];
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", true);
             anim.SetBool("Blow", false); ;
@@ -352,6 +372,69 @@ public class AirmanBoss : MonoBehaviour
 		}
 		
 		rend.flipX = !weapon.IsTurningLeft;
-		//rend.material.SetTextureScale("_MainTex", texScale);
 	}
+
+    private void UpdateMovement()
+    {
+
+        // 
+        verticalVelocity = movement.y;
+
+        if (isJumping)
+        {
+            movement = (desiredLocation - transform.position) * 10f;
+        }
+        if (GetComponent<CharacterController2D>().isGrounded)
+        {
+            movement = Vector3.zero;
+            verticalVelocity = jumpAmount;
+        }
+
+        movement = new Vector3(movement.x, verticalVelocity, 0f);
+        // apply gravity
+        movement = new Vector3(movement.x, (movement.y - gravity * Time.deltaTime), movement.z);
+
+        // update position
+        GetComponent<CharacterController2D>().move( movement * Time.deltaTime);
+        
+    }
+
+    private IEnumerator JumpRoutine()
+    {
+        // small jump
+        isJumping = true;
+        anim.SetBool("IsJumping", true);
+        desiredLocation = JumpMidPosition.position;
+        jumpAmount = jumpLowAmout;
+        yield return new WaitUntil(new System.Func<bool>(() => 
+        {
+            bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
+            returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x : transform.position.x <= desiredLocation.x;
+            return returnValue;
+        }));
+
+        anim.SetBool("IsJumping", false);
+        anim.SetBool("Flex", true);
+        yield return new WaitForSeconds(1f);
+
+        // high jump
+        anim.SetBool("IsJumping", true);
+        anim.SetBool("Flex", false);
+        desiredLocation = rend.flipX ? JumpRightPosition.position : JumpLeftPosition.position;
+        jumpAmount = jumpHighAmout;
+
+        yield return new WaitUntil(new System.Func<bool>(() => 
+        {
+            bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
+            returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x : transform.position.x <= desiredLocation.x;
+            return returnValue;
+        }));
+        
+        anim.SetBool("IsJumping", false);
+        anim.Play("Wait");
+        isJumping = false;
+        IsJumping = false;
+        jumpAmount = 0f;
+        // done
+    }
 }
