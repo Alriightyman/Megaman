@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
+using Prime31;
 
 public class AirmanWindWeapon : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class AirmanWindWeapon : MonoBehaviour
 	// Unity Editor Variables
 	public Transform weaponPrefab;
     public Transform projectileSpawnPoint;
+    public List<Transform> windAttackTransforms;
+
 
 	// Public Properties
 	public bool IsTurningLeft { get; set; }
@@ -108,51 +111,87 @@ public class AirmanWindWeapon : MonoBehaviour
 	// 
 	protected void InitAttackLists()
 	{
-		// Create the attack 1 list...
-		attack1Left.Add(new Vector3(-20.0f*10, 7.0f * 10, 0.0f));
-		attack1Left.Add(new Vector3(-16.0f * 10, 2.0f * 10, 0.0f));
-		attack1Left.Add(new Vector3(-14.0f * 10, 5.0f * 10, 0.0f));
-		attack1Left.Add(new Vector3(-9.0f * 10, 0.0f, 0.0f));
-		attack1Left.Add(new Vector3(-6.0f * 10, 8.0f * 10, 0.0f));
-		attack1Left.Add(new Vector3(-3.0f * 10, 4.0f * 10, 0.0f));
-		
-		attack1Right.Add(new Vector3(20.0f * 10, 7.0f * 10, 0.0f));
-		attack1Right.Add(new Vector3(16.0f * 10, 2.0f * 10, 0.0f));
-		attack1Right.Add(new Vector3(14.0f * 10, 5.0f * 10, 0.0f));
-		attack1Right.Add(new Vector3(9.0f * 10, 0.0f, 0.0f));
-		attack1Right.Add(new Vector3(6.0f * 10, 8.0f * 10, 0.0f));
-		attack1Right.Add(new Vector3(3.0f * 10, 4.0f * 10, 0.0f));
-		
-		// Create the attack 2 list...
-		attack2Left.Add(new Vector3(-18.0f, 6.0f, 0.0f));
-		attack2Left.Add(new Vector3(-16.0f, 0.0f, 0.0f));
-		attack2Left.Add(new Vector3(-12.0f, 12.0f, 0.0f));
-		attack2Left.Add(new Vector3(-10.0f, 6.5f, 0.0f));
-		attack2Left.Add(new Vector3(-9.5f, 2.5f, 0.0f));
-		attack2Left.Add(new Vector3(-3.0f, 0.4f, 0.0f));
-		
-		attack2Right.Add(new Vector3(18.0f, 6.0f, 0.0f));
-		attack2Right.Add(new Vector3(16.0f, 0.0f, 0.0f));
-		attack2Right.Add(new Vector3(12.0f, 12.0f, 0.0f));
-		attack2Right.Add(new Vector3(10.0f, 6.5f, 0.0f));
-		attack2Right.Add(new Vector3(9.5f, 2.5f, 0.0f));
-		attack2Right.Add(new Vector3(3.0f, 0.4f, 0.0f));
-		
-		// Create the attack 3 list...
-		attack3Left.Add(new Vector3(-17.0f, 2.0f, 0.0f));
-		attack3Left.Add(new Vector3(-15.5f, 5.5f, 0.0f));
-		attack3Left.Add(new Vector3(-12.0f, 0.0f, 0.0f));
-		attack3Left.Add(new Vector3(-10.0f, 2.5f, 0.0f));
-		attack3Left.Add(new Vector3(-4.5f, 2.4f, 0.0f));
-		attack3Left.Add(new Vector3(-3.5f, 4.5f, 0.0f));
-		
-		attack3Right.Add(new Vector3(17.0f, 2.0f, 0.0f));
-		attack3Right.Add(new Vector3(15.5f, 5.5f, 0.0f));
-		attack3Right.Add(new Vector3(12.0f, 0.0f, 0.0f));
-		attack3Right.Add(new Vector3(10.0f, 2.5f, 0.0f));
-		attack3Right.Add(new Vector3(4.5f, 2.4f, 0.0f));
-		attack3Right.Add(new Vector3(3.5f, 4.5f, 0.0f));
-	}
+        // Create the attack 1 list...
+        attack1Left.Add(windAttackTransforms[0].localPosition);//new Vector3(-20.0f * 10, 7.0f * 10, 0.0f));
+        attack1Left.Add(windAttackTransforms[1].localPosition);//new Vector3(-16.0f * 10, 2.0f * 10, 0.0f));
+        attack1Left.Add(windAttackTransforms[2].localPosition);//new Vector3(-14.0f * 10, 5.0f * 10, 0.0f));
+        attack1Left.Add(windAttackTransforms[3].localPosition);//new Vector3(-9.0f * 10, 0.0f, 0.0f));
+        attack1Left.Add(windAttackTransforms[4].localPosition);//new Vector3(-6.0f * 10, 8.0f * 10, 0.0f));
+        attack1Left.Add(windAttackTransforms[5].localPosition);//new Vector3(-3.0f * 10, 4.0f * 10, 0.0f));
+
+        attack1Right.Add(windAttackTransforms[0].localPosition = new Vector3(-windAttackTransforms[0].localPosition.x, 
+                                                                              windAttackTransforms[0].localPosition.y, 
+                                                                              windAttackTransforms[0].localPosition.z));//new Vector3(20.0f * 10, 7.0f * 10, 0.0f));
+        attack1Right.Add(windAttackTransforms[1].localPosition = new Vector3(-windAttackTransforms[1].localPosition.x,
+                                                                              windAttackTransforms[1].localPosition.y,
+                                                                              windAttackTransforms[1].localPosition.z));//new Vector3(16.0f * 10, 2.0f * 10, 0.0f));
+        attack1Right.Add(windAttackTransforms[2].localPosition = new Vector3(-windAttackTransforms[2].localPosition.x,
+                                                                              windAttackTransforms[2].localPosition.y,
+                                                                              windAttackTransforms[2].localPosition.z));//new Vector3(14.0f * 10, 5.0f * 10, 0.0f));
+        attack1Right.Add(windAttackTransforms[3].localPosition = new Vector3(-windAttackTransforms[3].localPosition.x,
+                                                                              windAttackTransforms[3].localPosition.y,
+                                                                              windAttackTransforms[3].localPosition.z));//new Vector3(9.0f * 10, 0.0f, 0.0f));
+        attack1Right.Add(windAttackTransforms[4].localPosition = new Vector3(-windAttackTransforms[4].localPosition.x,
+                                                                              windAttackTransforms[4].localPosition.y,
+                                                                              windAttackTransforms[4].localPosition.z));//new Vector3(6.0f * 10, 8.0f * 10, 0.0f));
+        attack1Right.Add(windAttackTransforms[5].localPosition = new Vector3(-windAttackTransforms[5].localPosition.x,
+                                                                              windAttackTransforms[5].localPosition.y,
+                                                                              windAttackTransforms[5].localPosition.z));//new Vector3(3.0f * 10, 4.0f * 10, 0.0f));
+
+        // Create the attack 2 list...
+        attack2Left.Add(windAttackTransforms[6].localPosition);//new Vector3(-18.0f, 6.0f, 0.0f));
+        attack2Left.Add(windAttackTransforms[7].localPosition);//new Vector3(-16.0f, 0.0f, 0.0f));
+        attack2Left.Add(windAttackTransforms[8].localPosition);//new Vector3(-12.0f, 12.0f, 0.0f));
+        attack2Left.Add(windAttackTransforms[9].localPosition);//new Vector3(-10.0f, 6.5f, 0.0f));
+        attack2Left.Add(windAttackTransforms[10].localPosition);//new Vector3(-9.5f, 2.5f, 0.0f));
+        attack2Left.Add(windAttackTransforms[11].localPosition);//new Vector3(-3.0f, 0.4f, 0.0f));
+
+        attack2Right.Add(windAttackTransforms[0].localPosition = new Vector3(-windAttackTransforms[6].localPosition.x,
+                                                                              windAttackTransforms[6].localPosition.y,
+                                                                              windAttackTransforms[6].localPosition.z));//new Vector3(18.0f, 6.0f, 0.0f));
+        attack2Right.Add(windAttackTransforms[1].localPosition = new Vector3(-windAttackTransforms[7].localPosition.x,
+                                                                              windAttackTransforms[7].localPosition.y,
+                                                                              windAttackTransforms[7].localPosition.z));//new Vector3(16.0f, 0.0f, 0.0f));
+        attack2Right.Add(windAttackTransforms[2].localPosition = new Vector3(-windAttackTransforms[8].localPosition.x,
+                                                                              windAttackTransforms[8].localPosition.y,
+                                                                              windAttackTransforms[8].localPosition.z));//new Vector3(12.0f, 12.0f, 0.0f));
+        attack2Right.Add(windAttackTransforms[3].localPosition = new Vector3(-windAttackTransforms[9].localPosition.x,
+                                                                              windAttackTransforms[9].localPosition.y,
+                                                                              windAttackTransforms[9].localPosition.z));//new Vector3(10.0f, 6.5f, 0.0f));
+        attack2Right.Add(windAttackTransforms[4].localPosition = new Vector3(-windAttackTransforms[10].localPosition.x,
+                                                                              windAttackTransforms[10].localPosition.y,
+                                                                              windAttackTransforms[10].localPosition.z));//new Vector3(9.5f, 2.5f, 0.0f));
+        attack2Right.Add(windAttackTransforms[5].localPosition = new Vector3(-windAttackTransforms[11].localPosition.x,
+                                                                              windAttackTransforms[11].localPosition.y,
+                                                                              windAttackTransforms[11].localPosition.z));//new Vector3(3.0f, 0.4f, 0.0f));
+
+        // Create the attack 3 list...
+        attack3Left.Add(windAttackTransforms[12].localPosition);//new Vector3(-17.0f, 2.0f, 0.0f));
+        attack3Left.Add(windAttackTransforms[13].localPosition);//new Vector3(-15.5f, 5.5f, 0.0f));
+        attack3Left.Add(windAttackTransforms[14].localPosition);//new Vector3(-12.0f, 0.0f, 0.0f));
+        attack3Left.Add(windAttackTransforms[15].localPosition);//new Vector3(-10.0f, 2.5f, 0.0f));
+        attack3Left.Add(windAttackTransforms[16].localPosition);//new Vector3(-4.5f, 2.4f, 0.0f));
+        attack3Left.Add(windAttackTransforms[17].localPosition);//new Vector3(-3.5f, 4.5f, 0.0f));
+
+        attack3Right.Add(windAttackTransforms[0].localPosition = new Vector3(-windAttackTransforms[12].localPosition.x,
+                                                                              windAttackTransforms[12].localPosition.y,
+                                                                              windAttackTransforms[12].localPosition.z));//new Vector3(17.0f, 2.0f, 0.0f));
+        attack3Right.Add(windAttackTransforms[1].localPosition = new Vector3(-windAttackTransforms[13].localPosition.x,
+                                                                              windAttackTransforms[13].localPosition.y,
+                                                                              windAttackTransforms[13].localPosition.z));//new Vector3(15.5f, 5.5f, 0.0f));
+        attack3Right.Add(windAttackTransforms[2].localPosition = new Vector3(-windAttackTransforms[14].localPosition.x,
+                                                                              windAttackTransforms[14].localPosition.y,
+                                                                              windAttackTransforms[14].localPosition.z));//new Vector3(12.0f, 0.0f, 0.0f));
+        attack3Right.Add(windAttackTransforms[3].localPosition = new Vector3(-windAttackTransforms[15].localPosition.x,
+                                                                              windAttackTransforms[15].localPosition.y,
+                                                                              windAttackTransforms[15].localPosition.z));//new Vector3(10.0f, 2.5f, 0.0f));
+        attack3Right.Add(windAttackTransforms[4].localPosition = new Vector3(-windAttackTransforms[16].localPosition.x,
+                                                                              windAttackTransforms[16].localPosition.y,
+                                                                              windAttackTransforms[16].localPosition.z));//new Vector3(4.5f, 2.4f, 0.0f));
+        attack3Right.Add(windAttackTransforms[5].localPosition = new Vector3(-windAttackTransforms[17].localPosition.x,
+                                                                              windAttackTransforms[17].localPosition.y,
+                                                                              windAttackTransforms[17].localPosition.z));//new Vector3(3.5f, 4.5f, 0.0f));
+    }
 
 	// 
 	protected void CreateWindShot(Vector3 pos)
@@ -231,24 +270,34 @@ public class AirmanWindWeapon : MonoBehaviour
 			isJumping = true;
 			shootingCounter = 0;
 		}
-		else 
+		else if(GetComponent<CharacterController2D>().isGrounded)
 		{
-			// Create the wind...
-			foreach (Vector3 wind in nextAttack) 
+            var flipx = GetComponent<SpriteRenderer>().flipX;
+
+            if(!flipx)
+                projectileSpawnPoint.localPosition = new Vector3(projectileSpawnPoint.localPosition.x < 0 ? projectileSpawnPoint.localPosition.x : -projectileSpawnPoint.localPosition.x
+                                                           , projectileSpawnPoint.localPosition.y, projectileSpawnPoint.localPosition.z);
+            else
+                projectileSpawnPoint.localPosition = new Vector3(projectileSpawnPoint.localPosition.x > 0 ? projectileSpawnPoint.localPosition.x : -projectileSpawnPoint.localPosition.x
+                    , projectileSpawnPoint.localPosition.y, projectileSpawnPoint.localPosition.z);
+
+            // Create the wind...
+            foreach (Vector3 wind in nextAttack) 
 			{
 				CreateWindShot(wind);
 			}
 			
 			// Set up the next attack
 			if (IsTurningLeft == true)
-			{
-				if (shootingCounter == 0) nextAttack = attack2Left;
+            {
+
+                if (shootingCounter == 0) nextAttack = attack2Left;
 				else if (shootingCounter == 1) nextAttack = attack3Left;
 				else if (shootingCounter == 2) nextAttack = attack1Right;
 			}
 			else if (IsTurningLeft == false)
 			{
-				if (shootingCounter == 0) nextAttack = attack2Right;
+                if (shootingCounter == 0) nextAttack = attack2Right;
 				else if (shootingCounter == 1) nextAttack = attack3Right;
 				else if (shootingCounter == 2) nextAttack = attack1Left;
 			}

@@ -9,11 +9,19 @@ public class AirmanBoss : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody2D deathParticlePrefab;
-	[SerializeField] protected float deathParticleSpeed;
-	[SerializeField] protected float touchDamage;
-	[SerializeField] protected Transform startMarker;
-	[SerializeField] protected Transform endMarker;
+	[SerializeField] private Transform startMarker;
+	[SerializeField] private Transform endMarker;
+    [SerializeField] private Transform JumpLeftPosition;
+    [SerializeField] private Transform JumpRightPosition;
+    [SerializeField] private Transform JumpMidPosition;
+    [SerializeField] private float gravity = 118f;
+    [SerializeField] private float jumpAmount = 10.0f;
+    [SerializeField] private float jumpLowAmout = 10f;
+    [SerializeField] private float jumpHighAmout = 20f;
+    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float deathParticleSpeed;
+    [SerializeField] private float touchDamage;
+    [SerializeField] private Rigidbody2D deathParticlePrefab;
 
     public bool IsJumping { get; set; }
     public bool IsShooting { get; set; }
@@ -21,37 +29,33 @@ public class AirmanBoss : MonoBehaviour
     public bool IsBlowing { get; set; }
 
     // Protected Instance Variables
-    protected int texIndex = 0;
-	protected bool isPlayingBeginSequence = false;
-	protected bool shouldFillHealthBar = false;
-	protected bool hasBeenIntroduced = false;
-	protected bool isFighting = false;
+    private bool isPlayingBeginSequence = false;
+    private bool shouldFillHealthBar = false;
+    private bool hasBeenIntroduced = false;
+    private bool isFighting = false;
     private bool isJumping = false;
+    private bool pointReached = false;
+
     protected float texInterval = 0.1f;
 	protected float startFallTime;
 	protected float journeyLength;
 	protected float hurtingTimer;
-	protected Player player;
-	protected Health health;
-	protected Vector3 startingPosition = Vector3.zero;
-	protected Vector3 endPos = Vector3.zero;
-    [SerializeField] protected float gravity = 118f;
-    [SerializeField] protected float jumpAmount = 10.0f;
-    [SerializeField] private float jumpLowAmout = 10f;
-    [SerializeField] private float jumpHighAmout = 20f;
-    [SerializeField] Transform JumpLeftPosition;
-    [SerializeField] Transform JumpRightPosition;
-    [SerializeField] Transform JumpMidPosition;
     protected float verticalVelocity;
-    [SerializeField] private float moveSpeed = 10f;
-    private Vector3 movement= Vector3.zero;
+
+    protected Vector3 startingPosition = Vector3.zero;
+    protected Vector3 endPos = Vector3.zero;
+    private Vector3 movement = Vector3.zero;
     private Vector3 desiredLocation = Vector3.zero;
+
+    protected Player player;
+	protected Health health;
+    protected AirmanWindWeapon weapon = null;
 
     protected Collider2D col = null;
 	protected SpriteRenderer rend = null;
 	protected Animator anim = null;
 	protected List<Transform> windShots = new List<Transform>();
-	protected AirmanWindWeapon weapon = null;
+
 
 	#endregion
 
@@ -111,7 +115,6 @@ public class AirmanBoss : MonoBehaviour
 		}
 	}
 
-    private bool pointReached = false;
 	// 
 	protected void OnTriggerEnter2D(Collider2D other) 
 	{
@@ -184,8 +187,9 @@ public class AirmanBoss : MonoBehaviour
 		isFighting = false;
 		shouldFillHealthBar = false;
 		
-		GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = true;
-		GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");
+		GameObject.Find("BossBorderLeft").gameObject.GetComponent<Collider2D>().enabled = true;
+        GameObject.Find("BossBorderRight").gameObject.GetComponent<Collider2D>().enabled = true;
+        GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");
 		GameObject.Find("BossDoorTrigger2").gameObject.GetComponent<Collider2D>().enabled = true;
 		GameObject.Find("BossTrigger").gameObject.GetComponent<Collider2D>().enabled = true;
 		player.IsExternalForceActive = false;
@@ -320,8 +324,7 @@ public class AirmanBoss : MonoBehaviour
 				isFighting = true;
 				player.CanShoot = true;
                 player.IsFrozen = false;
-				GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = false;
-				weapon.Attack();
+                weapon.Attack();
 			}
 		}
 		
@@ -419,10 +422,6 @@ public class AirmanBoss : MonoBehaviour
         pointReached = false;
         yield return new WaitUntil(new System.Func<bool>(() => 
         {
-            //bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
-            //returnValue &= rend.flipX 
-            //? transform.position.x >= desiredLocation.x - 1  
-            //: transform.position.x <= desiredLocation.x + 1;
             return pointReached;
         }));
 
@@ -445,13 +444,12 @@ public class AirmanBoss : MonoBehaviour
 
         yield return new WaitUntil(new System.Func<bool>(() => 
         {
-            //bool returnValue = rend.flipX ? transform.position.y >= desiredLocation.y : transform.position.y <= desiredLocation.y;
-            //returnValue &= rend.flipX ? transform.position.x >= desiredLocation.x -1: transform.position.x <= desiredLocation.x+1;
             return pointReached;
         }));
+
         pointReached = false;
         anim.SetBool("IsJumping", false);
-        anim.Play("Wait");
+        anim.Play("Idle");
         isJumping = false;
         IsJumping = false;
         jumpAmount = 0f;
