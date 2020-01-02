@@ -126,7 +126,7 @@ public class KaminariGoro : MonoBehaviour
 		{
             robotAnim.StopPlayback();
             rend.enabled = false;
-            robotCollider.offset = turningLeftColliderPos;
+           // robotCollider.offset = turningLeftColliderPos;
 		}
 		
 		// If the robot is shooting...
@@ -135,12 +135,12 @@ public class KaminariGoro : MonoBehaviour
             robotAnim.Play("Throw");
             canShoot = false;
             rend.flipX = !playerOnLeftSide;
-            robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+           // robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 		else
 		{
             rend.flipX = !playerOnLeftSide;
-            robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
+           // robotCollider.offset = (playerOnLeftSide == true) ? turningLeftColliderPos : turningRightColliderPos;
 		}
 	}
 	
@@ -154,8 +154,8 @@ public class KaminariGoro : MonoBehaviour
 		shot.transform.parent = gameObject.transform;
 		Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), col);
         Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), platform.GetComponent<Collider2D>());
-        var PlatformCollider = platform.gameObject.GetChildWithName("PlatformBoxCollider");
-        Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), PlatformCollider.GetComponent<Collider2D>());
+        //var PlatformCollider = platform.gameObject.GetChildWithName("PlatformBoxCollider");
+        //Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), PlatformCollider.GetComponent<Collider2D>());
 
         KaminariGoroShot shotScript = shot.GetComponent<KaminariGoroShot>();
 		if (shotScript)

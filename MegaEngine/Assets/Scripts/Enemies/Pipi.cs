@@ -8,6 +8,7 @@ public class Pipi : MonoBehaviour
 	// Editor variables
 	[SerializeField] private float speed = 10.0f;
 	[SerializeField] private float dropDistance = 10f;
+
 	// Private Instance Variables
 	private Egg egg;
 	private bool moving = false;
@@ -15,6 +16,9 @@ public class Pipi : MonoBehaviour
 	private float lifeSpan = 5.0f;
 	private float lifeTimer;
 	private float damage = 20.0f;
+
+    private SpriteRenderer spriteRenderer;
+    private SpriteRenderer eggRenderer;
 
 	#endregion
 
@@ -25,7 +29,10 @@ public class Pipi : MonoBehaviour
 	protected void Awake ()
 	{
 		egg = gameObject.GetComponentInChildren<Egg>();
-	}
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        eggRenderer = egg.GetComponent<SpriteRenderer>();
+
+    }
 
 	// Update is called once per frame
 	protected void Update () 
@@ -35,18 +42,24 @@ public class Pipi : MonoBehaviour
 			transform.position += (-Vector3.right * speed * Time.deltaTime);
 			
             if(!GetComponent<SpriteRenderer>().isVisible)
-			//if (Time.time - lifeTimer >= lifeSpan)
 			{
-				Destroy (gameObject);	
+                Invoke("DelayDestroy", 3f);
 			}
+            else
+            {
+                CancelInvoke("DelayDestroy");
+            }
 		}
 		
 		if (attacking == true)
 		{
 			if (Mathf.Abs(GameEngine.Player.transform.position.x - transform.position.x) <= dropDistance)
 			{
-				egg.ReleaseEgg(speed);
-				attacking = false;
+                if (egg != null)
+                {
+                    egg.ReleaseEgg(speed);
+                    attacking = false;
+                }
 			}
 		}
 	}
@@ -78,12 +91,13 @@ public class Pipi : MonoBehaviour
 		lifeTimer = Time.time;
 		moving = true;
 		attacking = true;
+        spriteRenderer.enabled = true;
+        eggRenderer.enabled = true;
 	}
 
-	//
-	public void Reset()
-	{
-
-	}
+    void DelayDestroy()
+    {
+        Destroy(gameObject);
+    }
 	#endregion
 }
