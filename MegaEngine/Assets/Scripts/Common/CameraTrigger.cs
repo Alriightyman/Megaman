@@ -93,6 +93,7 @@ public class CameraTrigger : MonoBehaviour
             if (isABossDoorTrigger)
 			{
 				bossDoor.OpenDoor();
+                GameEngine.Player.CanShoot = false;
 				GameEngine.Player.IsFrozen = true;
 				levelCamera.IsTransitioning = true;
                 isTransitioning = false;

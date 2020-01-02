@@ -34,10 +34,17 @@ public class AirmanTrigger : MonoBehaviour
 	// Called when the Collider other enters the trigger.
 	protected void OnTriggerEnter2D(Collider2D other) 
 	{
-		airman.gameObject.SetActive(true);
-		airman.SetUpAirman();
+        StartCoroutine("SetBoss");
+
 		col.enabled = false;
 	}
+
+    IEnumerator SetBoss()
+    {
+        yield return new WaitForSeconds(0.5f);
+        airman.gameObject.SetActive(true);
+        airman.SetUpAirman();
+    }
 
 	#endregion
 }

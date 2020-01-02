@@ -9,7 +9,7 @@ public class AirmanWind : MonoBehaviour
 
 	// Unity Editor Variables
 	public List<Material> animationMaterials;
-	
+    public float windSpeed = 20f;
 	// Protected Instance Variables
 	protected int texIndex = 0;
 	protected bool leaving = false;
@@ -63,11 +63,11 @@ public class AirmanWind : MonoBehaviour
 			// Move the wind away...
 			if (shouldBlowLeft)
 			{
-				transform.position -= new Vector3(20.0f * Time.deltaTime , 0f, 0f);
+				transform.position -= new Vector3(windSpeed * Time.deltaTime , 0f, 0f);
 			}
 			else
 			{
-				transform.position += new Vector3(20.0f * Time.deltaTime , 0f, 0f);
+				transform.position += new Vector3(windSpeed * Time.deltaTime , 0f, 0f);
 			}				
 		}
 	}

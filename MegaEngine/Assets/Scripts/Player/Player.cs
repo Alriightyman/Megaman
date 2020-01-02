@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     public bool IsDead { get { return health.IsDead; } set { health.IsDead = value; } }
     public bool CanShoot { get { return shooting.CanShoot; } set { shooting.CanShoot = value; } }
     public bool IsInvincible { get; set; }
+    public bool IsGrounded { get { return movement.isGrounded; } }
     public float CurrentHealth { get { return health.CurrentHealth; } set { health.CurrentHealth = value; } }
     public Vector3 ExternalForce { get { return movement.ExternalForce; } set { movement.ExternalForce = value; } }
     public Vector3 CheckpointPosition { get { return movement.CheckPointPosition; } set { movement.CheckPointPosition = value; } }

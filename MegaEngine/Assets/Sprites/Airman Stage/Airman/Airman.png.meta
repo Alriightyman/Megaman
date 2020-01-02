@@ -26,6 +26,12 @@ TextureImporter:
   - first:
       213: 2676584436087195689
     second: Airman_7
+  - first:
+      213: -8025158362232368784
+    second: Airman_8
+  - first:
+      213: 2140561973954806791
+    second: Airman_9
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -117,8 +123,8 @@ TextureImporter:
         y: 56
         width: 55
         height: 52
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -138,8 +144,8 @@ TextureImporter:
         y: 56
         width: 55
         height: 52
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -160,7 +166,7 @@ TextureImporter:
         width: 65
         height: 50
       alignment: 9
-      pivot: {x: 0.516, y: 0.52}
+      pivot: {x: 0.516, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -181,7 +187,7 @@ TextureImporter:
         width: 65
         height: 50
       alignment: 9
-      pivot: {x: 0.516, y: 0.52}
+      pivot: {x: 0.516, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -202,7 +208,7 @@ TextureImporter:
         width: 64
         height: 55
       alignment: 9
-      pivot: {x: 0.5240625, y: 0.5}
+      pivot: {x: 0.5240625, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -223,7 +229,7 @@ TextureImporter:
         width: 64
         height: 55
       alignment: 9
-      pivot: {x: 0.5240625, y: 0.5}
+      pivot: {x: 0.5240625, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -244,7 +250,7 @@ TextureImporter:
         width: 68
         height: 52
       alignment: 9
-      pivot: {x: 0.61, y: 0.5}
+      pivot: {x: 0.61, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -265,7 +271,7 @@ TextureImporter:
         width: 68
         height: 52
       alignment: 9
-      pivot: {x: 0.61, y: 0.5}
+      pivot: {x: 0.61, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -273,6 +279,48 @@ TextureImporter:
       bones: []
       spriteID: 3783b824f03ba3348b379ddd79b6a07b
       internalID: 2676584436087195689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Airman_8
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 91
+        width: 14
+        height: 21
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b5b08c1d3133b44da05d50906482ec4
+      internalID: -8025158362232368784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Airman_9
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 69
+        width: 14
+        height: 21
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8d19c305857bed4eb3271892573f8fc
+      internalID: 2140561973954806791
       vertices: []
       indices: 
       edges: []

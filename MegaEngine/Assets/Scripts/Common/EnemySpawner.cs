@@ -1,24 +1,21 @@
-﻿using Extensions;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
+using Extensions;
 
+/// <summary>
+/// Spawns a GameObject when it becomes on screen
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
-
+    // enemy to spawn
     public GameObject enemyPrefab;
 
     private bool isSpawned = false;
-    private LevelCamera cam;
 
     // Start is called before the first frame update
     void Start()
     {
-
         Assert.IsNotNull(enemyPrefab);
-
-        cam = Camera.main.GetComponent<LevelCamera>();
     }
 
     // Update is called once per frame

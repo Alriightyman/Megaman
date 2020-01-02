@@ -19,15 +19,22 @@ public class Egg : MonoBehaviour
 	protected float lifeTimer;
 	protected float xVel = 0.0f;
 	
-	protected float damage = 10.0f;	
+	protected float damage = 10.0f;
 
-	#endregion
+    private SpriteRenderer spriteRenderer;
+
+    #endregion
 
 
-	#region MonoBehaviour
+    #region MonoBehaviour
 
-	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other)
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    // Called when the Collider other enters the trigger.
+    protected void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -73,7 +80,7 @@ public class Egg : MonoBehaviour
 			if (xVel > 0.0f) xVel -= velSlower * Time.deltaTime;
 			if (xVel < 0.0f) xVel = 0.0f;
 			
-			if (Time.time - lifeTimer >= lifeSpan)
+			if (Time.time - lifeTimer >= lifeSpan || spriteRenderer.isVisible == false)
 			{
 				Destroy(gameObject);	
 			}
@@ -106,12 +113,15 @@ public class Egg : MonoBehaviour
 	// 
 	public void ReleaseEgg(float xVelocity)
 	{
-		xVel = xVelocity;
-		transform.parent = null;
-		falling = true;
-		lifeTimer = Time.time;
-		tag = "shootable";
-		gameObject.layer = 0;
+        if (gameObject != null)
+        {
+            xVel = xVelocity;
+            transform.parent = null;
+            falling = true;
+            lifeTimer = Time.time;
+            tag = "shootable";
+            gameObject.layer = 0;
+        }
 	}
 
 	#endregion

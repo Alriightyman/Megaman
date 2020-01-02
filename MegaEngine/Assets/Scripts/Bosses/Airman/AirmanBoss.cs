@@ -2,37 +2,60 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
+using Prime31;
 
 public class AirmanBoss : MonoBehaviour 
 {
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected Rigidbody2D deathParticlePrefab;
-	[SerializeField] protected float deathParticleSpeed;
-	[SerializeField] protected float touchDamage;
-	[SerializeField] protected Transform startMarker;
-	[SerializeField] protected Transform endMarker;
-	
-	// Protected Instance Variables
-	protected int texIndex = 0;
-	protected bool isPlayingBeginSequence = false;
-	protected bool shouldFillHealthBar = false;
-	protected bool hasBeenIntroduced = false;
-	protected bool isFighting = false;	
-	protected float texInterval = 0.1f;
+	[SerializeField] private Transform startMarker;
+	[SerializeField] private Transform endMarker;
+    [SerializeField] private Transform JumpLeftPosition;
+    [SerializeField] private Transform JumpRightPosition;
+    [SerializeField] private Transform JumpMidPosition;
+    [SerializeField] private float gravity = 118f;
+    [SerializeField] private float jumpAmount = 10.0f;
+    [SerializeField] private float jumpLowAmout = 10f;
+    [SerializeField] private float jumpHighAmout = 20f;
+    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float deathParticleSpeed;
+    [SerializeField] private float touchDamage;
+    [SerializeField] private Rigidbody2D deathParticlePrefab;
+
+    public bool IsJumping { get; set; }
+    public bool IsShooting { get; set; }
+    public bool IsFlexing { get; set; }
+    public bool IsBlowing { get; set; }
+
+    // Protected Instance Variables
+    private bool isPlayingBeginSequence = false;
+    private bool shouldFillHealthBar = false;
+    private bool hasBeenIntroduced = false;
+    private bool isFighting = false;
+    private bool isJumping = false;
+    private bool pointReached = false;
+
+    protected float texInterval = 0.1f;
 	protected float startFallTime;
 	protected float journeyLength;
 	protected float hurtingTimer;
-	protected Player player;
+    protected float verticalVelocity;
+
+    protected Vector3 startingPosition = Vector3.zero;
+    protected Vector3 endPos = Vector3.zero;
+    private Vector3 movement = Vector3.zero;
+    private Vector3 desiredLocation = Vector3.zero;
+
+    protected Player player;
 	protected Health health;
-	protected Vector3 startingPosition = Vector3.zero;
-	protected Vector3 endPos = Vector3.zero;
-	protected Collider2D col = null;
+    protected AirmanWindWeapon weapon = null;
+
+    protected Collider2D col = null;
 	protected SpriteRenderer rend = null;
 	protected Animator anim = null;
 	protected List<Transform> windShots = new List<Transform>();
-	protected AirmanWindWeapon weapon = null;
+
 
 	#endregion
 
@@ -77,8 +100,11 @@ public class AirmanBoss : MonoBehaviour
 		else if (isFighting)
 		{
 			// Assign the appropriate texture...
-			AssignTexture();
-			
+			SetAnimationState();
+
+            // update movement
+            UpdateMovement();
+
 			if (health.IsHurting == true)
 			{
 				if (Time.time - hurtingTimer >= health.HurtingDelay)
@@ -90,12 +116,17 @@ public class AirmanBoss : MonoBehaviour
 	}
 
 	// 
-	protected void OnTriggerStay2D(Collider2D other) 
+	protected void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
 			other.gameObject.SendMessage("TakeDamage", touchDamage);
 		}
+
+        if(other.tag == "Point")
+        {
+            pointReached = true;
+        }
 	}
 
 	// Called when the behaviour becomes disabled or inactive
@@ -134,7 +165,7 @@ public class AirmanBoss : MonoBehaviour
 		startFallTime = Time.time;
 		endPos = endMarker.position;
 		journeyLength = Vector3.Distance(startingPosition, endPos);
-	}
+    }
 
 	//
 	public void Reset()
@@ -156,8 +187,9 @@ public class AirmanBoss : MonoBehaviour
 		isFighting = false;
 		shouldFillHealthBar = false;
 		
-		GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = true;
-		GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");
+		GameObject.Find("BossBorderLeft").gameObject.GetComponent<Collider2D>().enabled = true;
+        GameObject.Find("BossBorderRight").gameObject.GetComponent<Collider2D>().enabled = true;
+        GameObject.Find("BossDoor2").gameObject.SendMessage("Reset");
 		GameObject.Find("BossDoorTrigger2").gameObject.GetComponent<Collider2D>().enabled = true;
 		GameObject.Find("BossTrigger").gameObject.GetComponent<Collider2D>().enabled = true;
 		player.IsExternalForceActive = false;
@@ -274,12 +306,10 @@ public class AirmanBoss : MonoBehaviour
 		if (shouldFillHealthBar == true)
 		{
             // Make the robot flex his muscles a little bit...
-            //int texIndex = (int) (Time.time / 0.1);
-            //rend.material = animationMaterials[texIndex % 3];			
-            //rend.material.SetTextureScale("_MainTex", texScale);
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
-            anim.SetBool("Flex", true); ;
+            anim.SetBool("Flex", false);
+            anim.Play("Flex");
             // Fill up the health bar...
             if (health.CurrentHealth < health.MaximumHealth)
 			{
@@ -293,20 +323,25 @@ public class AirmanBoss : MonoBehaviour
 				isPlayingBeginSequence = false;
 				isFighting = true;
 				player.CanShoot = true;
-				GameObject.Find("BossBorder").gameObject.GetComponent<Collider2D>().enabled = false;
-				weapon.Attack();
+                player.IsFrozen = false;
+                weapon.Attack();
 			}
 		}
 		
 		// Make the boss fall down...
 		else
 		{
-			float distCovered = (Time.time - startFallTime) * 10.0f;
+            if(player.IsGrounded)
+            {
+                player.IsFrozen = true;
+                
+                player.CanShoot = false;
+            }
+			float distCovered = (Time.time - startFallTime) * 50.0f;
 	        float fracJourney = distCovered / journeyLength;
 			transform.position = Vector3.Lerp(startingPosition, endPos, fracJourney);
-            //rend.material.SetTextureScale("_MainTex", texScale);
-            float amount = 2.0f;
-			if (fracJourney >= amount)
+
+            if(transform.position.y <= endMarker.position.y)
 			{
 				shouldFillHealthBar = true;
 				GameEngine.SoundManager.Play(AirmanLevelSounds.HEALTHBAR_FILLING);
@@ -315,32 +350,27 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//	
-	protected void AssignTexture()
+	protected void SetAnimationState()
 	{
-		if (weapon.ShouldDisplayJumpingTex == true)
+		if (weapon.ShouldJump == true)
 		{
-			//texIndex = (int) (Time.time / texInterval);
-			//rend.material = animationMaterials[ (texIndex % 2) + 6];	
+            if(!isJumping && IsJumping)
+                StartCoroutine("JumpRoutine");	
 		}
-		else if (weapon.ShouldDisplayShootingTex == true)
+		else if (weapon.ShouldShoot == true)
 		{
-            //rend.material = animationMaterials[4];
-            //anim.Play("Shoot");
             anim.SetBool("Shoot", true);
             anim.SetBool("Stand", false);
             anim.SetBool("Blow", false);
         }
-		else if (weapon.ShouldDisplayBlowingTex == true)
+		else if (weapon.ShouldBlow == true)
 		{
-            //texIndex = (int) (Time.time / texInterval);
-            //rend.material = animationMaterials[ (texIndex % 2) + 2];	
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", false);
             anim.SetBool("Blow", true); ;
 		}
-		else
+		else if( !isJumping )
 		{
-            //rend.material = animationMaterials[0];
             anim.SetBool("Shoot", false);
             anim.SetBool("Stand", true);
             anim.SetBool("Blow", false); ;
@@ -352,6 +382,77 @@ public class AirmanBoss : MonoBehaviour
 		}
 		
 		rend.flipX = !weapon.IsTurningLeft;
-		//rend.material.SetTextureScale("_MainTex", texScale);
 	}
+
+    private void UpdateMovement()
+    {
+
+        // 
+        verticalVelocity = movement.y;
+
+        if (isJumping)
+        {
+            movement = (desiredLocation - transform.position) * moveSpeed;
+        }
+        if (GetComponent<CharacterController2D>().isGrounded)
+        {
+            movement = Vector3.zero;
+            verticalVelocity = jumpAmount;
+        }
+
+        movement = new Vector3(movement.x, verticalVelocity, 0f);
+        // apply gravity
+        movement = new Vector3(movement.x, (movement.y - gravity * Time.deltaTime), movement.z);
+
+        // update position
+        GetComponent<CharacterController2D>().move( movement * Time.deltaTime);
+        
+    }
+
+    private IEnumerator JumpRoutine()
+    {
+        // small jump
+        isJumping = true;
+        anim.SetBool("IsJumping", true);
+        desiredLocation = JumpMidPosition.position;
+        jumpAmount = jumpLowAmout;
+        yield return new WaitForEndOfFrame();
+
+        jumpAmount = 0f;
+        pointReached = false;
+        yield return new WaitUntil(new System.Func<bool>(() => 
+        {
+            return pointReached;
+        }));
+
+        
+        anim.SetBool("IsJumping", false);
+        anim.SetBool("Flex", true);
+        yield return new WaitForSeconds(1f);
+
+        // high jump
+        anim.SetBool("IsJumping", true);
+        anim.SetBool("Flex", false);
+        desiredLocation = rend.flipX ? JumpRightPosition.position : JumpLeftPosition.position;
+        jumpAmount = jumpHighAmout;
+
+        yield return new WaitForSeconds(.25f);
+
+        yield return new WaitForEndOfFrame();
+
+        jumpAmount = 0f;
+
+        yield return new WaitUntil(new System.Func<bool>(() => 
+        {
+            return pointReached;
+        }));
+
+        pointReached = false;
+        anim.SetBool("IsJumping", false);
+        anim.Play("Idle");
+        isJumping = false;
+        IsJumping = false;
+        jumpAmount = 0f;
+        // done
+    }
 }

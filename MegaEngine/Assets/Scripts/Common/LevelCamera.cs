@@ -19,28 +19,26 @@ public class LevelCamera : MonoBehaviour
     public bool CanMoveDown		{ get; set; }
     public bool IsTransitioning	{ get; set; }
     public bool ShouldStayStill	{ get; set; }
-    public Vector3 CheckpoiontMaxPosition { get; set; }
+    public Vector3 CheckPointMaxPosition { get; set; }
     public Vector3 CheckpointMinPosition { get; set; }
     public Transform MaxTransform;
     public Transform MinTransform;
     public Vector3 MaxPosition;
     public Vector3 MinPosition;
-    private GameObject LeftBound, RightBound;
 
     // Private Instance Variables
     private Vector3 playerCheckpointPosition;
 	private Vector3 playerPos;
 	private Vector3 deltaPos;
-    
+    private BoxCollider2D boxCol2D;
+
     [SerializeField] private Checkpoint startPosition;
     #endregion
 
 
     #region MonoBehaviour
     protected void Awake()
-    {
-        LeftBound = GameObject.Find("LeftBound");
-        RightBound = GameObject.Find("RightBound");
+    { 
     }
     // Use this for initialization
     protected void Start () 
@@ -51,7 +49,9 @@ public class LevelCamera : MonoBehaviour
 		transform.position = new Vector3(position.x, position.y, -10f); 
 		CheckpointPosition = new Vector3(position.x, position.y, -10f);
 
-        MinPosition = CheckpointPosition;
+        //MinPosition = CheckpointPosition;
+        CheckpointMinPosition = MinPosition;
+        CheckPointMaxPosition = MaxPosition;
 
         ShouldStayStill = false;
 		IsTransitioning = false;
@@ -147,7 +147,7 @@ public class LevelCamera : MonoBehaviour
 		CanMoveUp = CheckpointCanMoveUp;
 		CanMoveDown = CheckpointCanMoveDown;
         MinPosition = CheckpointMinPosition;
-        MaxPosition = CheckpoiontMaxPosition;
+        MaxPosition = CheckPointMaxPosition;
         GameEngine.Player.transform.position = GameEngine.Player.CheckpointPosition;
 	}
 	#endregion
