@@ -76,7 +76,7 @@ public class Movement : MonoBehaviour
 	protected void ApplyGravity()
 	{
         // drop faster if entering level from above
-        var finalGravity = IsEnteringLevel ? gravity * landingSpeed : gravity;
+        var finalGravity = IsEnteringLevel ? gravity * landingSpeed * Time.unscaledDeltaTime : gravity;
 
         // cap downward speed
 		if (moveVector.y > -terminalVelocity)

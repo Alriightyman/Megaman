@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Assets.Scripts.Interfaces;
+using System;
 
 public class CirclingPlatform : MonoBehaviour//, IResetable
 {
@@ -25,14 +26,16 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
 	private float fullCircleInDeg = 360.0f;
 	private float convertFromDeg;
     private Vector3 initPos = new Vector3(0, 0, 0);
+    private Action resetAction;
     bool start = false;
     #endregion
 
     #region MonoBehaviour
     private void Awake()
     {
+        resetAction = new Action(ResetObject);
         initPos = transform.position;
-        GameEngine.AddResetCallback(new System.Action(ResetObject));
+        GameEngine.AddResetCallback(resetAction);
 
     }
     // Use this for initialization
@@ -132,6 +135,11 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
         circleCenter = transform.position;
         ShouldAnimate = false;
         start = true;
+    }
+
+    private void OnDestroy()
+    {
+        GameEngine.RemoveResetCallback(resetAction);
     }
     #endregion
 }

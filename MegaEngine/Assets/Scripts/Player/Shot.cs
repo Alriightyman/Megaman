@@ -12,7 +12,7 @@ public class Shot : MonoBehaviour
     public Shooting parent { get; set; }
 
 	// Protected Instance Variables
-	//protected float lifeSpan = 1.2f;
+	protected float lifeSpan = 3f;
 	protected int damage = 10;
 	//protected float timeStart;
 
@@ -24,16 +24,12 @@ public class Shot : MonoBehaviour
 	// Use this for initialization
 	protected void Start () 
 	{
-		//timeStart = Time.time;
+        Destroy(gameObject, lifeSpan);
 	}
 
 	// Update is called once per frame
 	protected void Update () 
 	{
-		//if (Time.time - timeStart >= lifeSpan)
-		//{
-		//	Destroy(this);
-		//}
 		
 		GetComponent<Rigidbody2D>().velocity = VelocityDirection * ShotSpeed;
 	}
@@ -61,30 +57,6 @@ public class Shot : MonoBehaviour
 			Destroy(gameObject);
 		}		
 	}
-	
-	// 
-	//protected void OnCollisionEnter2D(Collision2D collision) 
-	//{
-	//	if (collision.gameObject.tag == "shootable")
-	//	{
-	//		InflictDamage(collision.gameObject);
-	//	}
-		
-	//	else if (collision.gameObject.layer == 10 && collision.gameObject.tag == "unshootable")
-	//	{
-	//		Destroy(gameObject);	
-	//	}
-		
-	//	else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "unshootable")
-	//	{
-	//		Destroy(gameObject);
-	//	}
-		
-	//	else if (collision.gameObject.layer == 0 && collision.gameObject.tag == "platform")
-	//	{
-	//		Destroy(gameObject);
-	//	}
-	//}
 
 	#endregion
 

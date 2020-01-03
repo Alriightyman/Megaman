@@ -1,9 +1,13 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.Assertions;
+using System;
 
 public class LevelCamera : MonoBehaviour 
 {
+    private static LevelCamera instance = null;
+
 	#region Variables
 
 	// Public Properties
@@ -21,8 +25,7 @@ public class LevelCamera : MonoBehaviour
     public bool ShouldStayStill	{ get; set; }
     public Vector3 CheckPointMaxPosition { get; set; }
     public Vector3 CheckpointMinPosition { get; set; }
-    public Transform MaxTransform;
-    public Transform MinTransform;
+
     public Vector3 MaxPosition;
     public Vector3 MinPosition;
 
@@ -32,39 +35,54 @@ public class LevelCamera : MonoBehaviour
 	private Vector3 deltaPos;
     private BoxCollider2D boxCol2D;
 
-    [SerializeField] private Checkpoint startPosition;
+    [SerializeField] private Checkpoint startPosition = null;
     #endregion
 
 
     #region MonoBehaviour
     protected void Awake()
-    { 
+    {
+        Assert.IsNotNull(startPosition);
+        DontDestroyOnLoad(gameObject);
+
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
     // Use this for initialization
     protected void Start () 
 	{
-        Vector3 position = startPosition != null ? startPosition.CameraPosition : CheckpointPosition;
-        GameEngine.Player.CheckpointPosition = startPosition != null ? startPosition.PlayerPosition : GameEngine.Player.transform.position;
+        Vector3 position = startPosition.CameraPosition;
+        playerCheckpointPosition = startPosition.PlayerPosition;
+
+        GameEngine.Player.CheckpointPosition = startPosition.PlayerPosition;
+
+        Debug.Log(String.Format("Player Position: {0}", GameEngine.Player.CheckpointPosition));
+
 		//Vector3 startPosition = new Vector3(13.34303f, 11.51588f, -10f);
 		transform.position = new Vector3(position.x, position.y, -10f); 
 		CheckpointPosition = new Vector3(position.x, position.y, -10f);
 
-        //MinPosition = CheckpointPosition;
+        MinPosition = startPosition.CameraMinPosition;
+        MaxPosition = startPosition.CameraMaxPosition;
         CheckpointMinPosition = MinPosition;
         CheckPointMaxPosition = MaxPosition;
 
         ShouldStayStill = false;
 		IsTransitioning = false;
-		CanMoveRight = startPosition != null ? startPosition.CanMoveRight : CanMoveRight;
-		CanMoveLeft = startPosition != null ? startPosition.CanMoveLeft : CanMoveLeft;
-		CanMoveUp = startPosition != null ? startPosition.CanMoveUp : CanMoveUp;
-		CanMoveDown = startPosition != null ? startPosition.CanMoveDown : CanMoveDown;
+		CanMoveRight = startPosition.CanMoveRight;
+		CanMoveLeft = startPosition.CanMoveLeft;
+		CanMoveUp = startPosition.CanMoveUp;
+		CanMoveDown = startPosition.CanMoveDown;
 		CheckpointCanMoveLeft = false;
 		CheckpointCanMoveRight = true;
 		CheckpointCanMoveUp = false;
 		CheckpointCanMoveDown = false;
-
-        //GameEngine.Player.CheckpointPosition = startPosition != null ? startPosition.PlayerPosition : GameEngine.Player.CheckpointPosition;
 	}
 	
 	// Update is called once per frame
@@ -125,10 +143,6 @@ public class LevelCamera : MonoBehaviour
             SceneManager.LoadScene(0);
         } 
 
-        //if(GameEngine.LevelStarting == true)
-        //{
-        //    GameEngine.LevelStarting = false;
-        //}
 	}
 
 	#endregion
@@ -148,7 +162,10 @@ public class LevelCamera : MonoBehaviour
 		CanMoveDown = CheckpointCanMoveDown;
         MinPosition = CheckpointMinPosition;
         MaxPosition = CheckPointMaxPosition;
-        GameEngine.Player.transform.position = GameEngine.Player.CheckpointPosition;
-	}
-	#endregion
+        GameEngine.Player.transform.position = playerCheckpointPosition;
+        GameEngine.Player.CheckpointPosition = playerCheckpointPosition;
+        Debug.Log(String.Format("Player Position: {0}", GameEngine.Player.CheckpointPosition));
+
+    }
+    #endregion
 }

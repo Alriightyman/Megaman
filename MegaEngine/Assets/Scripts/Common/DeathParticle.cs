@@ -3,15 +3,16 @@ using System.Collections;
 
 public class DeathParticle : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
+    public Color Color { get; set; } = new Color(1f, 1f, 1f);
 
-	// Protected Instance Variables
-	protected float lifeSpan = 2.6f;
-	protected float scaleSpeed = 0.5f;
+     // Protected Instance Variables
+    protected float lifeSpan = 2.6f;
+	protected float scaleSpeed = 0.05f;
 	protected float timeStart;
 	protected Vector3 initialScale = Vector3.one;
 	protected Vector2 scaleAmount = new Vector2(.75f, .75f);
-    private SpriteRenderer renderer = null;
+    private SpriteRenderer spriteRenderer = null;
 	#endregion
 	
 	
@@ -22,14 +23,14 @@ public class DeathParticle : MonoBehaviour
 	{
 		this.timeStart = Time.time;
 		this.initialScale = transform.localScale;
-        renderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
     }
 	
 	// Update is called once per frame
 	protected void Update() 
 	{
-		// If the scale amount isn't zero, animate the cloud...
+
 		if (scaleAmount.x > 0.0f && scaleAmount.y > 0.0f)
 		{
 			float scaleStatus = Time.time * this.scaleSpeed;
@@ -37,7 +38,8 @@ public class DeathParticle : MonoBehaviour
 	                    this.initialScale.x + Mathf.PingPong(scaleStatus, scaleAmount.x), 
 						this.initialScale.y + Mathf.PingPong(scaleStatus, scaleAmount.y),
 						0);
-            renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, Random.Range(0.5f, 1f));
+            spriteRenderer.color = new Color(Color.r, Color.g, Color.b, Random.Range(0.5f, 1f));
+            
         }
 		
 		if (Time.time - this.timeStart >= lifeSpan)

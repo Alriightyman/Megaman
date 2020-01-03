@@ -57,7 +57,6 @@ public class Goblin : MonoBehaviour//, IResetable
 		spikeLeft = transform.Find("SpikeLeft").gameObject;
 		spikeRight = transform.Find("SpikeRight").gameObject;
 
-        //GameEngine.GetResetableObjectList().Add(this);
         GameEngine.AddResetCallback(new Action(ResetObject));
     }
 	
@@ -68,9 +67,9 @@ public class Goblin : MonoBehaviour//, IResetable
 	private void Start ()
 	{
 		lightTransform.GetComponent<SpriteRenderer>().enabled = false;
-        //GetComponent<BoxCollider2D>().enabled = false;
-        //spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
-        //spikeRight.GetComponent<BoxCollider2D>().enabled = false;
+        GetComponent<BoxCollider2D>().enabled = false;
+        spikeLeft.GetComponent<BoxCollider2D>().enabled = false;
+        spikeRight.GetComponent<BoxCollider2D>().enabled = false;
         spikeLeftPos = spikeLeft.transform.localPosition;
 		spikeStartHeight = spikeLeft.transform.position.y;
 		
@@ -102,7 +101,7 @@ public class Goblin : MonoBehaviour//, IResetable
 			{
 				shouldAppear = false;
 				startFighting = true;
-                this.GetComponent<BoxCollider2D>().enabled = true;
+                GetComponent<BoxCollider2D>().enabled = true;
                 spikeLeft.GetComponent<BoxCollider2D>().enabled = true;
                 spikeRight.GetComponent<BoxCollider2D>().enabled = true;
             }

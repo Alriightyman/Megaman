@@ -35,7 +35,7 @@ public class Health : MonoBehaviour
 	
 	// Protected Instance Variables
 	protected HealthBar healthbar = null;
-	protected float startHealth = 100f;
+    [SerializeField] protected float startHealth = 100f;
 	[SerializeField] protected float currentHealth = 100f;
 
 	#endregion

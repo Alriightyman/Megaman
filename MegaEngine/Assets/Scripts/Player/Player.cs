@@ -12,8 +12,13 @@ public class Player : MonoBehaviour
     #region Variables
 
     // Unity Editor Variables
+
     [SerializeField] protected Rigidbody2D deathParticlePrefab;
     [SerializeField] private float deathParticleSpeed = 75f;
+    [SerializeField] private Color deathParticleColor = new Color(0f, 0f, 1f);
+
+    [SerializeField] private float leavingSpeed = 300f;
+   
 
     // Public Properties
     public bool IsPlayerInactive { get; set; }
@@ -26,6 +31,8 @@ public class Player : MonoBehaviour
     public float CurrentHealth { get { return health.CurrentHealth; } set { health.CurrentHealth = value; } }
     public Vector3 ExternalForce { get { return movement.ExternalForce; } set { movement.ExternalForce = value; } }
     public Vector3 CheckpointPosition { get { return movement.CheckPointPosition; } set { movement.CheckPointPosition = value; } }
+    public bool IsLeaving { get; set; }
+
 
     // Protected Instance Variables
     protected int walkingTexIndex = 0;
@@ -43,7 +50,7 @@ public class Player : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private int lives = 3;
-
+    private static Player Instance = null;
     #endregion
 
 
@@ -77,6 +84,16 @@ public class Player : MonoBehaviour
         controller = GetComponent<CharacterController2D>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+
     }
 
     // Use this for initialization 
@@ -122,26 +139,20 @@ public class Player : MonoBehaviour
                     }
                 }
 
-
-                //bool flip = true;
-                //if (movement.IsTurningLeft == true)
-                //{
-                //    flip = false;
-                //}
-
                 GetComponent<SpriteRenderer>().flipX = !movement.IsTurningLeft;
-
-                // Setup Animations
-                SetAnimationState();
-
-                // keep the z axis as zero <-- Should always be zero.
-                if (transform.position.z != 0)
-                {
-                    Vector3 pos = transform.position;
-                    pos.z = 0;
-                    transform.position = pos;
-                }
+                
             }
+        }
+
+        // Setup Animations
+        SetAnimationState();
+
+        // keep the z axis as zero <-- Should always be zero.
+        if (transform.position.z != 0)
+        {
+            Vector3 pos = transform.position;
+            pos.z = 0;
+            transform.position = pos;
         }
     }
     private IEnumerator InvincibleBlink()
@@ -161,19 +172,16 @@ public class Player : MonoBehaviour
         Time.timeScale = 0;        
         animator.SetTrigger("EnteringLevel");
         yield return new WaitUntil(new System.Func<bool>(() => controller.isGrounded));
-        StartCoroutine("Landing");
 
-    }
+        animator.SetBool("IsGrounded", controller.isGrounded);
 
-    private IEnumerator Landing()
-    {
-        StopCoroutine("EnterLevel");
-         yield return new WaitUntil(new System.Func<bool>(() => { animator.SetBool("IsGrounded", controller.isGrounded); return animator.GetCurrentAnimatorStateInfo(0).IsName("Standing"); }));
+        // wait for standing animation to start
+        yield return new WaitUntil(new System.Func<bool>(() => { return animator.GetCurrentAnimatorStateInfo(0).IsName("Standing"); }));
         Time.timeScale = 1;
         startPlaying = true;
         movement.IsEnteringLevel = false;
-        StopCoroutine("Landing");
         GameEngine.LevelStarting = false;
+
     }
 
     private void ResetInvincibility()
@@ -214,7 +222,8 @@ public class Player : MonoBehaviour
     {
         Rigidbody2D particle = (Rigidbody2D)Instantiate(deathParticlePrefab, pos, transform.rotation);
         Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
-        //particle.transform.Rotate(90, 0, 0);
+        var deathPart = particle.GetComponent<DeathParticle>();
+        deathPart.Color = deathParticleColor;
         particle.velocity = vel * speed;
     }
 
@@ -256,9 +265,16 @@ public class Player : MonoBehaviour
     // 
     protected IEnumerator MovePlayerUp()
     {
+        animator.SetBool("LeaveLevel", true);
+
+        IsLeaving = true;
+        GameEngine.SoundManager.Play(AirmanLevelSounds.LEAVE_LEVEL);
+
+        yield return new WaitUntil(new System.Func<bool>(() => { return animator.GetCurrentAnimatorStateInfo(0).IsName("LeavingLevel"); }));
+
         while (true)
         {
-            transform.position += Vector3.up * 35.0f * Time.deltaTime;
+            transform.position += Vector3.up * leavingSpeed * Time.deltaTime;
             yield return null;
         }
     }
@@ -266,21 +282,11 @@ public class Player : MonoBehaviour
     // TODO: Fix
     protected IEnumerator MakeThePlayerLeaveStageRoutine()
     {
-        //playerTexRend.material = playerMaterials[14];
-        //yield return new WaitForSeconds(0.05f);
 
-        //playerTexRend.material = playerMaterials[15];
-        //yield return new WaitForSeconds(0.05f);
-
-        //GameEngine.SoundManager.Play(AirmanLevelSounds.LEAVE_LEVEL);
-        //playerTexRend.material = playerMaterials[16];
-        //playerTexObj.localScale = new Vector3(0.04f, 1.0f, 0.2f);
 
         StartCoroutine(MovePlayerUp());
 
-        yield return new WaitForSeconds(3.0f);
-
-        StopCoroutine(MovePlayerUp());
+        yield return new WaitUntil(new System.Func<bool>(() => { return spriteRenderer.isVisible == false; }));
 
         IsPlayerInactive = false;
 
@@ -305,19 +311,36 @@ public class Player : MonoBehaviour
 
         // Reset the player
         Reset();
+
+        //SceneManager.LoadScene(0);
     }
 
     protected void SetAnimationState()
     {
-        var characterController = GetComponent<CharacterController2D>();
+        if (!IsPlayerInactive)
+        {
+            var characterController = GetComponent<CharacterController2D>();
 
-        animator.SetBool("IsHurt", health.IsHurting && !health.IsDead);
-        animator.SetFloat("WalkingSwitch", (movement.IsWalking && shooting.IsShooting) ? 1f : 0f);
-        animator.SetBool("IsWalking", movement.IsWalking);
-        animator.SetBool("IsJumping", movement.IsJumping);
-        animator.SetBool("IsFalling", movement.IsFalling);
-        animator.SetBool("IsShooting", shooting.IsShooting);
-        animator.SetBool("IsGrounded", characterController.isGrounded);
+            animator.SetBool("IsHurt", health.IsHurting && !health.IsDead);
+            animator.SetFloat("WalkingSwitch", (movement.IsWalking && shooting.IsShooting) ? 1f : 0f);
+            animator.SetBool("IsWalking", movement.IsWalking);
+            animator.SetBool("IsJumping", movement.IsJumping);
+            animator.SetBool("IsFalling", movement.IsFalling);
+            animator.SetBool("IsShooting", shooting.IsShooting);
+            animator.SetBool("IsGrounded", characterController.isGrounded);
+        }
+        else if(!IsLeaving)
+        {
+            // reset all animation properties
+            animator.SetBool("IsHurt", false);
+            animator.SetFloat("WalkingSwitch", 0f);
+            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", false);
+            animator.SetBool("IsShooting", false);
+            animator.SetBool("IsGrounded", false);
+            animator.Play("Standing");
+        }
     }
 
    #endregion
@@ -368,4 +391,6 @@ public class Player : MonoBehaviour
         GameEngine.LevelStarting = true;
     }
     #endregion
+
+
 }

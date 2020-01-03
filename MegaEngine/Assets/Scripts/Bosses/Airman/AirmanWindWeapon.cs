@@ -12,10 +12,10 @@ public class AirmanWindWeapon : MonoBehaviour
 	public Transform weaponPrefab;
     public Transform projectileSpawnPoint;
     public List<Transform> windAttackTransforms;
+    [SerializeField] protected float windPower = 400.0f;
 
-
-	// Public Properties
-	public bool IsTurningLeft { get; set; }
+    // Public Properties
+    public bool IsTurningLeft { get; set; }
 	public bool ShouldShoot { get; set; }
 	public bool ShouldJump  { get; set; }
 	public bool ShouldBlow  { get; set; }
@@ -34,7 +34,6 @@ public class AirmanWindWeapon : MonoBehaviour
 	protected float fightingTimer;
 	protected float blowDelay = 2.0f;	
 	protected float windDestroyDelay = 1.0f;
-	protected float windPower = 400.0f;
 	protected Player player = null;
 	protected Animator anim = null;
 	protected List<Vector3> nextAttack;

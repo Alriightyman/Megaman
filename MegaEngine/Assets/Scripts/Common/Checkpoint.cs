@@ -8,7 +8,9 @@ public class Checkpoint : MonoBehaviour
 	// Unity Editor Variables
 	[SerializeField] protected Vector3 playerPosition;
 	[SerializeField] protected Vector3 cameraPosition;
-	[SerializeField] protected bool cameraCanMoveLeft;
+    [SerializeField] protected Vector3 cameraMaxPosition;
+    [SerializeField] protected Vector3 cameraMinPosition;
+    [SerializeField] protected bool cameraCanMoveLeft;
 	[SerializeField] protected bool cameraCanMoveRight;
 	[SerializeField] protected bool cameraCanMoveUp;
 	[SerializeField] protected bool cameraCanMoveDown;
@@ -16,6 +18,8 @@ public class Checkpoint : MonoBehaviour
     // Properties
     public Vector3 PlayerPosition { get { return playerPosition; } }
     public Vector3 CameraPosition { get { return cameraPosition; } }
+    public Vector3 CameraMaxPosition { get { return cameraMaxPosition; } }
+    public Vector3 CameraMinPosition { get { return cameraMinPosition; } }
     public bool CanMoveRight { get { return cameraCanMoveRight; } }
     public bool CanMoveLeft { get { return cameraCanMoveLeft; } }
     public bool CanMoveUp { get { return cameraCanMoveUp; } }
@@ -37,8 +41,8 @@ public class Checkpoint : MonoBehaviour
 			cam.CheckpointCanMoveRight = cameraCanMoveRight;
 			cam.CheckpointCanMoveUp = cameraCanMoveUp;
 			cam.CheckpointCanMoveDown = cameraCanMoveDown;
-            cam.CheckpointMinPosition = cam.MinPosition;
-            cam.CheckPointMaxPosition = cam.MaxPosition;
+            cam.CheckpointMinPosition = CameraMinPosition;
+            cam.CheckPointMaxPosition = CameraMaxPosition;
 			Destroy(this.gameObject);
 		}
 	}

@@ -129,11 +129,19 @@ public class AirmanBoss : MonoBehaviour
         }
 	}
 
-	// Called when the behaviour becomes disabled or inactive
-	protected void OnDisable()
-	{
-		GameEngine.AirMan = null;
-	}
+    protected void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.tag == "Player")
+        {
+            other.gameObject.SendMessage("TakeDamage", touchDamage);
+        }
+    }
+
+    // Called when the behaviour becomes disabled or inactive
+    protected void OnDisable()
+    {
+        GameEngine.AirMan = null;
+    }
 
 
 	#endregion
@@ -211,8 +219,10 @@ public class AirmanBoss : MonoBehaviour
 	protected void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
 	{
 		Rigidbody2D particle = (Rigidbody2D) Instantiate(deathParticlePrefab, pos, transform.rotation);
-		particle.transform.Rotate(90,0,0);
-		particle.velocity =  vel * speed;
+        Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
+        var deathPart = particle.GetComponent<DeathParticle>();
+        deathPart.Color = new Color(.5f, .5f, .5f);
+        particle.velocity =  vel * speed;
 	}
 	
 	//
@@ -227,11 +237,7 @@ public class AirmanBoss : MonoBehaviour
 		Vector3 p5 = transform.position + Vector3.up + Vector3.right;
 		Vector3 p6 = transform.position + Vector3.up - Vector3.right;
 		Vector3 p7 = transform.position - Vector3.up - Vector3.right;
-		Vector3 p8 = transform.position - Vector3.up + Vector3.right;
-		
-		p1.z = p2.z = -5;
-		p3.z = p4.z = -7;
-		p5.z = p6.z = p7.z = p8.z = -9;
+		Vector3 p8 = transform.position - Vector3.up + Vector3.right;	
 		
 		CreateDeathParticle(deathParticleSpeed, p1, (transform.up));
 		CreateDeathParticle(deathParticleSpeed, p2, (-transform.up));
@@ -269,8 +275,7 @@ public class AirmanBoss : MonoBehaviour
 		// Another wait...
 		yield return new WaitForSeconds(6.5f);
 		
-		// Reload the level...
-		player.IsPlayerInactive = true;
+		// Reload the level...		
 		player.PlayEndSequence();
 		Destroy(gameObject);
 	}
@@ -279,7 +284,10 @@ public class AirmanBoss : MonoBehaviour
 	protected void KillRobot()
 	{
 		weapon.Reset();
-		StartCoroutine(CreateDeathParticles());
+        GameEngine.Player.IsFrozen = true;
+        GameEngine.Player.CanShoot = false;
+        player.IsPlayerInactive = true;
+        StartCoroutine(CreateDeathParticles());
 		StartCoroutine(PlayEndMusic());
 	}
 	
@@ -322,8 +330,9 @@ public class AirmanBoss : MonoBehaviour
 				GameEngine.SoundManager.Stop(AirmanLevelSounds.HEALTHBAR_FILLING);
 				isPlayingBeginSequence = false;
 				isFighting = true;
-				player.CanShoot = true;
+                player.IsPlayerInactive = false;
                 player.IsFrozen = false;
+                player.CanShoot = true;
                 weapon.Attack();
 			}
 		}
@@ -333,9 +342,7 @@ public class AirmanBoss : MonoBehaviour
 		{
             if(player.IsGrounded)
             {
-                player.IsFrozen = true;
-                
-                player.CanShoot = false;
+                player.IsPlayerInactive = true;
             }
 			float distCovered = (Time.time - startFallTime) * 50.0f;
 	        float fracJourney = distCovered / journeyLength;
@@ -427,12 +434,12 @@ public class AirmanBoss : MonoBehaviour
 
         
         anim.SetBool("IsJumping", false);
-        anim.SetBool("Flex", true);
-        yield return new WaitForSeconds(1f);
+        anim.SetBool("Stand", true);
+        yield return new WaitForSeconds(.25f);
 
         // high jump
         anim.SetBool("IsJumping", true);
-        anim.SetBool("Flex", false);
+        anim.SetBool("Stand", false);
         desiredLocation = rend.flipX ? JumpRightPosition.position : JumpLeftPosition.position;
         jumpAmount = jumpHighAmout;
 
@@ -453,6 +460,5 @@ public class AirmanBoss : MonoBehaviour
         isJumping = false;
         IsJumping = false;
         jumpAmount = 0f;
-        // done
     }
 }
