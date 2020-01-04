@@ -1,22 +1,25 @@
  using UnityEngine;
-using System.Collections;
+using UnityEngine.UI;
 
 public class Health : MonoBehaviour
 {
 	#region Variables
 	
 	// Unity Editor Variables
-	public Texture2D emptyTex;
-	public Texture2D fullTex;
-
+	public Image healthBar;
+    
     // Public Properties
-    public float MaximumHealth;// { get; set; }
+    public float MaximumHealth { get; set; }
 	public float HurtingTimer { get; set; }
 	public float HurtingDelay { get; set; }
 	public bool IsHurting { get; set; }
 	public bool IsDead { get; set; }
-	public bool ShowHealthBar { get { return healthbar.ShowHealthBar; } set { healthbar.ShowHealthBar = value; } }
-	public Vector2 HealthbarPosition { get { return healthbar.Position; } set { healthbar.Position = value; } }
+	public bool ShowHealthBar
+    {
+        get { return healthBar.transform.parent.gameObject.activeSelf; }
+        set { healthBar.transform.parent.gameObject.SetActive(value); }
+    }
+
     public float CurrentHealth
 	{ 
 		get
@@ -28,13 +31,12 @@ public class Health : MonoBehaviour
 			if (value > MaximumHealth) { currentHealth = MaximumHealth; }
 			else if (value < 0.0f) { currentHealth = 0.0f; }
 			else if (value <= MaximumHealth && value >= 0.0f) { currentHealth = value; }
-			healthbar.HealthStatus = currentHealth / MaximumHealth;
-            
+            healthBar.fillAmount = currentHealth / MaximumHealth;
 		} 
 	}
-	
-	// Protected Instance Variables
-	protected HealthBar healthbar = null;
+
+    // Protected Instance Variables
+    private float tickAmount = 0.8f;
     [SerializeField] protected float startHealth = 100f;
 	[SerializeField] protected float currentHealth = 100f;
 
@@ -46,8 +48,8 @@ public class Health : MonoBehaviour
 	// Constructor
 	protected void Awake ()
 	{
-		healthbar = gameObject.AddComponent<HealthBar>();
-		healthbar.ShowHealthBar = false;
+        healthBar.fillAmount = startHealth / MaximumHealth;
+        healthBar.transform.parent.gameObject.SetActive(false);
     }
 	
 	// Use this for initialization
@@ -59,9 +61,7 @@ public class Health : MonoBehaviour
 		HurtingDelay = 1.0f;
 		
 		currentHealth = startHealth;
-		healthbar.HealthStatus = startHealth / MaximumHealth;
-		healthbar.EmptyTex = emptyTex;
-		healthbar.FullTex = fullTex;
+        healthBar.fillAmount = startHealth / MaximumHealth;
     }
 	#endregion
 	
@@ -77,16 +77,16 @@ public class Health : MonoBehaviour
 		HurtingDelay = 1.0f;
 		
 		currentHealth = startHealth;
-		healthbar.HealthStatus = startHealth / MaximumHealth;
-	}
+        healthBar.fillAmount = startHealth / MaximumHealth;
+    }
 	
 	// 
 	public void ChangeHealth(float healthChange)
 	{
         IsHurting = true;
         HurtingTimer = Time.time;
-        currentHealth += healthChange;
-        healthbar.HealthStatus = currentHealth / MaximumHealth;
+        currentHealth += healthChange * tickAmount;
+        healthBar.fillAmount = currentHealth / MaximumHealth;
 
         if (currentHealth <= 0.0f)
         {

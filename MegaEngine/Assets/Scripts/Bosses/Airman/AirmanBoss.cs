@@ -155,7 +155,7 @@ public class AirmanBoss : MonoBehaviour
 		//anim["JumpRight"].speed = 1.65f;
 		
 		health.ShowHealthBar = true;
-		health.HealthbarPosition = new Vector2(30.0f, 10.0f);
+		//health.HealthbarPosition = new Vector2(30.0f, 10.0f);
 		health.CurrentHealth = 0.0f;
 		hasBeenIntroduced = true;
 		

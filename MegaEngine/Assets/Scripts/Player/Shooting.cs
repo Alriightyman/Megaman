@@ -9,7 +9,7 @@ public class Shooting : MonoBehaviour
 	[SerializeField] protected GameObject shotPrefab;
     [SerializeField] private Transform shotSpawnPoint;
     [SerializeField] protected float shotSpeed = 20f;
-    [SerializeField]  protected float delayBetweenShots = 0.2f;
+    [SerializeField] protected float delayBetweenShots = 0.2f;
 
     // Properties
     public bool CanShoot 	{ get; set; }

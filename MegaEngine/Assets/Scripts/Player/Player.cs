@@ -100,7 +100,7 @@ public class Player : MonoBehaviour
     protected void Start()
     {
         IsPlayerInactive = false;
-        health.HealthbarPosition = new Vector2(10, 10);
+        //health.HealthbarPosition = new Vector2(10, 10);
         health.ShowHealthBar = true;
         movement.IsEnteringLevel = true;
         StartCoroutine("EnterLevel");
