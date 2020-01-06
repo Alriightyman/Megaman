@@ -6,16 +6,16 @@ public class BossDoor : MonoBehaviour
 {
 	#region Variables
 
-	// Protected Instance Variables 
-	[SerializeField] protected float playerSpeed = 25f;
-	[SerializeField] protected float doorSpeed = 10f;
+	// private Instance Variables 
+	[SerializeField] private float playerSpeed = 25f;
+	[SerializeField] private float doorSpeed = 10f;
 
     public bool IsDoorOpen { get; set; }
 
     private BoxCollider2D boxCol2D;
-	protected bool isOpening = false;
-	protected bool isClosing = false;
-	protected bool hasPlayerGoneThrough = false;
+	private bool isOpening = false;
+	private bool isClosing = false;
+	private bool hasPlayerGoneThrough = false;
     private Vector3 startPosition;
     private Vector3 stopPosition;
     private GameObject door;
@@ -26,7 +26,7 @@ public class BossDoor : MonoBehaviour
 	#region MonoBehaviour
 	
 	// Use this for initialization 
-	protected void Start()
+	private void Start()
 	{
         boxCol2D = GetComponent<BoxCollider2D>();
         Assert.IsNotNull(boxCol2D);
@@ -40,7 +40,7 @@ public class BossDoor : MonoBehaviour
     }
 
 	// Update is called once per frame 
-	protected void Update() 
+	private void Update() 
 	{
 		if (hasPlayerGoneThrough == true)
 		{
@@ -85,10 +85,10 @@ public class BossDoor : MonoBehaviour
 	#endregion
 
 
-	#region Protected Functions
+	#region private Functions
 
 	//
-	protected void Reset()
+	private void Reset()
 	{
 		isOpening = false;
 		isClosing = false;
@@ -98,7 +98,7 @@ public class BossDoor : MonoBehaviour
     }
 
     // Moves the oject into the spritemask so it... disappears.
-    protected void MoveDoor(float speed)
+    private void MoveDoor(float speed)
 	{
         door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y + speed, door.transform.position.z);
     }

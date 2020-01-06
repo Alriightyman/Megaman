@@ -12,7 +12,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	public Transform weaponPrefab;
     public Transform projectileSpawnPoint;
     public List<Transform> windAttackTransforms;
-    [SerializeField] protected float windPower = 400.0f;
+    [SerializeField] private float windPower = 400.0f;
 
     // Public Properties
     public bool IsTurningLeft { get; set; }
@@ -20,30 +20,30 @@ public class AirmanWindWeapon : MonoBehaviour
 	public bool ShouldJump  { get; set; }
 	public bool ShouldBlow  { get; set; }
 
-	// Protected Const Variables
-	protected const int NUM_OF_SHOTS_BEFORE_JUMPING = 3;
+	// private Const Variables
+	private const int NUM_OF_SHOTS_BEFORE_JUMPING = 3;
 
-	// Protected Instance Variables
-	protected int shootingCounter = 0;
-	protected bool isBlowing;
-	protected bool isJumping;
-	protected bool isShooting;
-	protected bool isFighting;
-	protected bool isPlayingAnimation;
-	protected bool shouldDestroyWind = false;
-	protected float fightingTimer;
-	protected float blowDelay = 2.0f;	
-	protected float windDestroyDelay = 1.0f;
-	protected Player player = null;
-	protected Animator anim = null;
-	protected List<Vector3> nextAttack;
-	protected List<Vector3> attack1Right = new List<Vector3>();
-	protected List<Vector3> attack2Right = new List<Vector3>();
-	protected List<Vector3> attack3Right = new List<Vector3>();
-	protected List<Vector3> attack1Left = new List<Vector3>();
-	protected List<Vector3> attack2Left = new List<Vector3>();
-	protected List<Vector3> attack3Left = new List<Vector3>();
-	protected List<AirmanWind> windShots = new List<AirmanWind>();
+	// private Instance Variables
+	private int shootingCounter = 0;
+	private bool isBlowing;
+	private bool isJumping;
+	private bool isShooting;
+	private bool isFighting;
+	private bool isPlayingAnimation;
+	private bool shouldDestroyWind = false;
+	private float fightingTimer;
+	private float blowDelay = 2.0f;	
+	private float windDestroyDelay = 1.0f;
+	private Player player = null;
+	private Animator anim = null;
+	private List<Vector3> nextAttack;
+	private List<Vector3> attack1Right = new List<Vector3>();
+	private List<Vector3> attack2Right = new List<Vector3>();
+	private List<Vector3> attack3Right = new List<Vector3>();
+	private List<Vector3> attack1Left = new List<Vector3>();
+	private List<Vector3> attack2Left = new List<Vector3>();
+	private List<Vector3> attack3Left = new List<Vector3>();
+	private List<AirmanWind> windShots = new List<AirmanWind>();
 
 	#endregion
 	
@@ -51,7 +51,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake ()
+	private void Awake ()
 	{
 		player = FindObjectOfType<Player>();
 		Assert.IsNotNull(player);
@@ -61,7 +61,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	}
 	
 	// Use this for initialization
-	protected void Start ()
+	private void Start ()
 	{
 		InitAttackLists();
 		nextAttack = attack1Left;
@@ -83,7 +83,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	protected void Update ()
+	private void Update ()
 	{
 		if (isFighting == true)
 		{
@@ -105,10 +105,10 @@ public class AirmanWindWeapon : MonoBehaviour
 	#endregion
 
 
-	#region Protected Functions
+	#region private Functions
 
 	// 
-	protected void InitAttackLists()
+	private void InitAttackLists()
 	{
         // Create the attack 1 list...
         attack1Left.Add(windAttackTransforms[0].localPosition);//new Vector3(-20.0f * 10, 7.0f * 10, 0.0f));
@@ -193,7 +193,7 @@ public class AirmanWindWeapon : MonoBehaviour
     }
 
 	// 
-	protected void CreateWindShot(Vector3 pos)
+	private void CreateWindShot(Vector3 pos)
 	{
 		Transform windTransform = (Transform) Instantiate(weaponPrefab, projectileSpawnPoint.position, transform.rotation);
 		windTransform.SendMessage("SetPosition", projectileSpawnPoint.position + pos);
@@ -207,7 +207,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	}
 	
 	// 
-	protected void Blow()
+	private void Blow()
 	{
 		if (shouldDestroyWind == true)
 		{
@@ -259,7 +259,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	}
 	
 	// 
-	protected void Shoot()
+	private void Shoot()
 	{
 		// If the boss has shot three times...
 		if (shootingCounter == NUM_OF_SHOTS_BEFORE_JUMPING)
@@ -311,7 +311,7 @@ public class AirmanWindWeapon : MonoBehaviour
 	}
 
     // 
-    protected void Jump()
+    private void Jump()
     {
         if (isPlayingAnimation == false)
         {

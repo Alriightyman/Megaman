@@ -4,6 +4,7 @@ using UnityEngine.Assertions;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using Prime31;
+using System;
 
 // requires a Rigidbody2D simply for the OnTriggerEvents.
 [RequireComponent(typeof(Rigidbody2D))]
@@ -12,44 +13,41 @@ public class Player : MonoBehaviour
     #region Variables
 
     // Unity Editor Variables
-
-    [SerializeField] protected Rigidbody2D deathParticlePrefab;
+    [SerializeField] private Rigidbody2D deathParticlePrefab;
     [SerializeField] private float deathParticleSpeed = 75f;
     [SerializeField] private Color deathParticleColor = new Color(0f, 0f, 1f);
-
     [SerializeField] private float leavingSpeed = 300f;
-   
 
     // Public Properties
-    public bool IsPlayerInactive { get; set; }
+    public bool IsPlayerInactive;// { get; set; }
     public bool IsFrozen { get { return movement.IsFrozen; } set { movement.IsFrozen = value; } }
     public bool IsExternalForceActive { get { return movement.IsExternalForceActive; } set { movement.IsExternalForceActive = value; } }
     public bool IsDead { get { return health.IsDead; } set { health.IsDead = value; } }
     public bool CanShoot { get { return shooting.CanShoot; } set { shooting.CanShoot = value; } }
     public bool IsInvincible { get; set; }
-    public bool IsGrounded { get { return movement.isGrounded; } }
+    public bool IsGrounded { get { return movement.IsGrounded; } }
     public float CurrentHealth { get { return health.CurrentHealth; } set { health.CurrentHealth = value; } }
     public Vector3 ExternalForce { get { return movement.ExternalForce; } set { movement.ExternalForce = value; } }
     public Vector3 CheckpointPosition { get { return movement.CheckPointPosition; } set { movement.CheckPointPosition = value; } }
     public bool IsLeaving { get; set; }
 
 
-    // Protected Instance Variables
-    protected int walkingTexIndex = 0;
-    protected int standingTexIndex = 0;
-    protected float walkingTexInterval = 0.2f;
-    protected float standingTexInterval = 0.3f;
-    protected Health health = null;
-    protected BoxCollider2D col = null;
-    protected Movement movement = null;
-    protected Shooting shooting = null;
-    protected LevelCamera levelCamera = null;
-    protected bool startPlaying = false;
+    // private Instance Variables
+    private int walkingTexIndex = 0;
+    private int standingTexIndex = 0;
+    private float walkingTexInterval = 0.2f;
+    private float standingTexInterval = 0.3f;
+    private Health health = null;
+    private BoxCollider2D col = null;
+    private Movement movement = null;
+    private Shooting shooting = null;
+    private LevelCamera levelCamera = null;
+    private bool startPlaying = false;
 
     private CharacterController2D controller;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
-    private int lives = 3;
+    public float waitTime = 10f;
     private static Player Instance = null;
     #endregion
 
@@ -57,7 +55,7 @@ public class Player : MonoBehaviour
     #region MonoBehaviour
 
     // Constructor 
-    protected void Awake()
+    private void Awake()
     {
         GameEngine.Player = this;
 
@@ -88,26 +86,26 @@ public class Player : MonoBehaviour
         if(Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            DontDestroyOnLoad(gameObject);
+            Destroy(gameObject);
         }
 
     }
 
     // Use this for initialization 
-    protected void Start()
+    private void Start()
     {
         IsPlayerInactive = false;
-        //health.HealthbarPosition = new Vector2(10, 10);
         health.ShowHealthBar = true;
         movement.IsEnteringLevel = true;
         StartCoroutine("EnterLevel");
     }
 
     // Update is called once per frame 
-    protected void Update()
+    private void Update()
     {
 
         if (IsPlayerInactive == false)
@@ -154,7 +152,22 @@ public class Player : MonoBehaviour
             pos.z = 0;
             transform.position = pos;
         }
+
+        Debug_SetHealth();
     }
+
+    // 
+    private void Reset()
+    {
+        health.Restart();
+        movement.ResetToDefaults();
+        shooting.SetToDefaults();
+        animator.StopPlayback();
+        IsPlayerInactive = false;
+
+    }
+
+
     private IEnumerator InvincibleBlink()
     {
         while (true)
@@ -169,6 +182,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator EnterLevel()
     {
+        spriteRenderer.enabled = true;
         Time.timeScale = 0;        
         animator.SetTrigger("EnteringLevel");
         yield return new WaitUntil(new System.Func<bool>(() => controller.isGrounded));
@@ -195,30 +209,12 @@ public class Player : MonoBehaviour
         GetComponent<SpriteRenderer>().color = color;
 
     }
-    // Called when the behaviour becomes disabled or inactive
-    protected void OnDisable()
-    {
-        GameEngine.Player = null;
-    }
 
     #endregion
 
-
-    #region Protected Functions
-
+    #region Private Functions
     // 
-    protected void Reset()
-    {
-        health.Reset();
-        movement.Reset();
-        shooting.Reset();
-        animator.StopPlayback();
-        IsPlayerInactive = false;
-
-    }
-
-    // 
-    protected void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
+    private void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
     {
         Rigidbody2D particle = (Rigidbody2D)Instantiate(deathParticlePrefab, pos, transform.rotation);
         Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
@@ -227,8 +223,39 @@ public class Player : MonoBehaviour
         particle.velocity = vel * speed;
     }
 
+    private void SetAnimationState()
+    {
+        if (!IsPlayerInactive)
+        {
+            var characterController = GetComponent<CharacterController2D>();
+
+            animator.SetBool("IsHurt", health.IsHurting && !health.IsDead);
+            animator.SetFloat("WalkingSwitch", (movement.IsWalking && shooting.IsShooting) ? 1f : 0f);
+            animator.SetBool("IsWalking", movement.IsWalking);
+            animator.SetBool("IsJumping", movement.IsJumping);
+            animator.SetBool("IsFalling", movement.IsFalling);
+            animator.SetBool("IsShooting", shooting.IsShooting);
+            animator.SetBool("IsGrounded", characterController.isGrounded);
+        }
+        else if (!IsLeaving)
+        {
+            // reset all animation properties
+            animator.SetBool("IsHurt", false);
+            animator.SetFloat("WalkingSwitch", 0f);
+            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", false);
+            animator.SetBool("IsShooting", false);
+            animator.SetBool("IsGrounded", false);
+            animator.Play("Standing");
+        }
+    }
+
+    #endregion
+
+    #region Coroutines
     // 
-    protected IEnumerator CreateDeathParticles(Vector3 pos)
+    private IEnumerator CreateDeathParticles(Vector3 pos)
     {
         // Before the wait...
         Vector3 p1 = pos + Vector3.up;
@@ -263,7 +290,7 @@ public class Player : MonoBehaviour
     }
 
     // 
-    protected IEnumerator MovePlayerUp()
+    private IEnumerator MovePlayerUp()
     {
         animator.SetBool("LeaveLevel", true);
 
@@ -279,8 +306,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // TODO: Fix
-    protected IEnumerator MakeThePlayerLeaveStageRoutine()
+    private IEnumerator MakeThePlayerLeaveStageRoutine()
     {
 
 
@@ -294,7 +320,7 @@ public class Player : MonoBehaviour
     }
 
     // 
-    protected IEnumerator WaitAndResetRoutine()
+    private IEnumerator WaitAndResetRoutine()
     {
         // Before the wait... 
         health.IsDead = true;
@@ -310,40 +336,32 @@ public class Player : MonoBehaviour
         levelCamera.Reset();
 
         // Reset the player
-        Reset();
-
-        //SceneManager.LoadScene(0);
+        Reset();   
     }
 
-    protected void SetAnimationState()
+    private IEnumerator FillHealth(float amount)
     {
-        if (!IsPlayerInactive)
-        {
-            var characterController = GetComponent<CharacterController2D>();
+        float currentAmount = 0f;
+        float startTime = Time.realtimeSinceStartup;
 
-            animator.SetBool("IsHurt", health.IsHurting && !health.IsDead);
-            animator.SetFloat("WalkingSwitch", (movement.IsWalking && shooting.IsShooting) ? 1f : 0f);
-            animator.SetBool("IsWalking", movement.IsWalking);
-            animator.SetBool("IsJumping", movement.IsJumping);
-            animator.SetBool("IsFalling", movement.IsFalling);
-            animator.SetBool("IsShooting", shooting.IsShooting);
-            animator.SetBool("IsGrounded", characterController.isGrounded);
-        }
-        else if(!IsLeaving)
+        while (currentAmount < amount)
         {
-            // reset all animation properties
-            animator.SetBool("IsHurt", false);
-            animator.SetFloat("WalkingSwitch", 0f);
-            animator.SetBool("IsWalking", false);
-            animator.SetBool("IsJumping", false);
-            animator.SetBool("IsFalling", false);
-            animator.SetBool("IsShooting", false);
-            animator.SetBool("IsGrounded", false);
-            animator.Play("Standing");
+            while (Time.realtimeSinceStartup - startTime < waitTime)
+            {
+                yield return null;
+            }
+
+            currentAmount += 1f;
+            health.AddHealth(1f);
         }
+
+        Time.timeScale = 1f;
+        IsFrozen = false;
+        CanShoot = true;
+        GameEngine.SoundManager.Stop(AirmanLevelSounds.HEALTHBAR_FILLING);
     }
 
-   #endregion
+    #endregion
 
     #region Public Functions
 
@@ -390,7 +408,25 @@ public class Player : MonoBehaviour
         StartCoroutine("EnterLevel");
         GameEngine.LevelStarting = true;
     }
+
+    public void AddHealth(float amount)
+    {
+        if(!health.IsFull)
+        {
+            // freeze the world
+            //Time.timeScale = 0;
+            IsFrozen = true;
+            CanShoot = false;
+            GameEngine.SoundManager.Play(AirmanLevelSounds.HEALTHBAR_FILLING);
+            IEnumerator cr = FillHealth(amount);
+            StartCoroutine(cr);
+        }
+    }
+
+    private void Debug_SetHealth()
+    {
+        if(Input.GetButtonDown("Debug"))
+            health.AddHealth(0f);
+    }
     #endregion
-
-
 }

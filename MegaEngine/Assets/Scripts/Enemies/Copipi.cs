@@ -4,14 +4,16 @@ using UnityEngine.Assertions;
 
 public class Copipi : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
+    public GameObject powerup;
+
     [SerializeField] private float lifeSpan = 10.0f;
-    // Protected Instance Variables
-    protected float speed = 7.5f;
-	protected bool attacking = false;
-	protected Vector3 direction;
-	protected float lifeTimer;
-	protected float damage = 10.0f;
+    // private Instance Variables
+    private float speed = 7.5f;
+	private bool attacking = false;
+	private Vector3 direction;
+	private float lifeTimer;
+	private float damage = 2f;
 
     private Animator anim;
     private SpriteRenderer renderer;
@@ -40,7 +42,7 @@ public class Copipi : MonoBehaviour
 
 
     // Called when the Collider other enters the trigger.
-    protected void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -49,7 +51,7 @@ public class Copipi : MonoBehaviour
 	}
 	
 	// 
-	protected void Update () 
+	private void Update () 
 	{
 		if (attacking == true)
 		{
@@ -84,7 +86,12 @@ public class Copipi : MonoBehaviour
 		Destroy (gameObject);
 	}
 
-	#endregion
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
+
+    #endregion
 
     private  IEnumerator ChangeDirection()
     {

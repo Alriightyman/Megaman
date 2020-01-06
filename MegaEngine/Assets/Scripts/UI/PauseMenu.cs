@@ -43,6 +43,7 @@ public class PauseMenu : MonoBehaviour
     void Pause()
     {
         Time.timeScale = 0;
+        GameEngine.Player.IsPlayerInactive = true;
         IsPaused = true;
         PauseMenuObj.SetActive(true);
     }
@@ -50,6 +51,7 @@ public class PauseMenu : MonoBehaviour
     void Unpause()
     {
         Time.timeScale = 1;
+        GameEngine.Player.IsPlayerInactive = false;
         IsPaused = false;
         PauseMenuObj.SetActive(false);
     }

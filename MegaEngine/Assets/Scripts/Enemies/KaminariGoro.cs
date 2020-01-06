@@ -4,33 +4,34 @@ using Extensions;
 
 public class KaminariGoro : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
 
-	// Unity Editor Variables
-	[SerializeField] protected Rigidbody2D electricShot;
-	[SerializeField] protected CirclingPlatform platform;
-	[SerializeField] protected BoxCollider2D robotCollider;
-    [SerializeField] protected float distanceToStop = 32.0f;
-    [SerializeField] protected float shootingRangeDiameter = 10f;
+    // Unity Editor Variables
+    public GameObject powerup;
+	[SerializeField] private Rigidbody2D electricShot;
+	[SerializeField] private CirclingPlatform platform;
+	[SerializeField] private BoxCollider2D robotCollider;
+    [SerializeField] private float distanceToStop = 32.0f;
+    [SerializeField] private float shootingRangeDiameter = 10f;
     [SerializeField] private float shotSpeed = 50f;
 
     private Animator robotAnim = null;
     private Animator platformAnim = null;
 
-    // Protected Instance Variables
-    protected int health = 30;
-	protected int currentHealth;
-	protected int damage = 10;
-	protected bool isShooting = false;
-	protected bool isDead = false;
+    // private Instance Variables
+    private int health = 30;
+	private int currentHealth;
+	private int damage = 4;
+	private bool isShooting = false;
+	private bool isDead = false;
     private bool canShoot = false;
 
-	protected float shootAgainDelay = 2f;
-	protected float shootingTimer;
-	protected Vector3 turningLeftColliderPos = new Vector3(0.2f, -0.8f, 0f);
-	protected Vector3 turningRightColliderPos = new Vector3(-0.2f, -0.8f, 0f);
-	protected Collider2D col = null;
-	protected SpriteRenderer rend = null;
+	private float shootAgainDelay = 2f;
+	private float shootingTimer;
+	private Vector3 turningLeftColliderPos = new Vector3(0.2f, -0.8f, 0f);
+	private Vector3 turningRightColliderPos = new Vector3(-0.2f, -0.8f, 0f);
+	private Collider2D col = null;
+	private SpriteRenderer rend = null;
 
 	#endregion
 
@@ -38,7 +39,7 @@ public class KaminariGoro : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake()
+	private void Awake()
 	{
 		col = GetComponent<Collider2D>();
 		Assert.IsNotNull(col);
@@ -54,7 +55,7 @@ public class KaminariGoro : MonoBehaviour
     }
 
 	// Use this for initialization 
-	protected void Start()
+	private void Start()
 	{
 		currentHealth = health;
         platformAnim.Play("Platform");
@@ -63,7 +64,7 @@ public class KaminariGoro : MonoBehaviour
     }
 
     // Update is called once per frame 
-    protected void Update() 
+    private void Update() 
 	{
 		// Stop fighting if the player is too far away
 		if ((GameEngine.Player.transform.transform.position - transform.position).magnitude >= distanceToStop)
@@ -85,26 +86,31 @@ public class KaminariGoro : MonoBehaviour
 	#endregion
 
 	
-	#region Protected Functions
+	#region private Functions
 
 	// 
-	protected void KillRobot()
+	private void KillRobot()
 	{
 		isDead = true;
 		col.enabled = false;
 	}
 	
 	// 
-	protected void OnTriggerStay2D(Collider2D other) 
+	private void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
 			GameEngine.Player.TakeDamage(damage);
 		}
 	}
-	
-	//  Make the robot take damage 
-	protected void TakeDamage(int damageTaken)
+
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
+
+    //  Make the robot take damage 
+    private void TakeDamage(int damageTaken)
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
 		currentHealth -= damageTaken;
@@ -115,7 +121,7 @@ public class KaminariGoro : MonoBehaviour
 	}
 
 	// 
-	protected void SetAnimations()
+	private void SetAnimations()
 	{
 		
 		// Make the robot always face the player...
@@ -145,7 +151,7 @@ public class KaminariGoro : MonoBehaviour
 	}
 	
 	//  Shoot an electric arrow towards the player 	
-	protected void Shoot()
+	private void Shoot()
 	{
 		isShooting = true;
 		shootingTimer = Time.time;
@@ -178,7 +184,7 @@ public class KaminariGoro : MonoBehaviour
 	}
 	
 	// 
-	protected void CheckIfRobotCanShoot()
+	private void CheckIfRobotCanShoot()
 	{
 		// If the robot is alive, check if he is in range to shoot the player
 		if (isDead == false)

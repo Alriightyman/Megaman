@@ -1,12 +1,13 @@
  using UnityEngine;
 using UnityEngine.UI;
+using Extensions;
 
 public class Health : MonoBehaviour
 {
 	#region Variables
 	
 	// Unity Editor Variables
-	public Image healthBar;
+	[SerializeField] public Image healthBar;
     
     // Public Properties
     public float MaximumHealth { get; set; }
@@ -14,6 +15,7 @@ public class Health : MonoBehaviour
 	public float HurtingDelay { get; set; }
 	public bool IsHurting { get; set; }
 	public bool IsDead { get; set; }
+    public bool IsFull { get { return currentHealth / MaximumHealth == 1f; } }
 	public bool ShowHealthBar
     {
         get { return healthBar.transform.parent.gameObject.activeSelf; }
@@ -35,10 +37,9 @@ public class Health : MonoBehaviour
 		} 
 	}
 
-    // Protected Instance Variables
-    private float tickAmount = 0.8f;
-    [SerializeField] protected float startHealth = 100f;
-	[SerializeField] protected float currentHealth = 100f;
+    // private Instance Variables
+    [SerializeField] private float startHealth = 28f;
+	[SerializeField] private float currentHealth = 28f;
 
 	#endregion
 
@@ -46,18 +47,17 @@ public class Health : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake ()
+	private void Awake ()
 	{
         healthBar.fillAmount = startHealth / MaximumHealth;
-        healthBar.transform.parent.gameObject.SetActive(false);
     }
 	
 	// Use this for initialization
-	protected void Start ()
+	private void Start ()
 	{
 		IsHurting = false;
         IsDead = false;
-		MaximumHealth = 100.0f;
+		MaximumHealth = 28f;
 		HurtingDelay = 1.0f;
 		
 		currentHealth = startHealth;
@@ -69,11 +69,11 @@ public class Health : MonoBehaviour
 	#region Public Functions
 
 	//
-	public void Reset()
+	public void Restart()
 	{
 		IsHurting = false;
 		IsDead = false;
-		MaximumHealth = 100.0f;
+		MaximumHealth = 28f;
 		HurtingDelay = 1.0f;
 		
 		currentHealth = startHealth;
@@ -85,14 +85,23 @@ public class Health : MonoBehaviour
 	{
         IsHurting = true;
         HurtingTimer = Time.time;
-        currentHealth += healthChange * tickAmount;
-        healthBar.fillAmount = currentHealth / MaximumHealth;
+
+        AddHealth(healthChange);
 
         if (currentHealth <= 0.0f)
         {
             IsDead = true;
         }
 	}
+
+    public void AddHealth(float amountToAdd)
+    {
+        currentHealth += amountToAdd;
+
+        currentHealth = currentHealth < MaximumHealth ? currentHealth : MaximumHealth;
+        
+        healthBar.fillAmount = currentHealth / MaximumHealth;
+    }
 
 	#endregion
 }

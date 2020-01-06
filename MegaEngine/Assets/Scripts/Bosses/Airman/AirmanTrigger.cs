@@ -6,9 +6,9 @@ public class AirmanTrigger : MonoBehaviour
 {
 	#region Variables
 	
-	// Protected Instance Variables
-	protected AirmanBoss airman;
-	protected Collider2D col;
+	// private Instance Variables
+	private AirmanBoss airman;
+	private Collider2D col;
 
 	#endregion
 
@@ -16,7 +16,7 @@ public class AirmanTrigger : MonoBehaviour
 	#region MonoBehaviour
 	
 	// Constructor
-	protected void Awake()
+	private void Awake()
 	{
 		airman = FindObjectOfType<AirmanBoss>();
 		Assert.IsNotNull(airman);
@@ -26,13 +26,13 @@ public class AirmanTrigger : MonoBehaviour
 	}
 	
 	// Use this for initialization
-	protected void Start()
+	private void Start()
 	{
 		airman.gameObject.SetActive(false);
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other) 
+	private void OnTriggerEnter2D(Collider2D other) 
 	{
         StartCoroutine("SetBoss");
 

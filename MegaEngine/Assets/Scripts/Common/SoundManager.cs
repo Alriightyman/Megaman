@@ -8,19 +8,19 @@ public class SoundManager : MonoBehaviour
     [Range(0,1)]
     private int VolumeScale = 1;
 
-	// Protected Instance Variables
-	protected string path = "Sounds/";
-	protected AudioSource stageMusic;
-	protected AudioSource stageEndMusic;
-	protected AudioSource megamanLeavesStageSound;
-	protected AudioSource deathSound;
-	protected AudioSource hurtingSound;
-	protected AudioSource landingSound;
-	protected AudioSource shootingSound;
-	protected AudioSource bossMusic;
-	protected AudioSource bossDoorSound;
-	protected AudioSource bossHurtingSound;
-	protected AudioSource healthBarFillSound;
+	// private Instance Variables
+	private string path = "Sounds/";
+	private AudioSource stageMusic;
+	private AudioSource stageEndMusic;
+	private AudioSource megamanLeavesStageSound;
+	private AudioSource deathSound;
+	private AudioSource hurtingSound;
+	private AudioSource landingSound;
+	private AudioSource shootingSound;
+	private AudioSource bossMusic;
+	private AudioSource bossDoorSound;
+	private AudioSource bossHurtingSound;
+	private AudioSource healthBarFillSound;
 
 	#endregion
 
@@ -28,13 +28,13 @@ public class SoundManager : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake() 
+	private void Awake() 
 	{
 		GameEngine.SoundManager = this;
 	}
 
 	// Use this for initialization
-	protected void Start()
+	private void Start()
 	{
 		AudioClip stageMusicClip = (AudioClip) Resources.Load( path + "StageMusic" );
 		stageMusic = AddAudio(stageMusicClip, true, true, VolumeScale * 0.50f);
@@ -73,7 +73,7 @@ public class SoundManager : MonoBehaviour
 	}
 
 	// Called when the behaviour becomes disabled or inactive
-	protected void OnDisable()
+	private void OnDisable()
 	{
 		GameEngine.SoundManager = null;
 	}
@@ -81,10 +81,10 @@ public class SoundManager : MonoBehaviour
 	#endregion
 
 
-	#region Protected Functions
+	#region private Functions
 	
 	// 
-	protected AudioSource AddAudio(AudioClip clip, bool loop, bool playAwake, float vol) 
+	private AudioSource AddAudio(AudioClip clip, bool loop, bool playAwake, float vol) 
 	{
 		AudioSource newAudio = gameObject.AddComponent<AudioSource>();
 		newAudio.clip = clip;

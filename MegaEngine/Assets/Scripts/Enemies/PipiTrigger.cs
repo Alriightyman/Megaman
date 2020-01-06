@@ -6,11 +6,11 @@ public class PipiTrigger : MonoBehaviour//, IResetable
 {
     #region MonoBehaviour
 
-    protected void Awake()
+    private void Awake()
     {
     }
     // Called when the Collider other enters the trigger.
-    protected void OnTriggerEnter2D(Collider2D other )
+    private void OnTriggerEnter2D(Collider2D other )
 	{
 		if (other.tag == "Player")
 		{

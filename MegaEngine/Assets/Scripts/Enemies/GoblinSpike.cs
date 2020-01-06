@@ -6,22 +6,22 @@ public class GoblinSpike : MonoBehaviour
 {
 	#region Variables
 
-	// Protected Instance Variables
-	protected const float DAMAGE_AMOUNT = 10.0f;
+	// private Instance Variables
+	private const float DAMAGE_AMOUNT = 2f;
 
     #endregion
 
 
     #region MonoBehaviour
     // 
-    protected void OnCollisionStay2D(Collision2D collision) 
+    private void OnCollisionStay2D(Collision2D collision) 
 	{
 
             InflictDamage(collision.gameObject);
 	}
 
     // 
-    protected void OnTriggerStay2D(Collider2D other) 
+    private void OnTriggerStay2D(Collider2D other) 
 	{
             InflictDamage(other.gameObject);
 	}
@@ -46,10 +46,10 @@ public class GoblinSpike : MonoBehaviour
     #endregion
 
 
-    #region Protected Functions
+    #region private Functions
 
     // 
-    protected void InflictDamage(GameObject objectHit)
+    private void InflictDamage(GameObject objectHit)
 	{
 		if (objectHit.tag == "Player")
 		{

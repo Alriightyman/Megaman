@@ -8,13 +8,14 @@ using Prime31;
 
 public sealed class PetitGoblin : MonoBehaviour//, IResetable
 {
-	#region Variables
+    #region Variables
     [SerializeField]
+    public GameObject powerup;
     private float robotSpeed = 35;
     private float distanceToDisappear = 32.0f;
-    // Protected Instance Variables
+    // private Instance Variables
     private bool shouldAttack = false;
-    private int damage = 10;
+    private int damage = 2;
     private int health = 10;
     private float attackDelay = 0.7f;
     private float attackDelayTimer;
@@ -90,12 +91,17 @@ public sealed class PetitGoblin : MonoBehaviour//, IResetable
 		}
 	}
 
-	#endregion
+    private void OnDestroy()
+    {
+        
+    }
+
+    #endregion
 
 
-	#region Private Functions
-	
-	//
+    #region Private Functions
+
+    //
     private void MoveIntoPosition()
     {
         if (shouldAttack == false)
@@ -171,6 +177,8 @@ public sealed class PetitGoblin : MonoBehaviour//, IResetable
     {
         if (this != null)
         {
+            var p = Instantiate(powerup, transform.position, transform.rotation);
+            p.GetComponent<Powerup>().Color = new Color(1f, 1f, 1f);
             transform.parent.gameObject.GetComponent<Goblin>().DecrementRobotCount();
             Destroy(gameObject);
         }

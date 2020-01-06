@@ -5,21 +5,22 @@ using System.Collections;
 //[RequireComponent(typeof(Rigidbody2D))]
 public class Egg : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
 
-	// Unity Editor Variables
-	[SerializeField] protected GameObject copipi;
-    [SerializeField] protected float speed = 7.0f;
-    [SerializeField] protected float velSlower = 7.0f;
+    // Unity Editor Variables
+    public GameObject powerup;
+	[SerializeField] private GameObject copipi;
+    [SerializeField] private float speed = 7.0f;
+    [SerializeField] private float velSlower = 7.0f;
     [SerializeField] private float copipiSpeed = 75.0f;
 
-    // Protected Instance Variables
-    protected bool falling = false;
-    protected float lifeSpan = 5.0f;
-	protected float lifeTimer;
-	protected float xVel = 0.0f;
+    // private Instance Variables
+    private bool falling = false;
+    private float lifeSpan = 5.0f;
+	private float lifeTimer;
+	private float xVel = 0.0f;
 	
-	protected float damage = 10.0f;
+	private float damage = 4f;
 
     private SpriteRenderer spriteRenderer;
 
@@ -34,7 +35,7 @@ public class Egg : MonoBehaviour
     }
 
     // Called when the Collider other enters the trigger.
-    protected void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -72,7 +73,7 @@ public class Egg : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		if (falling == true)
 		{
@@ -89,10 +90,10 @@ public class Egg : MonoBehaviour
 
 	#endregion
 
-	#region Protected Functions
+	#region private Functions
 
 	// 
-	protected void CreateBird(Vector3 pos, bool goLeft)
+	private void CreateBird(Vector3 pos, bool goLeft)
 	{
         GameObject littleBirdRobot = Instantiate(copipi, pos, transform.rotation);
 		littleBirdRobot.GetComponent<Copipi>().Attack(goLeft, copipiSpeed + Random.Range(0.0f, 10.0f));
@@ -124,5 +125,10 @@ public class Egg : MonoBehaviour
         }
 	}
 
-	#endregion
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
+
+    #endregion
 }

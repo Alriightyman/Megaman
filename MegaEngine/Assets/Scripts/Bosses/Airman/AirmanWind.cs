@@ -10,18 +10,18 @@ public class AirmanWind : MonoBehaviour
 	// Unity Editor Variables
 	public List<Material> animationMaterials;
     public float windSpeed = 20f;
-	// Protected Instance Variables
-	protected int texIndex = 0;
-	protected bool leaving = false;
-	protected bool beginSequence = true;
-	protected bool shouldBlowLeft = true;
-	protected float texChangeInterval = 0.1f;
-	protected float damage = 10.0f; 
-	protected Vector2 texScale = Vector2.zero;
-	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
-	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
-	protected Vector3 windPosition = Vector3.zero;
-	protected SpriteRenderer rend = null;
+	// private Instance Variables
+	private int texIndex = 0;
+	private bool leaving = false;
+	private bool beginSequence = true;
+	private bool shouldBlowLeft = true;
+	private float texChangeInterval = 0.1f;
+	private float damage = 4f; 
+	private Vector2 texScale = Vector2.zero;
+	private Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
+	private Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
+	private Vector3 windPosition = Vector3.zero;
+	private SpriteRenderer rend = null;
     private Animator anim = null;
 	#endregion
 	
@@ -29,7 +29,7 @@ public class AirmanWind : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake()
+	private void Awake()
 	{
 		rend = GetComponent<SpriteRenderer>();
 		Assert.IsNotNull(rend);
@@ -39,7 +39,7 @@ public class AirmanWind : MonoBehaviour
     }
 
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		if (beginSequence == true)
 		{
@@ -73,7 +73,7 @@ public class AirmanWind : MonoBehaviour
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other) 
+	private void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -95,10 +95,10 @@ public class AirmanWind : MonoBehaviour
 	#endregion
 	
 	
-	#region Protected Functions
+	#region private Functions
 
 	// 
-	protected void SetPosition(Vector3 pos)
+	private void SetPosition(Vector3 pos)
 	{
 		windPosition = pos;
 		shouldBlowLeft = (pos.x - transform.position.x < 0.0f);

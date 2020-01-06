@@ -1,36 +1,41 @@
 using UnityEngine;
 using System.Collections;
+using Prime31;
 
 public class ScwormShot : MonoBehaviour 
 {
 	#region Variables
 
-	// Protected Instance Variables
-	protected int texDir = 1;
-	protected bool keepAttacking = false;
-	protected float texChangeDelay = 0.1f;
-	protected float texTimer;
-	[SerializeField] protected float gravity = 118f;
-	[SerializeField] protected float jumpAmount = 10.0f;
-	protected float verticalVelocity;
-	protected float lifeSpan = 5.0f;
-	protected float lifeTimer;
-	protected Vector3 attackPos;
-	protected Vector3 moveVector;
-	
-	#endregion
-	
-	
-	#region MonoBehaviour
+	// private Instance Variables
+	private int texDir = 1;
+	private bool keepAttacking = false;
+	private float texChangeDelay = 0.1f;
+	private float texTimer;
+	[SerializeField] private float gravity = 118f;
+	[SerializeField] private float jumpAmount = 10.0f;
+	private float verticalVelocity;
+	private float lifeSpan = 3.0f;
+	private float lifeTimer;
+	private Vector3 attackPos;
+	private Vector3 moveVector;
+    private float damage = 2f;
+    CharacterController2D characterController;
+    #endregion
 
-	// Use this for initialization
-	protected void Start ()
+
+    #region MonoBehaviour
+    private void Awake()
+    {
+        characterController = GetComponent<CharacterController2D>();
+    }
+    // Use this for initialization
+    private void Start ()
 	{
 		lifeTimer = texTimer = Time.time;
 	}
 	
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		if (keepAttacking == true)
 		{
@@ -39,15 +44,15 @@ public class ScwormShot : MonoBehaviour
 			moveVector.y = verticalVelocity;
 			
 			ApplyGravity();
-			
-			transform.position += moveVector * Time.deltaTime;
-		}
-		
-		if (Time.time - texTimer >= texChangeDelay)
+
+            characterController.move(moveVector * Time.deltaTime);
+
+        }
+
+        if (Time.time - texTimer >= texChangeDelay)
 		{
 			texTimer = Time.time;
 			texDir *= -1;
-            //GetComponent<Renderer>().material.SetTextureScale("_MainTex", new Vector2(texDir, 1));
             var rend = GetComponent<SpriteRenderer>();
             rend.flipX = !rend.flipX;
 		}
@@ -55,26 +60,26 @@ public class ScwormShot : MonoBehaviour
 		// Time to kill the shot?
 		if (Time.time - lifeTimer >= lifeSpan)
 		{
-			Destroy(gameObject);
+            Destroy(gameObject);
 		}
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D collider) 
+	private void OnTriggerEnter2D(Collider2D collider) 
 	{
 		if (collider.tag == "Player")
 		{
-			collider.gameObject.GetComponent<Player>().TakeDamage(10f);
+			collider.gameObject.GetComponent<Player>().TakeDamage(damage);
 			Destroy(gameObject);
 		}
 	}
 
 	// 
-	protected void OnCollisionEnter2D(Collision2D collision) 
+	private void OnCollisionEnter2D(Collision2D collision) 
 	{
 		if (collision.gameObject.tag == "Player")
 		{
-			collision.gameObject.GetComponent<Player>().TakeDamage(10f);
+			collision.gameObject.GetComponent<Player>().TakeDamage(damage);
 			Destroy(gameObject);
 		}
 		
@@ -83,14 +88,19 @@ public class ScwormShot : MonoBehaviour
 			keepAttacking = false;
 		}
 	}
-	
-	#endregion
-	
-	
-	#region Protected Functions
-	
-	// 
-	protected void ApplyGravity()
+
+    private void OnDestroy()
+    {
+        transform.parent.GetComponent<Scworm>().DecrementShotCount();
+    }
+
+    #endregion
+
+
+    #region private Functions
+
+    // 
+    private void ApplyGravity()
 	{
 		moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
 	}

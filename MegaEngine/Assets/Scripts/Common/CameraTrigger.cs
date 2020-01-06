@@ -7,28 +7,28 @@ public class CameraTrigger : MonoBehaviour
 	#region Variables
 
 	// Unity Editor Variables
-	[SerializeField] protected bool isABossDoorTrigger;
-	[SerializeField] protected BossDoor bossDoor;
-	[SerializeField] protected bool onEnterCanMoveLeft;
-	[SerializeField] protected bool onExitCanMoveLeft;
-	[SerializeField] protected bool onEnterCanMoveRight;
-	[SerializeField] protected bool onExitCanMoveRight;
-	[SerializeField] protected bool onEnterCanMoveUp;
-	[SerializeField] protected bool onExitCanMoveUp;
-	[SerializeField] protected bool onEnterCanMoveDown;
-	[SerializeField] protected bool onExitCanMoveDown;
-	[SerializeField] protected bool shouldMoveCamera;
-	[SerializeField] protected float transitionDuration;
-	[SerializeField] protected Vector3 freezeEndPosition;
+	[SerializeField] private bool isABossDoorTrigger;
+	[SerializeField] private BossDoor bossDoor;
+	[SerializeField] private bool onEnterCanMoveLeft;
+	[SerializeField] private bool onExitCanMoveLeft;
+	[SerializeField] private bool onEnterCanMoveRight;
+	[SerializeField] private bool onExitCanMoveRight;
+	[SerializeField] private bool onEnterCanMoveUp;
+	[SerializeField] private bool onExitCanMoveUp;
+	[SerializeField] private bool onEnterCanMoveDown;
+	[SerializeField] private bool onExitCanMoveDown;
+	[SerializeField] private bool shouldMoveCamera;
+	[SerializeField] private float transitionDuration;
+	[SerializeField] private Vector3 freezeEndPosition;
     [SerializeField] private Vector3 NewCameraMaxPosition;
     [SerializeField] private Vector3 NewCameraMinPosition;
 
-	// Protected Instance Variables
-	protected LevelCamera levelCamera;
-	protected float transitionStatus = 0.0f;
-	protected bool isTransitioning = false;
-	protected Vector3 startPosition;
-	protected float startTime;
+	// private Instance Variables
+	private LevelCamera levelCamera;
+	private float transitionStatus = 0.0f;
+	private bool isTransitioning = false;
+	private Vector3 startPosition;
+	private float startTime;
     private bool isStartTimeSet = false;
 	#endregion
 
@@ -36,14 +36,14 @@ public class CameraTrigger : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake()
+	private void Awake()
 	{
 		levelCamera = FindObjectOfType<LevelCamera>();
 		Assert.IsNotNull(levelCamera);
 	}
 	
 	// Update is called once per frame
-	protected void Update ()
+	private void Update ()
 	{
 		if (isTransitioning == true)
 		{
@@ -72,7 +72,7 @@ public class CameraTrigger : MonoBehaviour
 	}
 
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other) 
+	private void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -105,7 +105,7 @@ public class CameraTrigger : MonoBehaviour
     }
 	
 	// 
-	protected void OnTriggerExit2D(Collider2D other) 
+	private void OnTriggerExit2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{

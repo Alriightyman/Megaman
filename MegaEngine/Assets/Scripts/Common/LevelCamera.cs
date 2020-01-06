@@ -40,14 +40,15 @@ public class LevelCamera : MonoBehaviour
 
 
     #region MonoBehaviour
-    protected void Awake()
+    private void Awake()
     {
         Assert.IsNotNull(startPosition);
-        DontDestroyOnLoad(gameObject);
 
         if(instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
+
         }
         else
         {
@@ -55,7 +56,7 @@ public class LevelCamera : MonoBehaviour
         }
     }
     // Use this for initialization
-    protected void Start () 
+    private void Start () 
 	{
         Vector3 position = startPosition.CameraPosition;
         playerCheckpointPosition = startPosition.PlayerPosition;
@@ -86,7 +87,7 @@ public class LevelCamera : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		// If the camera is transitioning between parts of the scene...
 		if (IsTransitioning == true || ShouldStayStill == true)
@@ -142,7 +143,6 @@ public class LevelCamera : MonoBehaviour
 		{
             SceneManager.LoadScene(0);
         } 
-
 	}
 
 	#endregion
@@ -162,10 +162,8 @@ public class LevelCamera : MonoBehaviour
 		CanMoveDown = CheckpointCanMoveDown;
         MinPosition = CheckpointMinPosition;
         MaxPosition = CheckPointMaxPosition;
-        GameEngine.Player.transform.position = playerCheckpointPosition;
-        GameEngine.Player.CheckpointPosition = playerCheckpointPosition;
+        GameEngine.Player.transform.position = GameEngine.Player.CheckpointPosition;
         Debug.Log(String.Format("Player Position: {0}", GameEngine.Player.CheckpointPosition));
-
     }
     #endregion
 }

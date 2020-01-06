@@ -3,9 +3,10 @@ using System.Collections;
 
 public class Pipi : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
 
-	// Editor variables
+    // Editor variables
+    public GameObject powerup;
 	[SerializeField] private float speed = 10.0f;
 	[SerializeField] private float dropDistance = 10f;
 
@@ -26,7 +27,7 @@ public class Pipi : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor 
-	protected void Awake ()
+	private void Awake ()
 	{
 		egg = gameObject.GetComponentInChildren<Egg>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -35,7 +36,7 @@ public class Pipi : MonoBehaviour
     }
 
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		if (moving == true)
 		{
@@ -65,7 +66,7 @@ public class Pipi : MonoBehaviour
 	}
 	
 	//
-	protected void OnTriggerEnter2D(Collider2D other)
+	private void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -73,13 +74,17 @@ public class Pipi : MonoBehaviour
 		}
 	}
 
-	#endregion
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
+    #endregion
 
 
-	#region Public Functions
-	
-	//
-	public void TakeDamage(float dam)
+    #region Public Functions
+
+    //
+    public void TakeDamage(float dam)
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
 		Destroy (gameObject);

@@ -45,7 +45,7 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
     }
 
     // Called when the Collider other enters the trigger.
-    protected void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -54,7 +54,7 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
 	}
 
     // 
-    protected void OnTriggerExit2D(Collider2D other)
+    private void OnTriggerExit2D(Collider2D other)
 	{
 		if (other.tag == "Player")
 		{
@@ -63,7 +63,7 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
 	}
 	
 	// Update is called once per frame
-	protected void Update()
+	private void Update()
 	{
         if (speedInSeconds <= 0)
 		{
@@ -96,6 +96,7 @@ public class CirclingPlatform : MonoBehaviour//, IResetable
 
     void OnDrawGizmos()
     {
+
         // Display the explosion radius when selected
         //Gizmos.color = Color.white;
         //Gizmos.DrawWireSphere(transform.position, circleHeight);

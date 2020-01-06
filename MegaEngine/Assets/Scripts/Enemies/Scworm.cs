@@ -4,30 +4,33 @@ using System;
 
 public class Scworm : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
 
-	// Unity Editor Variables
-	[SerializeField] protected Rigidbody2D shotPrefab;
+    // Unity Editor Variables
+    public GameObject powerup;
+	[SerializeField] private Rigidbody2D shotPrefab;
 	
-	// Protected Instance Variables
-	[SerializeField] protected float distanceToStop = 14.0f;
-	protected float attackDelay = 2.0f;
-	protected float attackTimer;
-    protected int health = 30;
-    protected int currentHealth;
+	// private Instance Variables
+	[SerializeField] private float distanceToStop = 14.0f;
+    [SerializeField] private float attackDelay = .5f;
+	private float attackTimer;
+    private int health = 30;
+    private int currentHealth;
+    static int shotCount = 0;
+    private const int maxShotCount = 3;
 
     #endregion
 
     #region MonoBehaviour
 
     // Use this for initialization
-    protected void Start () 
+    private void Start () 
 	{
 		attackTimer = Time.time;
 	}
 
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		Vector3 direction = GameEngine.Player.transform.position - transform.position;
 		
@@ -38,12 +41,17 @@ public class Scworm : MonoBehaviour
 		}
 	}
 
-	#endregion
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
 
-	#region Protected Functions
+    #endregion
 
-	// 
-	protected void KillChildren()
+    #region private Functions
+
+    // 
+    private void KillChildren()
 	{
 		// Destroy all the shots...
 		foreach(Transform child in transform)
@@ -53,17 +61,22 @@ public class Scworm : MonoBehaviour
 	}
 	
 	// 
-	protected void Attack()
+	private void Attack()
 	{
 		if ( Time.time - attackTimer >= attackDelay )
 		{
 			attackTimer = Time.time;
-			
-			Vector3 pos = transform.position + Vector3.up * 0.8f + Vector3.right * 0.1f;
-            Rigidbody2D electricShot = (Rigidbody2D) Instantiate(shotPrefab, pos, transform.rotation);
-			Physics2D.IgnoreCollision(electricShot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-			electricShot.GetComponent<ScwormShot>().Attack( GameEngine.Player.transform.position );
-			electricShot.transform.parent = gameObject.transform;
+
+            if (shotCount < maxShotCount)
+            {
+                shotCount++;
+                Vector3 pos = transform.position + Vector3.up * 0.8f + Vector3.right * 0.1f;
+                pos = new Vector3(pos.x, pos.y + 8, pos.z);
+                Rigidbody2D electricShot = (Rigidbody2D)Instantiate(shotPrefab, pos, transform.rotation);
+                Physics2D.IgnoreCollision(electricShot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                electricShot.GetComponent<ScwormShot>().Attack(GameEngine.Player.transform.position);
+                electricShot.transform.parent = gameObject.transform;
+            }
 		}
 	}
 
@@ -71,13 +84,18 @@ public class Scworm : MonoBehaviour
 
 	#region Public Functions
 	
+    public void DecrementShotCount()
+    {
+        shotCount--;
+    }
+
 	// 
 	public void Reset()
 	{
 		KillChildren();
 	}
 
-    protected void TakeDamage(int damageTaken)
+    private void TakeDamage(int damageTaken)
     {
         GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
         currentHealth -= damageTaken;

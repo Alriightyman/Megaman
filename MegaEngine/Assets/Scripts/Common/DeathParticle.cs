@@ -6,12 +6,12 @@ public class DeathParticle : MonoBehaviour
     #region Variables
     public Color Color { get; set; } = new Color(1f, 1f, 1f);
 
-     // Protected Instance Variables
-    protected float lifeSpan = 2.6f;
-	protected float scaleSpeed = 0.05f;
-	protected float timeStart;
-	protected Vector3 initialScale = Vector3.one;
-	protected Vector2 scaleAmount = new Vector2(.75f, .75f);
+     // private Instance Variables
+    private float lifeSpan = 2.6f;
+	private float scaleSpeed = 0.05f;
+	private float timeStart;
+	private Vector3 initialScale = Vector3.one;
+	private Vector2 scaleAmount = new Vector2(.75f, .75f);
     private SpriteRenderer spriteRenderer = null;
 	#endregion
 	
@@ -19,7 +19,7 @@ public class DeathParticle : MonoBehaviour
 	#region MonoBehaviour
 
 	// Use this for initialization
-	protected void Start()
+	private void Start()
 	{
 		this.timeStart = Time.time;
 		this.initialScale = transform.localScale;
@@ -28,7 +28,7 @@ public class DeathParticle : MonoBehaviour
     }
 	
 	// Update is called once per frame
-	protected void Update() 
+	private void Update() 
 	{
 
 		if (scaleAmount.x > 0.0f && scaleAmount.y > 0.0f)

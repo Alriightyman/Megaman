@@ -20,7 +20,7 @@ public class AirmanBoss : MonoBehaviour
     [SerializeField] private float jumpHighAmout = 20f;
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float deathParticleSpeed;
-    [SerializeField] private float touchDamage;
+    [SerializeField] private float touchDamage = 8f;
     [SerializeField] private Rigidbody2D deathParticlePrefab;
 
     public bool IsJumping { get; set; }
@@ -28,7 +28,7 @@ public class AirmanBoss : MonoBehaviour
     public bool IsFlexing { get; set; }
     public bool IsBlowing { get; set; }
 
-    // Protected Instance Variables
+    // private Instance Variables
     private bool isPlayingBeginSequence = false;
     private bool shouldFillHealthBar = false;
     private bool hasBeenIntroduced = false;
@@ -36,25 +36,25 @@ public class AirmanBoss : MonoBehaviour
     private bool isJumping = false;
     private bool pointReached = false;
 
-    protected float texInterval = 0.1f;
-	protected float startFallTime;
-	protected float journeyLength;
-	protected float hurtingTimer;
-    protected float verticalVelocity;
+    private float texInterval = 0.1f;
+	private float startFallTime;
+	private float journeyLength;
+	private float hurtingTimer;
+    private float verticalVelocity;
 
-    protected Vector3 startingPosition = Vector3.zero;
-    protected Vector3 endPos = Vector3.zero;
+    private Vector3 startingPosition = Vector3.zero;
+    private Vector3 endPos = Vector3.zero;
     private Vector3 movement = Vector3.zero;
     private Vector3 desiredLocation = Vector3.zero;
 
-    protected Player player;
-	protected Health health;
-    protected AirmanWindWeapon weapon = null;
+    private Player player;
+	private Health health;
+    private AirmanWindWeapon weapon = null;
 
-    protected Collider2D col = null;
-	protected SpriteRenderer rend = null;
-	protected Animator anim = null;
-	protected List<Transform> windShots = new List<Transform>();
+    private Collider2D col = null;
+	private SpriteRenderer rend = null;
+	private Animator anim = null;
+	private List<Transform> windShots = new List<Transform>();
 
 
 	#endregion
@@ -63,7 +63,7 @@ public class AirmanBoss : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake ()
+	private void Awake ()
 	{
 		GameEngine.AirMan = this;
 
@@ -87,7 +87,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	protected void Update () 
+	private void Update () 
 	{
 		if (health.IsDead == true)
 		{
@@ -116,7 +116,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 
 	// 
-	protected void OnTriggerEnter2D(Collider2D other) 
+	private void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -129,7 +129,7 @@ public class AirmanBoss : MonoBehaviour
         }
 	}
 
-    protected void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
@@ -138,7 +138,7 @@ public class AirmanBoss : MonoBehaviour
     }
 
     // Called when the behaviour becomes disabled or inactive
-    protected void OnDisable()
+    private void OnDisable()
     {
         GameEngine.AirMan = null;
     }
@@ -183,7 +183,7 @@ public class AirmanBoss : MonoBehaviour
 			return;	
 		}
 		
-		health.Reset();
+		health.Restart();
 		health.CurrentHealth = 0.0f;
 		weapon.Reset();
 		
@@ -216,7 +216,7 @@ public class AirmanBoss : MonoBehaviour
 
 	
 	//
-	protected void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
+	private void CreateDeathParticle(float speed, Vector3 pos, Vector3 vel)
 	{
 		Rigidbody2D particle = (Rigidbody2D) Instantiate(deathParticlePrefab, pos, transform.rotation);
         Physics2D.IgnoreCollision(particle.GetComponent<Collider2D>(), col);
@@ -226,7 +226,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//
-	protected IEnumerator CreateDeathParticles()
+	private IEnumerator CreateDeathParticles()
 	{
 		// Before the wait...
 		Vector3 p1 = transform.position + Vector3.up;
@@ -259,7 +259,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//
-	protected IEnumerator PlayEndMusic() {
+	private IEnumerator PlayEndMusic() {
 		// Before the wait...
 		rend.enabled = false;
 		col.enabled = false;
@@ -281,7 +281,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//
-	protected void KillRobot()
+	private void KillRobot()
 	{
 		weapon.Reset();
         GameEngine.Player.IsFrozen = true;
@@ -292,7 +292,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//
-	protected void TakeDamage (float dam)
+	private void TakeDamage (float dam)
 	{
 		// Make sure that shots can not kill the boss twice...
 		if (health.CurrentHealth > 0.0f && health.IsHurting == false)
@@ -309,7 +309,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	/* Make the boss fall down, flex his muscles a little and fill his health bar */
-	protected void PlayBeginSequence()
+	private void PlayBeginSequence()
 	{
 		if (shouldFillHealthBar == true)
 		{
@@ -357,7 +357,7 @@ public class AirmanBoss : MonoBehaviour
 	}
 	
 	//	
-	protected void SetAnimationState()
+	private void SetAnimationState()
 	{
 		if (weapon.ShouldJump == true)
 		{

@@ -6,17 +6,16 @@ public class DeathTrigger : MonoBehaviour//, IResetable
 {
     #region MonoBehaviour
 
-    protected void Awake()
+    private void Awake()
     {
     }
 
     // Kill/Respawn the player when he enters the trigger.
-    protected void OnTriggerEnter2D(Collider2D other) 
+    private void OnTriggerEnter2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
-            StartCoroutine(GameEngine.Reset());
-           // gameObject.GetComponent<Collider2D>().enabled = false;
+            StartCoroutine(GameEngine.Restart());
 		}
     }
 

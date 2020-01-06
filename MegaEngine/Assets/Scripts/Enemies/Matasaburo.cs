@@ -5,30 +5,31 @@ using System.Collections.Generic;
 
 public class Matasaburo : MonoBehaviour 
 {
-	#region Variables
+    #region Variables
 
-	// Unity Editor Variables
-	[SerializeField] protected float windRange = 12.0f;
-	[SerializeField] protected float windPower = 250.0f;
+    // Unity Editor Variables
+    public GameObject powerup;
+	[SerializeField] private float windRange = 12.0f;
+	[SerializeField] private float windPower = 250.0f;
 
-	// Protected Instance Variables
-	protected bool armsUp = false;
-	protected bool weaponActivated = false;
-	protected bool isTurningLeft = true;
-	protected bool isDead = false;
-	protected int damage = 30;
-	protected int health = 30;
-	protected int texIndex;
-	protected int currentHealth;
+	// private Instance Variables
+	private bool armsUp = false;
+	private bool weaponActivated = false;
+	private bool isTurningLeft = true;
+	private bool isDead = false;
+	private int damage = 6;
+	private int health = 30;
+	private int texIndex;
+	private int currentHealth;
 
-	protected float distanceToPlayer;
-	protected float texChangeTimer;
-	protected float texArmsUpInterval = 0.1f;
-	protected float texArmsDownInterval = 0.1f;
-	protected Vector2 texScale = new Vector2(-1.0f, -1.0f);
-	protected Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
-	protected Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
-	protected Vector3 windDirection = new Vector3(-1.0f, 0f, 0f);
+	private float distanceToPlayer;
+	private float texChangeTimer;
+	private float texArmsUpInterval = 0.1f;
+	private float texArmsDownInterval = 0.1f;
+	private Vector2 texScale = new Vector2(-1.0f, -1.0f);
+	private Vector2 texScaleRight = new Vector2(1.0f, -1.0f);
+	private Vector2 texScaleLeft = new Vector2(-1.0f, -1.0f);
+	private Vector3 windDirection = new Vector3(-1.0f, 0f, 0f);
     private Animator anim = null;
 	#endregion
 
@@ -36,21 +37,21 @@ public class Matasaburo : MonoBehaviour
 	#region MonoBehaviour
 
 	// Constructor
-	protected void Awake() 
+	private void Awake() 
 	{
         //Assert.IsTrue(animationMaterials.Count == 4);
         anim = GetComponent<Animator>();
 	}
 
 	// Use this for initialization
-	protected void Start() 
+	private void Start() 
 	{
 		texChangeTimer = Time.time;
 		currentHealth = health;
 	}
 
 	// Update is called once per frame
-	protected void Update() 
+	private void Update() 
 	{
 		if (isDead == false)
 		{
@@ -83,14 +84,18 @@ public class Matasaburo : MonoBehaviour
 			AssignTexture();
 		}
 	}
+    private void OnDestroy()
+    {
+        Instantiate(powerup, transform);
+    }
 
-	#endregion
+    #endregion
 
 
-	#region Protected Functions
+    #region private Functions
 
-	//
-	protected void KillRobot()
+    //
+    private void KillRobot()
 	{
 		isDead = true;
 		GetComponent<Renderer>().enabled = false;
@@ -98,7 +103,7 @@ public class Matasaburo : MonoBehaviour
 	}
 	
 	//
-	protected void OnTriggerStay2D(Collider2D other) 
+	private void OnTriggerStay2D(Collider2D other) 
 	{
 		if (other.tag == "Player")
 		{
@@ -107,7 +112,7 @@ public class Matasaburo : MonoBehaviour
 	}
 	
 	// Make the robot take damage
-	protected void TakeDamage(int damageTaken)
+	private void TakeDamage(int damageTaken)
 	{
 		GameEngine.SoundManager.Play(AirmanLevelSounds.BOSS_HURTING);
 		currentHealth -= damageTaken;
@@ -120,13 +125,13 @@ public class Matasaburo : MonoBehaviour
 	}
 	
 	//
-	protected void SendWindInfoToPlayer()
+	private void SendWindInfoToPlayer()
 	{
 		GameEngine.Player.ExternalForce = windDirection * windPower;
 	}
 	
 	// Turn on the wind weapon
-	protected void TurnWindWeaponOn()
+	private void TurnWindWeaponOn()
 	{
 		weaponActivated = true;
 		GameEngine.Player.IsExternalForceActive = true;
@@ -134,14 +139,14 @@ public class Matasaburo : MonoBehaviour
 	}
 	
 	// Turn off the wind weapon
-	protected void TurnWindWeaponOff()
+	private void TurnWindWeaponOff()
 	{
 		GameEngine.Player.IsExternalForceActive = false;
 		weaponActivated = false;
 	}
 	
 	//
-	protected void MakeRobotTurnLeft()
+	private void MakeRobotTurnLeft()
 	{
 		isTurningLeft = true;
 		texScale = texScaleLeft;
@@ -150,7 +155,7 @@ public class Matasaburo : MonoBehaviour
 	}
 	
 	//
-	protected void MakeRobotTurnRight()
+	private void MakeRobotTurnRight()
 	{
 		isTurningLeft = false;
 		texScale = texScaleRight;
@@ -159,7 +164,7 @@ public class Matasaburo : MonoBehaviour
 	}
 
 	//  Three textures are used to simulate animation on the robot TODO
-	protected void AssignTexture()
+	private void AssignTexture()
 	{
         anim.Play("Idle");
 		//if (armsUp == true)

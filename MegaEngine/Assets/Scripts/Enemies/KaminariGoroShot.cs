@@ -19,17 +19,17 @@ public class KaminariGoroShot : MonoBehaviour
     }
     public float Speed { set { speed = value; } }
 
-    // Protected Instance Variables
-    protected Vector3 targetDirection;
-    protected float lifeSpan = 3f;
-    protected float damage = 10f;
-    protected float speed = 150f;
-    protected float timeStart;
-    protected Vector3 moveVector;
-    [SerializeField] protected float gravity = 118f;
-    [SerializeField] protected float jumpAmount = 10.0f;
+    // private Instance Variables
+    private Vector3 targetDirection;
+    private float lifeSpan = 3f;
+    private float damage = 2;
+    private float speed = 150f;
+    private float timeStart;
+    private Vector3 moveVector;
+    [SerializeField] private float gravity = 118f;
+    [SerializeField] private float jumpAmount = 10.0f;
     public Transform target;
-    protected float verticalVelocity;
+    private float verticalVelocity;
     private SpriteRenderer spriteRenderer;
 
 
@@ -39,7 +39,7 @@ public class KaminariGoroShot : MonoBehaviour
     #region MonoBehaviour
 
     /* Use this for initialization */
-    protected void Start()
+    private void Start()
     {
         timeStart = Time.time;
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -49,7 +49,7 @@ public class KaminariGoroShot : MonoBehaviour
     }
 
     /* Update is called once per frame */
-    protected void Update()
+    private void Update()
     {
         verticalVelocity = moveVector.y;
         moveVector = (target.position - transform.position);
@@ -68,13 +68,13 @@ public class KaminariGoroShot : MonoBehaviour
 	}
 	
 	// Called when the Collider other enters the trigger.
-	protected void OnTriggerEnter2D(Collider2D other) 
+	private void OnTriggerEnter2D(Collider2D other) 
 	{
 		InflictDamage(other.gameObject);
 	}
 	
 	// 
-	protected void OnCollisionEnter2D(Collision2D collision) 
+	private void OnCollisionEnter2D(Collision2D collision) 
 	{
 		InflictDamage(collision.gameObject);
 	}
@@ -82,15 +82,15 @@ public class KaminariGoroShot : MonoBehaviour
     #endregion
 
 
-    #region Protected Functions
+    #region private Functions
 
-    protected void ApplyGravity()
+    private void ApplyGravity()
     {
         moveVector = new Vector3(moveVector.x, (moveVector.y - gravity * Time.deltaTime), moveVector.z);
     }
 
     // 
-    protected void InflictDamage(GameObject objectHit)
+    private void InflictDamage(GameObject objectHit)
 	{
 		if (objectHit.tag == "Player")
 		{
